@@ -20,7 +20,6 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA */
 
-
 #ifndef MEM_ROOT_ARRAY_INCLUDED
 #define MEM_ROOT_ARRAY_INCLUDED
 
@@ -50,10 +49,10 @@
           __has_trivial_destructor is supported by some (but not all)
           compilers we use.
 */
-template<typename Element_type, bool has_trivial_destructor = true>
+template <typename Element_type, bool has_trivial_destructor = true>
 class Mem_root_array_YY
 {
-public:
+ public:
   /// Convenience typedef, same typedef name as std::vector
   typedef Element_type value_type;
 
@@ -61,10 +60,10 @@ public:
   {
     assert(root != NULL);
 
-    m_root= root;
-    m_array= NULL;
-    m_size= 0;
-    m_capacity= 0;
+    m_root = root;
+    m_array = NULL;
+    m_size = 0;
+    m_capacity = 0;
   }
 
   /**
@@ -73,7 +72,7 @@ public:
   */
   void set_mem_root(MEM_ROOT *new_root)
   {
-    m_root= new_root;
+    m_root = new_root;
     assert(m_root != NULL);
   }
 
@@ -107,7 +106,7 @@ public:
   Element_type *end() { return &m_array[size()]; }
   const Element_type *end() const { return &m_array[size()]; }
 
-  /// Erases all of the elements. 
+  /// Erases all of the elements.
   void clear()
   {
     if (!empty())
@@ -123,13 +122,13 @@ public:
     assert(pos < m_size);
     if (!has_trivial_destructor)
     {
-      for (size_t ix= pos; ix < m_size; ++ix)
+      for (size_t ix = pos; ix < m_size; ++ix)
       {
-        Element_type *p= &m_array[ix];
-        p->~Element_type();              // Destroy discarded element.
+        Element_type *p = &m_array[ix];
+        p->~Element_type();  // Destroy discarded element.
       }
     }
-    m_size= pos;
+    m_size = pos;
   }
 
   /**
@@ -144,24 +143,24 @@ public:
     if (n <= m_capacity)
       return false;
 
-    void *mem= alloc_root(m_root, n * element_size());
+    void *mem = alloc_root(m_root, n * element_size());
     if (!mem)
       return true;
-    Element_type *array= static_cast<Element_type*>(mem);
+    Element_type *array = static_cast<Element_type *>(mem);
 
     // Copy all the existing elements into the new array.
-    for (size_t ix= 0; ix < m_size; ++ix)
+    for (size_t ix = 0; ix < m_size; ++ix)
     {
-      Element_type *new_p= &array[ix];
-      Element_type *old_p= &m_array[ix];
-      ::new (new_p) Element_type(*old_p);   // Copy into new location.
+      Element_type *new_p = &array[ix];
+      Element_type *old_p = &m_array[ix];
+      ::new (new_p) Element_type(*old_p);  // Copy into new location.
       if (!has_trivial_destructor)
-        old_p->~Element_type();             // Destroy the old element.
+        old_p->~Element_type();  // Destroy the old element.
     }
 
     // Forget the old array.
-    m_array= array;
-    m_capacity= n;
+    m_array = array;
+    m_capacity = n;
     return false;
   }
 
@@ -175,13 +174,13 @@ public:
   */
   bool push_back(const Element_type &element)
   {
-    const size_t min_capacity= 20;
-    const size_t expansion_factor= 2;
+    const size_t min_capacity = 20;
+    const size_t expansion_factor = 2;
     if (0 == m_capacity && reserve(min_capacity))
       return true;
     if (m_size == m_capacity && reserve(m_capacity * expansion_factor))
       return true;
-    Element_type *p= &m_array[m_size++];
+    Element_type *p = &m_array[m_size++];
     ::new (p) Element_type(element);
     return false;
   }
@@ -195,7 +194,7 @@ public:
     assert(!empty());
     if (!has_trivial_destructor)
       back().~Element_type();
-    m_size-= 1;
+    m_size -= 1;
   }
 
   /**
@@ -217,7 +216,7 @@ public:
     Notice that this function changes the actual content of the
     container by inserting or erasing elements from it.
    */
-  void resize(size_t n, const value_type &val= value_type())
+  void resize(size_t n, const value_type &val = value_type())
   {
     if (n == m_size)
       return;
@@ -225,64 +224,55 @@ public:
     {
       if (!reserve(n))
       {
-        while (n != m_size)
-          push_back(val);
+        while (n != m_size) push_back(val);
       }
       return;
     }
     if (!has_trivial_destructor)
     {
-      while (n != m_size)
-        pop_back();
+      while (n != m_size) pop_back();
     }
-    m_size= n;
+    m_size = n;
   }
 
-  size_t capacity()     const { return m_capacity; }
+  size_t capacity() const { return m_capacity; }
   size_t element_size() const { return sizeof(Element_type); }
-  bool   empty()        const { return size() == 0; }
-  size_t size()         const { return m_size; }
+  bool empty() const { return size() == 0; }
+  size_t size() const { return m_size; }
 
-private:
-  MEM_ROOT       *m_root;
-  Element_type   *m_array;
-  size_t          m_size;
-  size_t          m_capacity;
+ private:
+  MEM_ROOT *m_root;
+  Element_type *m_array;
+  size_t m_size;
+  size_t m_capacity;
 
   // No CTOR/DTOR for this class!
   // Mem_root_array_YY(const Mem_root_array_YY&);
   // Mem_root_array_YY &operator=(const Mem_root_array_YY&);
 };
 
-
-template<typename Element_type, bool has_trivial_destructor = true>
-class Mem_root_array : public Mem_root_array_YY<Element_type,
-                                                has_trivial_destructor>
+template <typename Element_type, bool has_trivial_destructor = true>
+class Mem_root_array : public Mem_root_array_YY<Element_type, has_trivial_destructor>
 {
   typedef Mem_root_array_YY<Element_type, has_trivial_destructor> super;
-public:
+
+ public:
   /// Convenience typedef, same typedef name as std::vector
   typedef Element_type value_type;
 
-  explicit Mem_root_array(MEM_ROOT *root)
-  {
-    super::init(root);
-  }
-  Mem_root_array(MEM_ROOT *root, size_t n, const value_type &val= value_type())
+  explicit Mem_root_array(MEM_ROOT *root) { super::init(root); }
+  Mem_root_array(MEM_ROOT *root, size_t n, const value_type &val = value_type())
   {
     super::init(root);
     super::resize(n, val);
   }
 
-  ~Mem_root_array()
-  {
-    super::clear();
-  }
-private:
-  // Not (yet) implemented.
-  Mem_root_array(const Mem_root_array&);
-  Mem_root_array &operator=(const Mem_root_array&);
-};
+  ~Mem_root_array() { super::clear(); }
 
+ private:
+  // Not (yet) implemented.
+  Mem_root_array(const Mem_root_array &);
+  Mem_root_array &operator=(const Mem_root_array &);
+};
 
 #endif  // MEM_ROOT_ARRAY_INCLUDED

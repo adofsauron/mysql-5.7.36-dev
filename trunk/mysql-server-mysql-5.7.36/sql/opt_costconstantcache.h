@@ -34,7 +34,7 @@ class Cost_model_constants;
   sessions access to the latest versions of the cost constants, and
   for re-reading the cost constant tables in the case where these have
   been updated.
- 
+
   The cost constant cache keeps a copy of the current set of cost
   constants. Each time a new session initializes its Cost_model_server
   object (by calling Cost_model_server::init() in lex_start()), the
@@ -54,7 +54,7 @@ class Cost_model_constants;
 
 class Cost_constant_cache
 {
-public:
+ public:
   /**
     Creates an empty cost constant cache. To initialize it with default
     cost constants, ::init() must be called. To use cost constants from
@@ -142,12 +142,11 @@ public:
       The reason for using a const cast here is to be able to keep
       the cost constant object const outside of this module.
     */
-    Cost_model_constants *cost=
-      const_cast<Cost_model_constants*>(cost_constants);
+    Cost_model_constants *cost = const_cast<Cost_model_constants *>(cost_constants);
 
     mysql_mutex_lock(&LOCK_cost_const);
 
-    const unsigned int ref_count= cost->dec_ref_count();
+    const unsigned int ref_count = cost->dec_ref_count();
 
     mysql_mutex_unlock(&LOCK_cost_const);
 
@@ -156,7 +155,7 @@ public:
       delete cost;
   }
 
-private:
+ private:
   /**
     Create default cost constants.
 
@@ -188,7 +187,6 @@ private:
   bool m_inited;
 };
 
-
 /**
   Initializes the optimizer cost module. This should be done during
   startup from mysqld.cc.
@@ -212,4 +210,4 @@ void delete_optimizer_cost_module();
 */
 void reload_optimizer_cost_constants();
 
-#endif  /* OPT_COSTCONSTANTCACHE_INCLUDED */
+#endif /* OPT_COSTCONSTANTCACHE_INCLUDED */

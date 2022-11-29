@@ -54,17 +54,17 @@ class THD;
   The recommended name of a derived class of Sql_cmd is Sql_cmd_<derived>.
 
   Notice that the Sql_cmd class should not be confused with the Statement class.
-  Statement is a class that is used to manage an SQL command or a set 
+  Statement is a class that is used to manage an SQL command or a set
   of SQL commands. When the SQL statement text is analyzed, the parser will
   create one or more Sql_cmd objects to represent the actual SQL commands.
 */
 class Sql_cmd : public Sql_alloc
 {
-private:
-  Sql_cmd(const Sql_cmd &);         // No copy constructor wanted
-  void operator=(Sql_cmd &);        // No assignment operator wanted
+ private:
+  Sql_cmd(const Sql_cmd &);   // No copy constructor wanted
+  void operator=(Sql_cmd &);  // No assignment operator wanted
 
-public:
+ public:
   /**
     @brief Return the command code for this statement
   */
@@ -89,9 +89,8 @@ public:
   */
   virtual void cleanup(THD *thd) {}
 
-protected:
-  Sql_cmd()
-  {}
+ protected:
+  Sql_cmd() {}
 
   virtual ~Sql_cmd()
   {
@@ -105,4 +104,4 @@ protected:
   }
 };
 
-#endif // SQL_CMD_INCLUDED
+#endif  // SQL_CMD_INCLUDED

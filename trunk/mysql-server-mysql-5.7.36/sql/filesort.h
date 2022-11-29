@@ -23,9 +23,9 @@
 #ifndef FILESORT_INCLUDED
 #define FILESORT_INCLUDED
 
-#include "my_global.h"                          /* uint, uchar */
-#include "my_base.h"                            /* ha_rows */
-#include "sql_list.h"                           /* Sql_alloc */
+#include "my_global.h" /* uint, uchar */
+#include "my_base.h"   /* ha_rows */
+#include "sql_list.h"  /* Sql_alloc */
 class THD;
 struct TABLE;
 struct st_sort_field;
@@ -33,15 +33,14 @@ struct st_order;
 class Addon_fields;
 class Field;
 
-
 class QEP_TAB;
 
 /**
   Sorting related info.
 */
-class Filesort: public Sql_alloc
+class Filesort : public Sql_alloc
 {
-public:
+ public:
   /// The QEP entry for the table to be sorted
   QEP_TAB *const tab;
   /// List of expressions to order the table by
@@ -55,13 +54,8 @@ public:
   /// Addon fields descriptor
   Addon_fields *addon_fields;
 
-  Filesort(QEP_TAB *tab_arg, st_order *order_arg, ha_rows limit_arg):
-    tab(tab_arg),
-    order(order_arg),
-    limit(limit_arg),
-    sortorder(NULL),
-    using_pq(false),
-    addon_fields(NULL)
+  Filesort(QEP_TAB *tab_arg, st_order *order_arg, ha_rows limit_arg)
+      : tab(tab_arg), order(order_arg), limit(limit_arg), sortorder(NULL), using_pq(false), addon_fields(NULL)
   {
     assert(order);
   };
@@ -69,22 +63,19 @@ public:
   /* Prepare ORDER BY list for sorting. */
   uint make_sortorder();
 
-  Addon_fields *get_addon_fields(ulong max_length_for_sort_data,
-                                 Field **ptabfield,
-                                 uint sortlength, uint *plength,
+  Addon_fields *get_addon_fields(ulong max_length_for_sort_data, Field **ptabfield, uint sortlength, uint *plength,
                                  uint *ppackable_length);
-private:
+
+ private:
   void cleanup();
 };
 
-bool filesort(THD *thd, Filesort *fsort, bool sort_positions,
-              ha_rows *examined_rows, ha_rows *found_rows,
+bool filesort(THD *thd, Filesort *fsort, bool sort_positions, ha_rows *examined_rows, ha_rows *found_rows,
               ha_rows *returned_rows);
 void filesort_free_buffers(TABLE *table, bool full);
-void change_double_for_sort(double nr,uchar *to);
+void change_double_for_sort(double nr, uchar *to);
 
 /// Declared here so we can unit test it.
-uint sortlength(THD *thd, st_sort_field *sortorder, uint s_length,
-                bool *multi_byte_charset, bool *use_hash);
+uint sortlength(THD *thd, st_sort_field *sortorder, uint s_length, bool *multi_byte_charset, bool *use_hash);
 
 #endif /* FILESORT_INCLUDED */

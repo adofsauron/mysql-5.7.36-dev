@@ -47,22 +47,13 @@ struct TABLE_LIST;
 
 bool mysql_create_or_drop_trigger(THD *thd, TABLE_LIST *tables, bool create);
 
-bool add_table_for_trigger(THD *thd,
-                           const LEX_CSTRING &db_name,
-                           const LEX_STRING &trigger_name,
-                           bool continue_if_not_exist,
-                           TABLE_LIST **table);
+bool add_table_for_trigger(THD *thd, const LEX_CSTRING &db_name, const LEX_STRING &trigger_name,
+                           bool continue_if_not_exist, TABLE_LIST **table);
 
-bool change_trigger_table_name(THD *thd,
-                               const char *db_name,
-                               const char *table_alias,
-                               const char *table_name,
-                               const char *new_db_name,
-                               const char *new_table_name);
+bool change_trigger_table_name(THD *thd, const char *db_name, const char *table_alias, const char *table_name,
+                               const char *new_db_name, const char *new_table_name);
 
-bool drop_all_triggers(THD *thd,
-                       const char *db_name,
-                       const char *table_name);
+bool drop_all_triggers(THD *thd, const char *db_name, const char *table_name);
 
 ///////////////////////////////////////////////////////////////////////////
 

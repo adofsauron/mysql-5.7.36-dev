@@ -24,7 +24,7 @@
 #ifndef _SP_CACHE_H_
 #define _SP_CACHE_H_
 
-#include "my_global.h"                          /* ulong */
+#include "my_global.h" /* ulong */
 
 /*
   Stored procedures/functions cache. This is used as follows:

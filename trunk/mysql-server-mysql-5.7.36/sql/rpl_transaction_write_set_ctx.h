@@ -97,7 +97,7 @@
 */
 class Rpl_transaction_write_set_ctx
 {
-public:
+ public:
   Rpl_transaction_write_set_ctx();
   virtual ~Rpl_transaction_write_set_ctx() {}
 
@@ -164,7 +164,7 @@ public:
 
     @param[in] name - the identifier name of the SAVEPOINT.
   */
-  void add_savepoint(char* name);
+  void add_savepoint(char *name);
 
   /**
     Function to delete a SAVEPOINT identifier in the savepoint map in the
@@ -172,7 +172,7 @@ public:
 
     @param[in] name - the identifier name of the SAVEPOINT.
   */
-  void del_savepoint(char* name);
+  void del_savepoint(char *name);
 
   /**
     Function to delete all data added to write set and savepoint since
@@ -180,7 +180,7 @@ public:
 
     @param[in] name - the identifier name of the SAVEPOINT.
   */
-  void rollback_to_savepoint(char* name);
+  void rollback_to_savepoint(char *name);
 
   /**
     Function to push savepoint data to a list and clear the savepoint map in
@@ -235,7 +235,7 @@ public:
   */
   void set_local_allow_drop_write_set(bool allow_drop_write_set);
 
-private:
+ private:
   /*
     Clear the vector that stores the PKEs, and clear the savepoints, but do not
     restore all the flags. Outside transaction cleanup, this is used when
@@ -260,7 +260,7 @@ private:
     Create a savepoint context hierarchy to support encapsulation of
     identifier name when function or trigger are executed.
   */
-  std::list<std::map<std::string, size_t> > savepoint_list;
+  std::list<std::map<std::string, size_t>> savepoint_list;
 
   // Write set restriction variables
 
@@ -285,4 +285,4 @@ private:
   bool m_local_has_reached_write_set_limit;
 };
 
-#endif	/* RPL_TRANSACTION_WRITE_SET_CTX_H */
+#endif /* RPL_TRANSACTION_WRITE_SET_CTX_H */

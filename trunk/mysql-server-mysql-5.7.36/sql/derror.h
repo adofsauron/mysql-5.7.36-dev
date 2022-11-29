@@ -23,7 +23,7 @@
 #ifndef DERROR_INCLUDED
 #define DERROR_INCLUDED
 
-#include "my_global.h"                          /* uint */
+#include "my_global.h" /* uint */
 #ifdef EXTRA_CODE_FOR_UNIT_TESTING
 #include "mysqld_error.h"
 #endif
@@ -35,10 +35,8 @@ class MY_LOCALE_ERRMSGS
   const char *language;
   const char **errmsgs;
 
-public:
-  MY_LOCALE_ERRMSGS(const char *lang_par)
-    : language(lang_par), errmsgs(NULL)
-  {}
+ public:
+  MY_LOCALE_ERRMSGS(const char *lang_par) : language(lang_par), errmsgs(NULL) {}
 
   /** Return error message string for a given error number. */
   const char *lookup(int mysql_errno);
@@ -46,17 +44,16 @@ public:
 #ifdef EXTRA_CODE_FOR_UNIT_TESTING
   bool replace_msg(int mysql_errno, const char *new_msg)
   {
-    int offset= 0; // Position where the current section starts in the array.
-    int num_sections= sizeof(errmsg_section_start) /
-      sizeof(errmsg_section_start[0]);
-    for (int i= 0; i < num_sections; i++)
+    int offset = 0;  // Position where the current section starts in the array.
+    int num_sections = sizeof(errmsg_section_start) / sizeof(errmsg_section_start[0]);
+    for (int i = 0; i < num_sections; i++)
     {
       if (mysql_errno < (errmsg_section_start[i] + errmsg_section_size[i]))
       {
-        errmsgs[mysql_errno - errmsg_section_start[i] + offset]= new_msg;
+        errmsgs[mysql_errno - errmsg_section_start[i] + offset] = new_msg;
         return false;
       }
-      offset+= errmsg_section_size[i];
+      offset += errmsg_section_size[i];
     }
     return true;
   }
@@ -74,8 +71,8 @@ public:
   const char *get_language() const { return language; }
 };
 
-const char* ER_DEFAULT(int mysql_errno);
-const char* ER_THD(const THD *thd, int mysql_errno);
+const char *ER_DEFAULT(int mysql_errno);
+const char *ER_THD(const THD *thd, int mysql_errno);
 
 /**
   Read the error message file, initialize and register error messages

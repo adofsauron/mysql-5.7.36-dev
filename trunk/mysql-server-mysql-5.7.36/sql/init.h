@@ -23,7 +23,7 @@
 #ifndef INIT_INCLUDED
 #define INIT_INCLUDED
 
-#include "my_global.h"                          /* ulong */
+#include "my_global.h" /* ulong */
 
 void unireg_init(ulong options);
 

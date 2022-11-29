@@ -34,7 +34,6 @@
 
 class View_change_log_event;
 
-
 /*
   Group Replication plugin handler function accessors.
 */
@@ -45,14 +44,10 @@ int group_replication_stop();
 bool is_group_replication_running();
 int set_group_replication_retrieved_certification_info(View_change_log_event *view_change_event);
 
-bool get_group_replication_connection_status_info(
-    const GROUP_REPLICATION_CONNECTION_STATUS_CALLBACKS& callbacks);
-bool get_group_replication_group_members_info(
-    unsigned int index,
-    const GROUP_REPLICATION_GROUP_MEMBERS_CALLBACKS& callbacks);
-bool get_group_replication_group_member_stats_info(
-    const GROUP_REPLICATION_GROUP_MEMBER_STATS_CALLBACKS& callbacks);
+bool get_group_replication_connection_status_info(const GROUP_REPLICATION_CONNECTION_STATUS_CALLBACKS &callbacks);
+bool get_group_replication_group_members_info(unsigned int index,
+                                              const GROUP_REPLICATION_GROUP_MEMBERS_CALLBACKS &callbacks);
+bool get_group_replication_group_member_stats_info(const GROUP_REPLICATION_GROUP_MEMBER_STATS_CALLBACKS &callbacks);
 unsigned int get_group_replication_members_number_info();
-
 
 #endif /* RPL_GROUP_REPLICATION_INCLUDED */

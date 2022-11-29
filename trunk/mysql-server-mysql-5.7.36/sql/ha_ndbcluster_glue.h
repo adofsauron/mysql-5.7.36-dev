@@ -31,14 +31,14 @@
 #define MYSQL_SERVER
 #endif
 
-#include "sql_table.h"      // build_table_filename,
-                            // tablename_to_filename,
-                            // filename_to_tablename
-#include "sql_partition.h"  // HA_CAN_*, part_id_range
-#include "partition_info.h" // partition_info
-#include "sql_base.h"       // close_cached_tables
-#include "discover.h"       // readfrm
-#include "auth_common.h"    // wild_case_compare
+#include "sql_table.h"       // build_table_filename,
+                             // tablename_to_filename,
+                             // filename_to_tablename
+#include "sql_partition.h"   // HA_CAN_*, part_id_range
+#include "partition_info.h"  // partition_info
+#include "sql_base.h"        // close_cached_tables
+#include "discover.h"        // readfrm
+#include "auth_common.h"     // wild_case_compare
 #include "transaction.h"
 #include "item_cmpfunc.h"   // Item_func_like
 #include "sql_test.h"       // print_where
@@ -48,18 +48,13 @@
 #include "log_event.h"      // my_strmov_quoted_identifier
 #include "log.h"            // sql_print_error
 
-#include "sql_show.h"       // init_fill_schema_files_row,
-                            // schema_table_store_record
-
+#include "sql_show.h"  // init_fill_schema_files_row,
+                       // schema_table_store_record
 
 #if MYSQL_VERSION_ID >= 50501
 
 /* my_free has lost last argument */
-static inline
-void my_free(void* ptr, myf MyFlags)
-{
-  my_free(ptr);
-}
+static inline void my_free(void *ptr, myf MyFlags) { my_free(ptr); }
 
 /* thd has no version field anymore */
 #define NDB_THD_HAS_NO_VERSION
@@ -69,18 +64,15 @@ void my_free(void* ptr, myf MyFlags)
 
 #endif
 
-static inline
-uint32 thd_unmasked_server_id(const THD* thd)
+static inline uint32 thd_unmasked_server_id(const THD *thd)
 {
   const uint32 unmasked_server_id = thd->unmasked_server_id;
   assert(thd->server_id == (thd->unmasked_server_id & opt_server_id_mask));
   return unmasked_server_id;
 }
 
-
 /* extract the bitmask of options from THD */
-static inline
-ulonglong thd_options(const THD * thd)
+static inline ulonglong thd_options(const THD *thd)
 {
 #if MYSQL_VERSION_ID < 50500
   return thd->options;
@@ -91,8 +83,7 @@ ulonglong thd_options(const THD * thd)
 }
 
 /* set the "command" member of thd */
-static inline
-void thd_set_command(THD* thd, enum enum_server_command command)
+static inline void thd_set_command(THD *thd, enum enum_server_command command)
 {
 #if MYSQL_VERSION_ID < 50600
   thd->command = command;
@@ -103,8 +94,7 @@ void thd_set_command(THD* thd, enum enum_server_command command)
 }
 
 /* get pointer to Diagnostics Area for statement from THD */
-static inline
-Diagnostics_area* thd_stmt_da(THD* thd)
+static inline Diagnostics_area *thd_stmt_da(THD *thd)
 {
 #if MYSQL_VERSION_ID < 50500
   return &(thd->main_da);
@@ -129,35 +119,17 @@ Diagnostics_area* thd_stmt_da(THD* thd)
 
 typedef pthread_mutex_t mysql_mutex_t;
 
-static inline
-int mysql_mutex_lock(mysql_mutex_t* mutex)
-{
-  return pthread_mutex_lock(mutex);
-}
+static inline int mysql_mutex_lock(mysql_mutex_t *mutex) { return pthread_mutex_lock(mutex); }
 
-static inline
-int mysql_mutex_unlock(mysql_mutex_t* mutex)
-{
-  return pthread_mutex_unlock(mutex);
-}
+static inline int mysql_mutex_unlock(mysql_mutex_t *mutex) { return pthread_mutex_unlock(mutex); }
 
-static inline
-void mysql_mutex_assert_owner(mysql_mutex_t* mutex)
-{
-  return safe_mutex_assert_owner(mutex);
-}
+static inline void mysql_mutex_assert_owner(mysql_mutex_t *mutex) { return safe_mutex_assert_owner(mutex); }
 
 typedef pthread_cond_t mysql_cond_t;
 
-static inline
-int mysql_cond_wait(mysql_cond_t* cond, mysql_mutex_t* mutex)
-{
-  return pthread_cond_wait(cond, mutex);
-}
+static inline int mysql_cond_wait(mysql_cond_t *cond, mysql_mutex_t *mutex) { return pthread_cond_wait(cond, mutex); }
 
-static inline
-int mysql_cond_timedwait(mysql_cond_t* cond, mysql_mutex_t* mutex,
-                         struct timespec* abstime)
+static inline int mysql_cond_timedwait(mysql_cond_t *cond, mysql_mutex_t *mutex, struct timespec *abstime)
 {
   return pthread_cond_timedwait(cond, mutex, abstime);
 }

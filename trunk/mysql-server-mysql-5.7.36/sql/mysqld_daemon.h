@@ -27,8 +27,8 @@ namespace mysqld
 {
 namespace runtime
 {
-  int mysqld_daemonize();
-  void signal_parent(int pipe_write_fd, char status);
-}
-}
-#endif // MYSQLD_DAEMON_INCLUDED
+int mysqld_daemonize();
+void signal_parent(int pipe_write_fd, char status);
+}  // namespace runtime
+}  // namespace mysqld
+#endif  // MYSQLD_DAEMON_INCLUDED

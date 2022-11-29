@@ -24,14 +24,13 @@
 #define RPL_REPORTING_H
 
 #include "my_global.h"
-#include "my_sys.h"                   // my_time
-#include "mysql/psi/mysql_thread.h"   // mysql_mutex_t
-
+#include "my_sys.h"                  // my_time
+#include "mysql/psi/mysql_thread.h"  // mysql_mutex_t
 
 /**
    Maximum size of an error message from a slave thread.
  */
-#define MAX_SLAVE_ERRMSG      1024
+#define MAX_SLAVE_ERRMSG 1024
 
 // todo: consider to remove rpl_reporting.cc,h from building embedded
 #if !defined(EMBEDDED_LIBRARY)
@@ -47,7 +46,7 @@ class THD;
  */
 class Slave_reporting_capability
 {
-public:
+ public:
   /** lock used to synchronize m_last_error on 'SHOW SLAVE STATUS' **/
   mutable mysql_mutex_t err_lock;
   /**
@@ -67,16 +66,15 @@ public:
                         code, but can contain more information), in
                         printf() format.
   */
-  virtual void report(loglevel level, int err_code, const char *msg, ...) const
-    MY_ATTRIBUTE((format(printf, 4, 5)));
-  void va_report(loglevel level, int err_code, const char *prefix_msg,
-                 const char *msg, va_list v_args) const;
+  virtual void report(loglevel level, int err_code, const char *msg, ...) const MY_ATTRIBUTE((format(printf, 4, 5)));
+  void va_report(loglevel level, int err_code, const char *prefix_msg, const char *msg, va_list v_args) const;
 
   /**
      Clear errors. They will not show up under <code>SHOW SLAVE
      STATUS</code>.
    */
-  void clear_error() {
+  void clear_error()
+  {
     mysql_mutex_lock(&err_lock);
     m_last_error.clear();
     mysql_mutex_unlock(&err_lock);
@@ -86,26 +84,24 @@ public:
   /**
      Check if the current error is of temporary nature or not.
   */
-  int has_temporary_error(THD *thd, uint error_arg= 0, bool* silent= 0) const;
-#endif // EMBEDDED_LIBRARY
-  
+  int has_temporary_error(THD *thd, uint error_arg = 0, bool *silent = 0) const;
+#endif  // EMBEDDED_LIBRARY
+
   /**
      Error information structure.
    */
-  class Error {
+  class Error
+  {
     friend class Slave_reporting_capability;
-  public:
-    Error()
-    {
-      clear();
-    }
+
+   public:
+    Error() { clear(); }
 
     void clear()
     {
-      number= 0;
-      message[0]= '\0';
-      timestamp[0]= '\0';
-
+      number = 0;
+      message[0] = '\0';
+      timestamp[0] = '\0';
     }
 
     void update_timestamp()
@@ -113,18 +109,13 @@ public:
       struct tm tm_tmp;
       struct tm *start;
 
-      skr= my_time(0);
+      skr = my_time(0);
       localtime_r(&skr, &tm_tmp);
-      start=&tm_tmp;
+      start = &tm_tmp;
 
-      sprintf(timestamp, "%02d%02d%02d %02d:%02d:%02d",
-              start->tm_year % 100,
-              start->tm_mon+1,
-              start->tm_mday,
-              start->tm_hour,
-              start->tm_min,
-              start->tm_sec);
-      timestamp[15]= '\0';
+      sprintf(timestamp, "%02d%02d%02d %02d:%02d:%02d", start->tm_year % 100, start->tm_mon + 1, start->tm_mday,
+              start->tm_hour, start->tm_min, start->tm_sec);
+      timestamp[15] = '\0';
     }
 
     /** Error code */
@@ -135,29 +126,25 @@ public:
     char timestamp[64];
     /** Error timestamp as time_t variable. Used in performance_schema */
     time_t skr;
-
   };
 
-  Error const& last_error() const { return m_last_error; }
+  Error const &last_error() const { return m_last_error; }
   bool is_error() const { return last_error().number != 0; }
 
+  /*
+    For MSR, there is a need to introduce error messages per channel.
+    Instead of changing the error messages in share/errmsg-utf8.txt to
+    introduce the clause, FOR CHANNEL "%s", we construct a string like this.
+    There might be problem with a client applications which could print
+    error messages and see no %s.
+    @TODO: fix this.
+  */
+  virtual const char *get_for_channel_str(bool upper_case) const = 0;
 
- /*
-   For MSR, there is a need to introduce error messages per channel.
-   Instead of changing the error messages in share/errmsg-utf8.txt to
-   introduce the clause, FOR CHANNEL "%s", we construct a string like this.
-   There might be problem with a client applications which could print
-   error messages and see no %s.
-   @TODO: fix this.
- */
-  virtual const char* get_for_channel_str(bool upper_case) const = 0;
+  virtual ~Slave_reporting_capability() = 0;
 
-  virtual ~Slave_reporting_capability()= 0;
-
-protected:
-
-  virtual void do_report(loglevel level, int err_code,
-                 const char *msg, va_list v_args) const
+ protected:
+  virtual void do_report(loglevel level, int err_code, const char *msg, va_list v_args) const
   {
     va_report(level, err_code, NULL, msg, v_args);
   }
@@ -167,16 +154,14 @@ protected:
    */
   mutable Error m_last_error;
 
-private:
-
+ private:
   char const *const m_thread_name;
 
-  char channel_str[100]; // FOR CHANNEL="max_64_size"
+  char channel_str[100];  // FOR CHANNEL="max_64_size"
 
   // not implemented
-  Slave_reporting_capability(const Slave_reporting_capability& rhs);
-  Slave_reporting_capability& operator=(const Slave_reporting_capability& rhs);
+  Slave_reporting_capability(const Slave_reporting_capability &rhs);
+  Slave_reporting_capability &operator=(const Slave_reporting_capability &rhs);
 };
 
-#endif // RPL_REPORTING_H
-
+#endif  // RPL_REPORTING_H

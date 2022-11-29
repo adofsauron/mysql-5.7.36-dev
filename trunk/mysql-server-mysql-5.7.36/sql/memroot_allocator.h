@@ -28,7 +28,6 @@
 #include <new>
 #include <limits>
 
-
 /**
   Memroot_allocator is a C++ STL memory allocator based on MEM_ROOT.
 
@@ -62,96 +61,103 @@
     but this should not be depended on.
 */
 
-template <class T> class Memroot_allocator
+template <class T>
+class Memroot_allocator
 {
   // This cannot be const if we want to be able to swap.
   MEM_ROOT *m_memroot;
 
-public:
+ public:
   typedef T value_type;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 
-  typedef T* pointer;
-  typedef const T* const_pointer;
+  typedef T *pointer;
+  typedef const T *const_pointer;
 
-  typedef T& reference;
-  typedef const T& const_reference;
+  typedef T &reference;
+  typedef const T &const_reference;
 
   pointer address(reference r) const { return &r; }
   const_pointer address(const_reference r) const { return &r; }
 
-  explicit Memroot_allocator(MEM_ROOT *memroot) : m_memroot(memroot)
-  {}
+  explicit Memroot_allocator(MEM_ROOT *memroot) : m_memroot(memroot) {}
 
-  template <class U> Memroot_allocator(const Memroot_allocator<U> &other)
-    : m_memroot(other.memroot())
-  {}
-
-  template <class U> Memroot_allocator & operator=
-    (const Memroot_allocator<U> &other)
+  template <class U>
+  Memroot_allocator(const Memroot_allocator<U> &other) : m_memroot(other.memroot())
   {
-    assert(m_memroot == other.memroot()); // Don't swap memroot.
   }
 
-  ~Memroot_allocator()
-  {}
+  template <class U>
+  Memroot_allocator &operator=(const Memroot_allocator<U> &other)
+  {
+    assert(m_memroot == other.memroot());  // Don't swap memroot.
+  }
 
-  pointer allocate(size_type n, const_pointer hint= 0)
+  ~Memroot_allocator() {}
+
+  pointer allocate(size_type n, const_pointer hint = 0)
   {
     if (n == 0)
       return NULL;
     if (n > max_size())
       throw std::bad_alloc();
 
-    pointer p= static_cast<pointer>(alloc_root(m_memroot, n * sizeof(T)));
+    pointer p = static_cast<pointer>(alloc_root(m_memroot, n * sizeof(T)));
     if (p == NULL)
       throw std::bad_alloc();
     return p;
   }
 
-  void deallocate(pointer p, size_type n) { }
+  void deallocate(pointer p, size_type n) {}
 
-  void construct(pointer p, const T& val)
+  void construct(pointer p, const T &val)
   {
     assert(p != NULL);
-    try {
-      new(p) T(val);
-    } catch (...) {
-      assert(false); // Constructor should not throw an exception.
+    try
+    {
+      new (p) T(val);
+    }
+    catch (...)
+    {
+      assert(false);  // Constructor should not throw an exception.
     }
   }
 
   void destroy(pointer p)
   {
     assert(p != NULL);
-    try {
+    try
+    {
       p->~T();
-    } catch (...) {
-      assert(false); // Destructor should not throw an exception
+    }
+    catch (...)
+    {
+      assert(false);  // Destructor should not throw an exception
     }
   }
 
-  size_type max_size() const
-  {
-    return std::numeric_limits<size_t>::max() / sizeof(T);
-  }
+  size_type max_size() const { return std::numeric_limits<size_t>::max() / sizeof(T); }
 
-  template <class U> struct rebind { typedef Memroot_allocator<U> other; };
+  template <class U>
+  struct rebind
+  {
+    typedef Memroot_allocator<U> other;
+  };
 
   MEM_ROOT *memroot() const { return m_memroot; }
 };
 
 template <class T>
-bool operator== (const Memroot_allocator<T>& a1, const Memroot_allocator<T>& a2)
+bool operator==(const Memroot_allocator<T> &a1, const Memroot_allocator<T> &a2)
 {
   return a1.memroot() == a2.memroot();
 }
 
 template <class T>
-bool operator!= (const Memroot_allocator<T>& a1, const Memroot_allocator<T>& a2)
+bool operator!=(const Memroot_allocator<T> &a1, const Memroot_allocator<T> &a2)
 {
   return a1.memroot() != a2.memroot();
 }
 
-#endif // MEMROOT_ALLOCATOR_INCLUDED
+#endif  // MEMROOT_ALLOCATOR_INCLUDED

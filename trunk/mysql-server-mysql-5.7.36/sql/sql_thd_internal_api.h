@@ -106,4 +106,4 @@ bool is_mysql_datadir_path(const char *path);
 
 int mysql_tmpfile_path(const char *path, const char *prefix);
 
-#endif // SQL_THD_INTERNAL_API_INCLUDED
+#endif  // SQL_THD_INTERNAL_API_INCLUDED

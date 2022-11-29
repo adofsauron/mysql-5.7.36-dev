@@ -20,7 +20,6 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-
 #ifndef OPT_EXPLAIN_FORMAT_JSON_INCLUDED
 #define OPT_EXPLAIN_FORMAT_JSON_INCLUDED
 
@@ -28,7 +27,7 @@
 
 namespace opt_explain_json_namespace
 {
-  class context;
+class context;
 }
 
 /**
@@ -37,21 +36,20 @@ namespace opt_explain_json_namespace
 
 class Explain_format_JSON : public Explain_format
 {
-private:
-  opt_explain_json_namespace::context *current_context; ///< current tree node
+ private:
+  opt_explain_json_namespace::context *current_context;  ///< current tree node
   Query_result *output;
 
-public:
+ public:
   Explain_format_JSON() : current_context(NULL), output(NULL) {}
 
   virtual bool is_hierarchical() const { return true; }
   virtual bool send_headers(Query_result *result);
-  virtual bool begin_context(enum_parsing_context context,
-                             SELECT_LEX_UNIT *subquery,
+  virtual bool begin_context(enum_parsing_context context, SELECT_LEX_UNIT *subquery,
                              const Explain_format_flags *flags);
   virtual bool end_context(enum_parsing_context context);
   virtual bool flush_entry() { return false; }
   virtual qep_row *entry();
 };
 
-#endif//OPT_EXPLAIN_FORMAT_JSON_INCLUDED
+#endif  // OPT_EXPLAIN_FORMAT_JSON_INCLUDED

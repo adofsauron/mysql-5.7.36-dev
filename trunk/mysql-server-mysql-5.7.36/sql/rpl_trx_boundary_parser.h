@@ -47,12 +47,11 @@ class Format_description_log_event;
 */
 class Transaction_boundary_parser
 {
-public:
+ public:
   /**
      Constructor.
   */
-  Transaction_boundary_parser()
-    :current_parser_state(EVENT_PARSER_NONE)
+  Transaction_boundary_parser() : current_parser_state(EVENT_PARSER_NONE)
   {
     DBUG_ENTER("Transaction_boundary_parser::Transaction_boundary_parser");
     DBUG_VOID_RETURN;
@@ -82,8 +81,7 @@ public:
   */
   inline bool is_inside_transaction()
   {
-    return (current_parser_state != EVENT_PARSER_ERROR &&
-            current_parser_state != EVENT_PARSER_NONE);
+    return (current_parser_state != EVENT_PARSER_ERROR && current_parser_state != EVENT_PARSER_NONE);
   }
 
   /**
@@ -94,10 +92,7 @@ public:
      @return  false if the boundary parser is inside a transaction.
               true if the boundary parser is not inside a transaction.
   */
-  inline bool is_not_inside_transaction()
-  {
-    return (current_parser_state == EVENT_PARSER_NONE);
-  }
+  inline bool is_not_inside_transaction() { return (current_parser_state == EVENT_PARSER_NONE); }
 
   /**
      State if the transaction boundary parser was fed with a sequence of events
@@ -106,10 +101,7 @@ public:
      @return  false if the boundary parser is not in the error state.
               true if the boundary parser is in the error state.
   */
-  inline bool is_error()
-  {
-    return (current_parser_state == EVENT_PARSER_ERROR);
-  }
+  inline bool is_error() { return (current_parser_state == EVENT_PARSER_ERROR); }
 
   /**
      Feed the transaction boundary parser with a Log_event of any type,
@@ -129,35 +121,35 @@ public:
      @return  false if the transaction boundary parser accepted the event.
               true if the transaction boundary parser didn't accepted the event.
   */
-  bool feed_event(const char *buf, size_t length,
-                  const Format_description_log_event *description_event,
+  bool feed_event(const char *buf, size_t length, const Format_description_log_event *description_event,
                   bool throw_warnings);
 
-private:
-  enum enum_event_boundary_type {
-    EVENT_BOUNDARY_TYPE_ERROR= -1,
+ private:
+  enum enum_event_boundary_type
+  {
+    EVENT_BOUNDARY_TYPE_ERROR = -1,
     /* Gtid_log_event */
-    EVENT_BOUNDARY_TYPE_GTID= 0,
+    EVENT_BOUNDARY_TYPE_GTID = 0,
     /* Query_log_event(BEGIN), Query_log_event(XA START) */
-    EVENT_BOUNDARY_TYPE_BEGIN_TRX= 1,
+    EVENT_BOUNDARY_TYPE_BEGIN_TRX = 1,
     /* Xid, Query_log_event(COMMIT), Query_log_event(ROLLBACK), XA_Prepare_log_event */
-    EVENT_BOUNDARY_TYPE_END_TRX= 2,
+    EVENT_BOUNDARY_TYPE_END_TRX = 2,
     /* Query_log_event(XA ROLLBACK) */
-    EVENT_BOUNDARY_TYPE_END_XA_TRX= 3,
+    EVENT_BOUNDARY_TYPE_END_XA_TRX = 3,
     /* User_var, Intvar and Rand */
-    EVENT_BOUNDARY_TYPE_PRE_STATEMENT= 4,
+    EVENT_BOUNDARY_TYPE_PRE_STATEMENT = 4,
     /*
       All other Query_log_events and all other DML events
       (Rows, Load_data, etc.)
     */
-    EVENT_BOUNDARY_TYPE_STATEMENT= 5,
+    EVENT_BOUNDARY_TYPE_STATEMENT = 5,
     /* Incident */
-    EVENT_BOUNDARY_TYPE_INCIDENT= 6,
+    EVENT_BOUNDARY_TYPE_INCIDENT = 6,
     /*
       All non DDL/DML events: Format_desc, Rotate,
       Previous_gtids, Stop, etc.
     */
-    EVENT_BOUNDARY_TYPE_IGNORE= 7
+    EVENT_BOUNDARY_TYPE_IGNORE = 7
   };
 
   /*
@@ -174,7 +166,8 @@ private:
       DML-3: Statements
       DML-4: (Query(COMMIT) | Query([XA] ROLLBACK) | Xid | Xa_prepare)
   */
-  enum enum_event_parser_state {
+  enum enum_event_parser_state
+  {
     /* NONE is set after DDL-3 or DML-4 */
     EVENT_PARSER_NONE,
     /* GTID is set after DDL-1 or DML-1 */
@@ -195,17 +188,14 @@ private:
   /**
      Parses an event based on the event parser logic.
   */
-  static enum_event_boundary_type
-  get_event_boundary_type(
-    const char *buf, size_t length,
-    const Format_description_log_event *description_event,
-    bool throw_warnings);
+  static enum_event_boundary_type get_event_boundary_type(const char *buf, size_t length,
+                                                          const Format_description_log_event *description_event,
+                                                          bool throw_warnings);
 
   /**
      Set the boundary parser state based on the event parser logic.
   */
-  bool update_state(enum_event_boundary_type event_boundary_type,
-                    bool throw_warnings);
+  bool update_state(enum_event_boundary_type event_boundary_type, bool throw_warnings);
 };
 
 /**

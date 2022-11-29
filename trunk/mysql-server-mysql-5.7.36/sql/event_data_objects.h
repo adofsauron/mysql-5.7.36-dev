@@ -30,12 +30,12 @@
 */
 
 #include "my_global.h"
-#include "m_string.h"                   // LEX_CSTRING
-#include "my_alloc.h"                   // MEM_ROOT
-#include "my_time.h"                    // my_time_t
-#include "mysql/mysql_lex_string.h"     // LEX_STRING
+#include "m_string.h"                // LEX_CSTRING
+#include "my_alloc.h"                // MEM_ROOT
+#include "my_time.h"                 // my_time_t
+#include "mysql/mysql_lex_string.h"  // LEX_STRING
 
-#include "my_thread.h"                  // Needed for psi.h
+#include "my_thread.h"  // Needed for psi.h
 #include <pfs_stage_provider.h>
 #include <mysql/psi/mysql_stage.h>
 
@@ -54,12 +54,11 @@ void init_scheduler_psi_keys(void);
 
 class Event_queue_element_for_exec
 {
-public:
+ public:
   Event_queue_element_for_exec(){};
   ~Event_queue_element_for_exec();
 
-  bool
-  init(LEX_STRING dbname, LEX_STRING name);
+  bool init(LEX_STRING dbname, LEX_STRING name);
 
   LEX_STRING dbname;
   LEX_STRING name;
@@ -68,54 +67,44 @@ public:
 
   void claim_memory_ownership();
 
-private:
+ private:
   /* Prevent use of these */
   Event_queue_element_for_exec(const Event_queue_element_for_exec &);
   void operator=(Event_queue_element_for_exec &);
 #ifdef HAVE_PSI_INTERFACE
-public:
-  PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
 };
 
-
 class Event_basic
 {
-protected:
+ protected:
   MEM_ROOT mem_root;
 
-public:
-
+ public:
   LEX_STRING dbname;
   LEX_STRING name;
-  LEX_STRING definer;// combination of user and host
+  LEX_STRING definer;  // combination of user and host
 
   Time_zone *time_zone;
 
   Event_basic();
   virtual ~Event_basic();
 
-  virtual bool
-  load_from_row(THD *thd, TABLE *table) = 0;
+  virtual bool load_from_row(THD *thd, TABLE *table) = 0;
 
-protected:
-  bool
-  load_string_fields(Field **fields, ...);
+ protected:
+  bool load_string_fields(Field **fields, ...);
 
-  bool
-  load_time_zone(THD *thd, const LEX_STRING tz_name);
+  bool load_time_zone(THD *thd, const LEX_STRING tz_name);
 };
-
-
 
 class Event_queue_element : public Event_basic
 {
-public:
+ public:
   int on_completion;
   int status;
   longlong originator;
@@ -138,23 +127,19 @@ public:
   Event_queue_element();
   virtual ~Event_queue_element();
 
-  virtual bool
-  load_from_row(THD *thd, TABLE *table);
+  virtual bool load_from_row(THD *thd, TABLE *table);
 
-  bool
-  compute_next_execution_time();
+  bool compute_next_execution_time();
 
-  void
-  mark_last_executed(THD *thd);
+  void mark_last_executed(THD *thd);
 };
-
 
 class Event_timed : public Event_queue_element
 {
-  Event_timed(const Event_timed &);	/* Prevent use of these */
+  Event_timed(const Event_timed &); /* Prevent use of these */
   void operator=(Event_timed &);
 
-public:
+ public:
   LEX_STRING body;
 
   LEX_CSTRING definer_user;
@@ -173,20 +158,16 @@ public:
   Event_timed();
   virtual ~Event_timed();
 
-  void
-  init();
+  void init();
 
-  virtual bool
-  load_from_row(THD *thd, TABLE *table);
+  virtual bool load_from_row(THD *thd, TABLE *table);
 
-  int
-  get_create_event(THD *thd, String *buf);
+  int get_create_event(THD *thd, String *buf);
 };
-
 
 class Event_job_data : public Event_basic
 {
-public:
+ public:
   LEX_STRING body;
   LEX_CSTRING definer_user;
   LEX_CSTRING definer_host;
@@ -197,15 +178,13 @@ public:
 
   Event_job_data();
 
-  virtual bool
-  load_from_row(THD *thd, TABLE *table);
+  virtual bool load_from_row(THD *thd, TABLE *table);
 
-  bool
-  execute(THD *thd, bool drop);
-private:
-  bool
-  construct_sp_sql(THD *thd, String *sp_sql);
-  Event_job_data(const Event_job_data &);       /* Prevent use of these */
+  bool execute(THD *thd, bool drop);
+
+ private:
+  bool construct_sp_sql(THD *thd, String *sp_sql);
+  Event_job_data(const Event_job_data &); /* Prevent use of these */
   void operator=(Event_job_data &);
 };
 
@@ -221,18 +200,13 @@ private:
   @retval        false       The drop event SQL query is built
   @retval        true        Otherwise
 */
-bool construct_drop_event_sql(THD *thd, String *sp_sql,
-                              const LEX_STRING &db_name,
-                              const LEX_STRING &event_name);
-
+bool construct_drop_event_sql(THD *thd, String *sp_sql, const LEX_STRING &db_name, const LEX_STRING &event_name);
 
 /* Compares only the schema part of the identifier */
-bool
-event_basic_db_equal(LEX_STRING db, Event_basic *et);
+bool event_basic_db_equal(LEX_STRING db, Event_basic *et);
 
 /* Compares the whole identifier*/
-bool
-event_basic_identifier_equal(LEX_STRING db, LEX_STRING name, Event_basic *b);
+bool event_basic_identifier_equal(LEX_STRING db, LEX_STRING name, Event_basic *b);
 
 /**
   @} (End of group Event_Scheduler)

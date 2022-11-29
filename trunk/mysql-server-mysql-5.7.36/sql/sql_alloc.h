@@ -27,8 +27,8 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-#include "my_sys.h"         // TRASH
-#include "thr_malloc.h"     // alloc_root
+#include "my_sys.h"      // TRASH
+#include "thr_malloc.h"  // alloc_root
 
 /**
   MySQL standard memory allocator class. You have to inherit the class
@@ -36,27 +36,27 @@
 */
 class Sql_alloc
 {
-public:
-  static void *operator new(size_t size) throw ()
-  {
-    return sql_alloc(size);
-  }
-  static void *operator new[](size_t size) throw ()
-  {
-    return sql_alloc(size);
-  }
-  static void *operator new[](size_t size, MEM_ROOT *mem_root) throw ()
-  { return alloc_root(mem_root, size); }
-  static void *operator new(size_t size, MEM_ROOT *mem_root) throw ()
-  { return alloc_root(mem_root, size); }
+ public:
+  static void *operator new(size_t size) throw() { return sql_alloc(size); }
+  static void *operator new[](size_t size) throw() { return sql_alloc(size); }
+  static void *operator new[](size_t size, MEM_ROOT *mem_root) throw() { return alloc_root(mem_root, size); }
+  static void *operator new(size_t size, MEM_ROOT *mem_root) throw() { return alloc_root(mem_root, size); }
   static void operator delete(void *ptr, size_t size)
-  { if (ptr != NULL) TRASH(ptr, size); }
+  {
+    if (ptr != NULL)
+      TRASH(ptr, size);
+  }
   static void operator delete(void *ptr, MEM_ROOT *mem_root)
-  { /* never called */ }
+  { /* never called */
+  }
   static void operator delete[](void *ptr, MEM_ROOT *mem_root)
-  { /* never called */ }
+  { /* never called */
+  }
   static void operator delete[](void *ptr, size_t size)
-  { if (ptr != NULL) TRASH(ptr, size); }
+  {
+    if (ptr != NULL)
+      TRASH(ptr, size);
+  }
 };
 
-#endif // SQL_ALLOC_INCLUDED
+#endif  // SQL_ALLOC_INCLUDED

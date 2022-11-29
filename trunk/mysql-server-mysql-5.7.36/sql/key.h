@@ -23,20 +23,21 @@
 #ifndef KEY_INCLUDED
 #define KEY_INCLUDED
 
-#include "my_global.h"                          /* uchar */
-#include "my_base.h"                   /* ha_rows, ha_key_alg */
-#include "sql_plugin_ref.h"            /* plugin_ref */
+#include "my_global.h"      /* uchar */
+#include "my_base.h"        /* ha_rows, ha_key_alg */
+#include "sql_plugin_ref.h" /* plugin_ref */
 
 class Field;
 class String;
 struct TABLE;
 typedef struct st_bitmap MY_BITMAP;
 
-class KEY_PART_INFO {	/* Info about a key part */
-public:
+class KEY_PART_INFO
+{ /* Info about a key part */
+ public:
   Field *field;
-  uint	offset;				/* offset in record (from 0) */
-  uint	null_offset;			/* Offset to null_bit in record */
+  uint offset;      /* offset in record (from 0) */
+  uint null_offset; /* Offset to null_bit in record */
   /* Length of key part in bytes, excluding NULL flag and length bytes */
   uint16 length;
   /*
@@ -47,16 +48,16 @@ public:
   */
   uint16 store_length;
   uint16 key_type;
-  uint16 fieldnr;			/* Fieldnum in UNIREG */
-  uint16 key_part_flag;			/* 0 or HA_REVERSE_SORT */
+  uint16 fieldnr;       /* Fieldnum in UNIREG */
+  uint16 key_part_flag; /* 0 or HA_REVERSE_SORT */
   uint8 type;
-  uint8 null_bit;			/* Position to null_bit */
-  void init_from_field(Field *fld);     /** Fill data from given field */
-  void init_flags();                    /** Set key_part_flag from field */
+  uint8 null_bit;                   /* Position to null_bit */
+  void init_from_field(Field *fld); /** Fill data from given field */
+  void init_flags();                /** Set key_part_flag from field */
 };
 
 /**
-  Data type for records per key estimates that are stored in the 
+  Data type for records per key estimates that are stored in the
   KEY::rec_per_key_float[] array.
 */
 typedef float rec_per_key_t;
@@ -76,26 +77,27 @@ typedef float rec_per_key_t;
 */
 #define IN_MEMORY_ESTIMATE_UNKNOWN -1.0
 
-typedef struct st_key {
+typedef struct st_key
+{
   /** Tot length of key */
-  uint	key_length;
+  uint key_length;
   /** dupp key and pack flags */
   ulong flags;
   /** dupp key and pack flags for actual key parts */
   ulong actual_flags;
   /** How many key_parts */
-  uint  user_defined_key_parts;
+  uint user_defined_key_parts;
   /** How many key_parts including hidden parts */
-  uint  actual_key_parts;
+  uint actual_key_parts;
   /**
      Key parts allocated for primary key parts extension but
      not used due to some reasons(no primary key, duplicated key parts)
   */
-  uint  unused_key_parts;
+  uint unused_key_parts;
   /** Should normally be = key_parts */
-  uint	usable_key_parts;
-  uint  block_size;
-  enum  ha_key_alg algorithm;
+  uint usable_key_parts;
+  uint block_size;
+  enum ha_key_alg algorithm;
   /**
     Note that parser is used when the table is opened for use, and
     parser_name is used when the table is being created.
@@ -109,7 +111,7 @@ typedef struct st_key {
   };
   KEY_PART_INFO *key_part;
   /** Name of key */
-  char	*name;
+  char *name;
 
   /**
     Array of AVG(#records with the same field value) for 1st ... Nth key part.
@@ -118,7 +120,7 @@ typedef struct st_key {
   */
   ulong *rec_per_key;
 
-private:
+ private:
   /**
     Estimate for how much of the index data that is currently
     available in a memory buffer. Valid range is [0..1]. This will be
@@ -139,14 +141,16 @@ private:
     should be removed and only this should be used.
   */
   rec_per_key_t *rec_per_key_float;
-public:
-  union {
-    int  bdb_return_if_eq;
+
+ public:
+  union
+  {
+    int bdb_return_if_eq;
   } handler;
   TABLE *table;
   LEX_STRING comment;
 
-  /** 
+  /**
     Check if records per key estimate is available for given key part.
 
     @param key_part_no key part number, must be in [0, KEY::actual_key_parts)
@@ -158,8 +162,7 @@ public:
   {
     assert(key_part_no < actual_key_parts);
 
-    return ((rec_per_key_float && rec_per_key_float[key_part_no] !=
-             REC_PER_KEY_UNKNOWN) || 
+    return ((rec_per_key_float && rec_per_key_float[key_part_no] != REC_PER_KEY_UNKNOWN) ||
             (rec_per_key && rec_per_key[key_part_no] != 0));
   }
 
@@ -188,9 +191,7 @@ public:
     if (rec_per_key_float[key_part_no] != REC_PER_KEY_UNKNOWN)
       return rec_per_key_float[key_part_no];
 
-    return (rec_per_key[key_part_no] != 0) ? 
-      static_cast<rec_per_key_t>(rec_per_key[key_part_no]) :
-      REC_PER_KEY_UNKNOWN;
+    return (rec_per_key[key_part_no] != 0) ? static_cast<rec_per_key_t>(rec_per_key[key_part_no]) : REC_PER_KEY_UNKNOWN;
   }
 
   /**
@@ -207,11 +208,10 @@ public:
   void set_records_per_key(uint key_part_no, rec_per_key_t rec_per_key_est)
   {
     assert(key_part_no < actual_key_parts);
-    assert(rec_per_key_est == REC_PER_KEY_UNKNOWN ||
-           rec_per_key_est >= 1.0);
+    assert(rec_per_key_est == REC_PER_KEY_UNKNOWN || rec_per_key_est >= 1.0);
     assert(rec_per_key_float != NULL);
 
-    rec_per_key_float[key_part_no]= rec_per_key_est;
+    rec_per_key_float[key_part_no] = rec_per_key_est;
   }
 
   /**
@@ -243,11 +243,10 @@ public:
                                  records per key using float
   */
 
-  void set_rec_per_key_array(ulong *rec_per_key_arg,
-                             rec_per_key_t *rec_per_key_float_arg)
+  void set_rec_per_key_array(ulong *rec_per_key_arg, rec_per_key_t *rec_per_key_float_arg)
   {
-    rec_per_key= rec_per_key_arg;
-    rec_per_key_float= rec_per_key_float_arg;
+    rec_per_key = rec_per_key_arg;
+    rec_per_key_float = rec_per_key_float_arg;
   }
 
   /**
@@ -282,25 +281,19 @@ public:
     assert(in_memory_estimate == IN_MEMORY_ESTIMATE_UNKNOWN ||
            (in_memory_estimate >= 0.0 && in_memory_estimate <= 1.0));
 
-    m_in_memory_estimate= in_memory_estimate;
+    m_in_memory_estimate = in_memory_estimate;
   }
 } KEY;
 
-
-int find_ref_key(KEY *key, uint key_count, uchar *record, Field *field,
-                 uint *key_length, uint *keypart);
+int find_ref_key(KEY *key, uint key_count, uchar *record, Field *field, uint *key_length, uint *keypart);
 void key_copy(uchar *to_key, uchar *from_record, KEY *key_info, uint key_length);
-void key_restore(uchar *to_record, uchar *from_key, KEY *key_info,
-                 uint key_length);
-bool key_cmp_if_same(TABLE *form,const uchar *key,uint index,uint key_length);
+void key_restore(uchar *to_record, uchar *from_key, KEY *key_info, uint key_length);
+bool key_cmp_if_same(TABLE *form, const uchar *key, uint index, uint key_length);
 void key_unpack(String *to, TABLE *table, KEY *key);
-void field_unpack(String *to, Field *field, const uchar *rec, uint max_length,
-                  bool prefix_key);
+void field_unpack(String *to, Field *field, const uchar *rec, uint max_length, bool prefix_key);
 bool is_key_used(TABLE *table, uint idx, const MY_BITMAP *fields);
 int key_cmp(KEY_PART_INFO *key_part, const uchar *key, uint key_length);
-int key_cmp2(KEY_PART_INFO *key_part,
-             const uchar *key1, uint key1_length,
-             const uchar *key2, uint key2_length);
+int key_cmp2(KEY_PART_INFO *key_part, const uchar *key1, uint key1_length, const uchar *key2, uint key2_length);
 int key_rec_cmp(KEY **key_info, uchar *a, uchar *b);
 
 #endif /* KEY_INCLUDED */

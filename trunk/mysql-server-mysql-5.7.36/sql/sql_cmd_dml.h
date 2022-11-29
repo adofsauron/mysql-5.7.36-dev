@@ -25,10 +25,9 @@
 
 #include "sql_cmd.h"
 
-
 class Sql_cmd_dml : public Sql_cmd
 {
-public:
+ public:
   /**
     Validate PS and do name resolution:
 
@@ -43,7 +42,7 @@ public:
     @retval false on success.
     @retval true on error
   */
-  virtual bool prepared_statement_test(THD *thd)= 0;
+  virtual bool prepared_statement_test(THD *thd) = 0;
 
   /**
     Command-specific resolving (doesn't include LEX::prepare())
@@ -55,7 +54,7 @@ public:
     @retval false on success.
     @retval true on error
   */
-  virtual bool prepare(THD *thd)= 0;
+  virtual bool prepare(THD *thd) = 0;
 };
 
 #endif /* SQL_CMD_DML_INCLUDED */

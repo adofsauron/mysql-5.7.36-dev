@@ -27,18 +27,24 @@
 
   Contains classes representing SQL-data change statements. The
   actual implementions of the functionality are found in files
-  sql_{insert, update}.{h,cc} 
+  sql_{insert, update}.{h,cc}
 */
 
-#include "my_base.h"        // ha_rows
-#include "my_bitmap.h"      // MY_BITMAP
-#include "sql_alloc.h"      // Sql_alloc
+#include "my_base.h"    // ha_rows
+#include "my_bitmap.h"  // MY_BITMAP
+#include "sql_alloc.h"  // Sql_alloc
 
 struct TABLE;
 class Item;
-template <class T> class List;
+template <class T>
+class List;
 
-enum enum_duplicates { DUP_ERROR, DUP_REPLACE, DUP_UPDATE };
+enum enum_duplicates
+{
+  DUP_ERROR,
+  DUP_REPLACE,
+  DUP_UPDATE
+};
 
 /**
    This class encapsulates a data change operation. There are three such
@@ -64,15 +70,13 @@ enum enum_duplicates { DUP_ERROR, DUP_REPLACE, DUP_UPDATE };
       of the INSERT ... ON DUPLICATE KEY UPDATE no matter whether the row
       was actually changed or not.
 */
-class COPY_INFO: public Sql_alloc
+class COPY_INFO : public Sql_alloc
 {
-public:
+ public:
   class Statistics
   {
-  public:
-    Statistics() :
-      records(0), deleted(0), updated(0), copied(0), error_count(0), touched(0)
-    {}
+   public:
+    Statistics() : records(0), deleted(0), updated(0), copied(0), error_count(0), touched(0) {}
 
     ha_rows records; /**< Number of processed records */
     ha_rows deleted; /**< Number of deleted records */
@@ -82,11 +86,15 @@ public:
     ha_rows touched; /* Number of touched records */
   };
 
-  enum operation_type { INSERT_OPERATION, UPDATE_OPERATION };
+  enum operation_type
+  {
+    INSERT_OPERATION,
+    UPDATE_OPERATION
+  };
 
-private:
-  COPY_INFO(const COPY_INFO &other);            ///< undefined
-  void operator=(COPY_INFO &);                  ///< undefined
+ private:
+  COPY_INFO(const COPY_INFO &other);  ///< undefined
+  void operator=(COPY_INFO &);        ///< undefined
 
   /// Describes the data change operation that this object represents.
   const operation_type m_optype;
@@ -104,7 +112,6 @@ private:
   */
   List<Item> *m_changed_columns2;
 
-
   /** Whether this object must manage function defaults */
   const bool m_manage_defaults;
   /** Bitmap: bit is set if we should set column #i to its function default */
@@ -113,8 +120,7 @@ private:
   /// Policy for handling insertion of duplicate values.
   const enum enum_duplicates handle_duplicates;
 
-protected:
-
+ protected:
   /**
      This function will, unless done already, calculate and keep the set of
      function default columns.
@@ -141,7 +147,7 @@ protected:
    */
   MY_BITMAP *get_cached_bitmap() const { return m_function_default_columns; }
 
-public:
+ public:
   Statistics stats;
   int escape_char, last_errno;
   /** Values for UPDATE; needed by write_record() if INSERT with DUP_UPDATE */
@@ -161,20 +167,18 @@ public:
      @param duplicate_handling The policy for handling duplicates.
 
   */
-  COPY_INFO(operation_type optype,
-            List<Item> *inserted_columns,
-            bool manage_defaults,
-            enum_duplicates duplicate_handling) :
-    m_optype(optype),
-    m_changed_columns(inserted_columns),
-    m_changed_columns2(NULL),
-    m_manage_defaults(manage_defaults),
-    m_function_default_columns(NULL),
-    handle_duplicates(duplicate_handling),
-    stats(),
-    escape_char(0),
-    last_errno(0),
-    update_values(NULL)
+  COPY_INFO(operation_type optype, List<Item> *inserted_columns, bool manage_defaults,
+            enum_duplicates duplicate_handling)
+      : m_optype(optype),
+        m_changed_columns(inserted_columns),
+        m_changed_columns2(NULL),
+        m_manage_defaults(manage_defaults),
+        m_function_default_columns(NULL),
+        handle_duplicates(duplicate_handling),
+        stats(),
+        escape_char(0),
+        last_errno(0),
+        update_values(NULL)
   {
     assert(optype == INSERT_OPERATION);
   }
@@ -202,22 +206,18 @@ public:
      @param duplicates_handling How to handle duplicates.
      @param escape_character    The escape character.
   */
-  COPY_INFO(operation_type optype,
-            List<Item> *inserted_columns,
-            List<Item> *inserted_columns2,
-            bool manage_defaults,
-            enum_duplicates duplicates_handling,
-            int escape_character) :
-    m_optype(optype),
-    m_changed_columns(inserted_columns),
-    m_changed_columns2(inserted_columns2),
-    m_manage_defaults(manage_defaults),
-    m_function_default_columns(NULL),
-    handle_duplicates(duplicates_handling),
-    stats(),
-    escape_char(escape_character),
-    last_errno(0),
-    update_values(NULL)
+  COPY_INFO(operation_type optype, List<Item> *inserted_columns, List<Item> *inserted_columns2, bool manage_defaults,
+            enum_duplicates duplicates_handling, int escape_character)
+      : m_optype(optype),
+        m_changed_columns(inserted_columns),
+        m_changed_columns2(inserted_columns2),
+        m_manage_defaults(manage_defaults),
+        m_function_default_columns(NULL),
+        handle_duplicates(duplicates_handling),
+        stats(),
+        escape_char(escape_character),
+        last_errno(0),
+        update_values(NULL)
   {
     assert(optype == INSERT_OPERATION);
   }
@@ -231,17 +231,17 @@ public:
      @note that UPDATE always lists columns, so non-listed columns may need a
      default thus m_manage_defaults is always true.
   */
-  COPY_INFO(operation_type optype, List<Item> *fields, List<Item> *values) :
-    m_optype(optype),
-    m_changed_columns(fields),
-    m_changed_columns2(NULL),
-    m_manage_defaults(true),
-    m_function_default_columns(NULL),
-    handle_duplicates(DUP_ERROR),
-    stats(),
-    escape_char(0),
-    last_errno(0),
-    update_values(values)
+  COPY_INFO(operation_type optype, List<Item> *fields, List<Item> *values)
+      : m_optype(optype),
+        m_changed_columns(fields),
+        m_changed_columns2(NULL),
+        m_manage_defaults(true),
+        m_function_default_columns(NULL),
+        handle_duplicates(DUP_ERROR),
+        stats(),
+        escape_char(0),
+        last_errno(0),
+        update_values(values)
   {
     assert(optype == UPDATE_OPERATION);
   }
@@ -327,5 +327,4 @@ public:
   virtual ~COPY_INFO() {}
 };
 
-
-#endif // SQL_DATA_CHANGE_INCLUDED
+#endif  // SQL_DATA_CHANGE_INCLUDED

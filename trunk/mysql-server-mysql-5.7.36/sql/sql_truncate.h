@@ -23,7 +23,7 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 
 #include "my_global.h"
-#include "sql_cmd_dml.h"          // Sql_cmd_dml
+#include "sql_cmd_dml.h"  // Sql_cmd_dml
 
 class MDL_ticket;
 class THD;
@@ -34,19 +34,17 @@ struct TABLE_LIST;
 */
 class Sql_cmd_truncate_table : public Sql_cmd_dml
 {
-private:
+ private:
   /* Set if a lock must be downgraded after truncate is done. */
   MDL_ticket *m_ticket_downgrade;
 
-public:
+ public:
   /**
     Constructor, used to represent a TRUNCATE statement.
   */
-  Sql_cmd_truncate_table()
-  {}
+  Sql_cmd_truncate_table() {}
 
-  virtual ~Sql_cmd_truncate_table()
-  {}
+  virtual ~Sql_cmd_truncate_table() {}
 
   /**
     Execute a TRUNCATE statement at runtime.
@@ -55,18 +53,16 @@ public:
   */
   bool execute(THD *thd);
 
-  virtual enum_sql_command sql_command_code() const
-  {
-    return SQLCOM_TRUNCATE;
-  }
+  virtual enum_sql_command sql_command_code() const { return SQLCOM_TRUNCATE; }
 
   virtual bool prepared_statement_test(THD *) { return false; }
   virtual bool prepare(THD *) { return false; }
   virtual void cleanup(THD *) {}
 
-protected:
-  enum truncate_result{
-    TRUNCATE_OK=0,
+ protected:
+  enum truncate_result
+  {
+    TRUNCATE_OK = 0,
     TRUNCATE_FAILED_BUT_BINLOG,
     TRUNCATE_FAILED_SKIP_BINLOG
   };

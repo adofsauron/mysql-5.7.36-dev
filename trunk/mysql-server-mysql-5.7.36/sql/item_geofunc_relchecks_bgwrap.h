@@ -36,10 +36,10 @@
 
 #include <set>
 
-template<typename Geom_types>
-class BG_wrap {
-public:
-
+template <typename Geom_types>
+class BG_wrap
+{
+ public:
   typedef typename Geom_types::Point Point;
   typedef typename Geom_types::Linestring Linestring;
   typedef typename Geom_types::Polygon Polygon;
@@ -54,86 +54,51 @@ public:
   typedef std::set<Point, bgpt_lt> Point_set;
   typedef std::vector<Point> Point_vector;
 
-  static int point_within_geometry(Geometry *g1, Geometry *g2,
-                                   my_bool *pnull_value);
+  static int point_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-  static int multipoint_within_geometry(Geometry *g1, Geometry *g2,
-                                        my_bool *pnull_value);
+  static int multipoint_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-  static int linestring_within_geometry(Geometry *g1, Geometry *g2,
-                                        my_bool *pnull_value);
-  static int multilinestring_within_geometry(Geometry *g1, Geometry *g2,
-                                             my_bool *pnull_value);
-  static int polygon_within_geometry(Geometry *g1, Geometry *g2,
-                                     my_bool *pnull_value);
-  static int multipolygon_within_geometry(Geometry *g1, Geometry *g2,
-                                          my_bool *pnull_value);
+  static int linestring_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int polygon_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipolygon_within_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-  static int multipoint_equals_geometry(Geometry *g1, Geometry *g2,
-                                        my_bool *pnull_value);
+  static int multipoint_equals_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-  static int point_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                     my_bool *pnull_value);
-  static int multipoint_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                          my_bool *pnull_value);
+  static int point_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipoint_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-  static int linestring_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                          my_bool *pnull_value);
-  static int multilinestring_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                               my_bool *pnull_value);
-  static int polygon_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                       my_bool *pnull_value);
-  static int multipolygon_disjoint_geometry(Geometry *g1, Geometry *g2,
-                                            my_bool *pnull_value);
-  static int point_intersects_geometry(Geometry *g1, Geometry *g2,
-                                       my_bool *pnull_value);
-  static int multipoint_intersects_geometry(Geometry *g1, Geometry *g2,
-                                            my_bool *pnull_value);
-  static int linestring_intersects_geometry(Geometry *g1, Geometry *g2,
-                                            my_bool *pnull_value);
-  static int multilinestring_intersects_geometry(Geometry *g1, Geometry *g2,
-                                                 my_bool *pnull_value);
-  static int polygon_intersects_geometry(Geometry *g1, Geometry *g2,
-                                         my_bool *pnull_value);
-  static int multipolygon_intersects_geometry(Geometry *g1, Geometry *g2,
-                                              my_bool *pnull_value);
-  static int linestring_crosses_geometry(Geometry *g1, Geometry *g2,
-                                         my_bool *pnull_value);
-  static int multipoint_crosses_geometry(Geometry *g1, Geometry *g2,
-                                         my_bool *pnull_value);
-  static int multilinestring_crosses_geometry(Geometry *g1, Geometry *g2,
-                                              my_bool *pnull_value);
-  static int multipoint_overlaps_multipoint(Geometry *g1, Geometry *g2,
-                                            my_bool *pnull_value);
-  static int point_touches_geometry(Geometry *g1, Geometry *g2,
-                                    my_bool *pnull_value);
-  static int multipoint_touches_geometry(Geometry *g1, Geometry *g2,
-                                         my_bool *pnull_value);
-  static int linestring_touches_geometry(Geometry *g1, Geometry *g2,
-                                         my_bool *pnull_value);
-  static int multilinestring_touches_polygon(Geometry *g1, Geometry *g2,
-                                             my_bool *pnull_value);
-  static int multilinestring_touches_geometry(Geometry *g1, Geometry *g2,
-                                              my_bool *pnull_value);
-  static int polygon_touches_geometry(Geometry *g1, Geometry *g2,
-                                      my_bool *pnull_value);
-  static int multipolygon_touches_geometry(Geometry *g1, Geometry *g2,
-                                           my_bool *pnull_value);
+  static int linestring_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int polygon_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipolygon_disjoint_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int point_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipoint_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int linestring_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int polygon_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipolygon_intersects_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int linestring_crosses_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipoint_crosses_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_crosses_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipoint_overlaps_multipoint(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int point_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipoint_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int linestring_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_touches_polygon(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multilinestring_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int polygon_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
+  static int multipolygon_touches_geometry(Geometry *g1, Geometry *g2, my_bool *pnull_value);
 
-private:
-  template<typename Geom_type>
-  static int multipoint_disjoint_geometry_internal(const Multipoint &mpts1,
-                                                   const Geom_type &geom);
-  template<typename Geom_type>
-  static int multipoint_disjoint_multi_geometry(const Multipoint &mpts,
-                                                const Geom_type &geom);
+ private:
+  template <typename Geom_type>
+  static int multipoint_disjoint_geometry_internal(const Multipoint &mpts1, const Geom_type &geom);
+  template <typename Geom_type>
+  static int multipoint_disjoint_multi_geometry(const Multipoint &mpts, const Geom_type &geom);
   template <typename GeomType>
-  static int multipoint_within_geometry_internal(const Multipoint &mpts,
-                                                 const GeomType &geom);
-  static int multipoint_within_multipolygon(const Multipoint &mpts,
-                                            const Multipolygon &mplgn);
-};// BG_wrap
-
+  static int multipoint_within_geometry_internal(const Multipoint &mpts, const GeomType &geom);
+  static int multipoint_within_multipolygon(const Multipoint &mpts, const Multipolygon &mplgn);
+};  // BG_wrap
 
 /*
   Call a BG function with specified types of operands. We have to create
@@ -141,22 +106,22 @@ private:
   parsed, so not suitable for BG to use. geo1 will share the same copy of WKB
   data with g1, also true for geo2.
  */
-#define BGCALL(res, bgfunc, GeoType1, g1, GeoType2, g2, pnullval) do {  \
-  const void *pg1= g1->normalize_ring_order();                          \
-  const void *pg2= g2->normalize_ring_order();                          \
-  if (pg1 != NULL && pg2 != NULL)                                       \
-  {                                                                     \
-    GeoType1 geo1(pg1, g1->get_data_size(), g1->get_flags(),            \
-                  g1->get_srid());                                      \
-    GeoType2 geo2(pg2, g2->get_data_size(), g2->get_flags(),            \
-                  g2->get_srid());                                      \
-    res= boost::geometry::bgfunc(geo1, geo2);                           \
-  }                                                                     \
-  else                                                                  \
-  {                                                                     \
-    my_error(ER_GIS_INVALID_DATA, MYF(0), "st_" #bgfunc);               \
-    (*(pnullval))= 1;                                                   \
-  }                                                                     \
-} while (0)
+#define BGCALL(res, bgfunc, GeoType1, g1, GeoType2, g2, pnullval)               \
+  do                                                                            \
+  {                                                                             \
+    const void *pg1 = g1->normalize_ring_order();                               \
+    const void *pg2 = g2->normalize_ring_order();                               \
+    if (pg1 != NULL && pg2 != NULL)                                             \
+    {                                                                           \
+      GeoType1 geo1(pg1, g1->get_data_size(), g1->get_flags(), g1->get_srid()); \
+      GeoType2 geo2(pg2, g2->get_data_size(), g2->get_flags(), g2->get_srid()); \
+      res = boost::geometry::bgfunc(geo1, geo2);                                \
+    }                                                                           \
+    else                                                                        \
+    {                                                                           \
+      my_error(ER_GIS_INVALID_DATA, MYF(0), "st_" #bgfunc);                     \
+      (*(pnullval)) = 1;                                                        \
+    }                                                                           \
+  } while (0)
 
 #endif  // ITEM_GEOFUNC_BGWRAP_INCLUDED

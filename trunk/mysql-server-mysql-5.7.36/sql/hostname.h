@@ -23,7 +23,7 @@
 #ifndef HOSTNAME_INCLUDED
 #define HOSTNAME_INCLUDED
 
-#include "my_global.h"                          /* uint */
+#include "my_global.h" /* uint */
 #include "hash_filo.h"
 
 #ifdef HAVE_NETINET_IN_H
@@ -32,7 +32,7 @@
 
 struct Host_errors
 {
-public:
+ public:
   Host_errors();
   ~Host_errors();
 
@@ -85,38 +85,21 @@ public:
 
   bool has_error() const
   {
-    return ((m_host_blocked != 0)
-      || (m_nameinfo_transient != 0)
-      || (m_nameinfo_permanent != 0)
-      || (m_format != 0)
-      || (m_addrinfo_transient != 0)
-      || (m_addrinfo_permanent != 0)
-      || (m_FCrDNS != 0)
-      || (m_host_acl != 0)
-      || (m_no_auth_plugin != 0)
-      || (m_auth_plugin != 0)
-      || (m_handshake != 0)
-      || (m_proxy_user != 0)
-      || (m_proxy_user_acl != 0)
-      || (m_authentication != 0)
-      || (m_ssl != 0)
-      || (m_max_user_connection != 0)
-      || (m_max_user_connection_per_hour != 0)
-      || (m_default_database != 0)
-      || (m_init_connect != 0)
-      || (m_local != 0));
+    return ((m_host_blocked != 0) || (m_nameinfo_transient != 0) || (m_nameinfo_permanent != 0) || (m_format != 0) ||
+            (m_addrinfo_transient != 0) || (m_addrinfo_permanent != 0) || (m_FCrDNS != 0) || (m_host_acl != 0) ||
+            (m_no_auth_plugin != 0) || (m_auth_plugin != 0) || (m_handshake != 0) || (m_proxy_user != 0) ||
+            (m_proxy_user_acl != 0) || (m_authentication != 0) || (m_ssl != 0) || (m_max_user_connection != 0) ||
+            (m_max_user_connection_per_hour != 0) || (m_default_database != 0) || (m_init_connect != 0) ||
+            (m_local != 0));
   }
 
   void sum_connect_errors()
   {
     /* Current (historical) behavior: */
-    m_connect= m_handshake;
+    m_connect = m_handshake;
   }
 
-  void clear_connect_errors()
-  {
-    m_connect= 0;
-  }
+  void clear_connect_errors() { m_connect = 0; }
 };
 
 /** Size of IP address string in the hash cache. */
@@ -134,9 +117,8 @@ public:
 */
 class Host_entry : public hash_filo_element
 {
-public:
-  Host_entry *next()
-  { return (Host_entry*) hash_filo_element::next(); }
+ public:
+  Host_entry *next() { return (Host_entry *)hash_filo_element::next(); }
 
   /**
     Client IP address. This is the key used with the hash table.
@@ -166,16 +148,14 @@ public:
   void set_error_timestamps(ulonglong now)
   {
     if (m_first_error_seen == 0)
-      m_first_error_seen= now;
-    m_last_error_seen= now;
+      m_first_error_seen = now;
+    m_last_error_seen = now;
   }
 };
 
 #define RC_OK 0
 #define RC_BLOCKED_HOST 1
-int ip_to_hostname(struct sockaddr_storage *ip_storage,
-                   const char *ip_string,
-                   char **hostname, uint *connect_errors);
+int ip_to_hostname(struct sockaddr_storage *ip_storage, const char *ip_string, char **hostname, uint *connect_errors);
 
 void inc_host_errors(const char *ip_string, Host_errors *errors);
 void reset_host_connect_errors(const char *ip_string);

@@ -25,7 +25,6 @@
 #include "my_global.h"
 #include "hash.h"
 
-
 /**
   A type-safe wrapper around mysys HASH.
 */
@@ -33,26 +32,26 @@
 template <typename T, my_hash_get_key K>
 class Hash_set
 {
-public:
+ public:
   typedef T Value_type;
-  enum { START_SIZE= 8 };
+  enum
+  {
+    START_SIZE = 8
+  };
   /**
     Constructs an empty hash. Does not allocate memory, it is done upon
     the first insert. Thus does not cause or return errors.
   */
   Hash_set(PSI_memory_key psi_key)
   {
-    m_psi_key= psi_key;
+    m_psi_key = psi_key;
     my_hash_clear(&m_hash);
   }
   /**
     Destroy the hash by freeing the buckets table. Does
     not call destructors for the elements.
   */
-  ~Hash_set()
-  {
-    my_hash_free(&m_hash);
-  }
+  ~Hash_set() { my_hash_free(&m_hash); }
   /**
     Insert a single value into a hash. Does not tell whether
     the value was inserted -- if an identical value existed,
@@ -64,10 +63,9 @@ public:
   */
   bool insert(T *value)
   {
-    my_hash_init_opt(&m_hash, &my_charset_bin, START_SIZE, 0, 0, K, 0, MYF(0),
-                     m_psi_key);
+    my_hash_init_opt(&m_hash, &my_charset_bin, START_SIZE, 0, 0, K, 0, MYF(0), m_psi_key);
     size_t key_len;
-    const uchar *key= K(reinterpret_cast<uchar*>(value), &key_len, FALSE);
+    const uchar *key = K(reinterpret_cast<uchar *>(value), &key_len, FALSE);
     if (my_hash_search(&m_hash, key, key_len) == NULL)
       return my_hash_insert(&m_hash, reinterpret_cast<uchar *>(value));
     return FALSE;
@@ -79,11 +77,8 @@ public:
   /** An iterator over hash elements. Is not insert-stable. */
   class Iterator
   {
-  public:
-    Iterator(Hash_set &hash_set)
-      : m_hash(&hash_set.m_hash),
-        m_idx(0)
-    {}
+   public:
+    Iterator(Hash_set &hash_set) : m_hash(&hash_set.m_hash), m_idx(0) {}
     /**
       Return the current element and reposition the iterator to the next
       element.
@@ -91,17 +86,19 @@ public:
     inline T *operator++(int)
     {
       if (m_idx < m_hash->records)
-        return reinterpret_cast<T*>(my_hash_element(m_hash, m_idx++));
+        return reinterpret_cast<T *>(my_hash_element(m_hash, m_idx++));
       return NULL;
     }
-    void rewind() { m_idx= 0; }
-  private:
+    void rewind() { m_idx = 0; }
+
+   private:
     HASH *m_hash;
     uint m_idx;
   };
-private:
+
+ private:
   HASH m_hash;
   PSI_memory_key m_psi_key;
 };
 
-#endif // SQL_HSET_INCLUDED
+#endif  // SQL_HSET_INCLUDED

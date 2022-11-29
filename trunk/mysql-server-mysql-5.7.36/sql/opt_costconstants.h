@@ -24,9 +24,9 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-#include "my_dbug.h"                            // assert
-#include "handler.h"                            // MAX_HA
-#include "m_string.h"                           // LEX_CSTRING
+#include "my_dbug.h"   // assert
+#include "handler.h"   // MAX_HA
+#include "m_string.h"  // LEX_CSTRING
 
 class THD;
 struct TABLE;
@@ -35,9 +35,14 @@ struct TABLE;
   Error codes returned from the functions that do updates of the
   cost constants.
 */
-enum cost_constant_error {COST_CONSTANT_OK, UNKNOWN_COST_NAME,
-                          UNKNOWN_ENGINE_NAME, INVALID_COST_VALUE,
-                          INVALID_DEVICE_TYPE};
+enum cost_constant_error
+{
+  COST_CONSTANT_OK,
+  UNKNOWN_COST_NAME,
+  UNKNOWN_ENGINE_NAME,
+  INVALID_COST_VALUE,
+  INVALID_DEVICE_TYPE
+};
 
 /**
   The cost model should support different types of storage devices each with
@@ -46,8 +51,7 @@ enum cost_constant_error {COST_CONSTANT_OK, UNKNOWN_COST_NAME,
   initial version of the cost model will only have one set of cost constants
   per storage engine.
 */
-const unsigned int MAX_STORAGE_CLASSES= 1;
-
+const unsigned int MAX_STORAGE_CLASSES = 1;
 
 /**
   Cost constants for operations done by the server
@@ -55,19 +59,20 @@ const unsigned int MAX_STORAGE_CLASSES= 1;
 
 class Server_cost_constants
 {
-public:
+ public:
   /**
     Creates a server cost constants object using the default values
     defined in this class.
   */
-  Server_cost_constants() :
-    m_row_evaluate_cost(ROW_EVALUATE_COST),
-    m_key_compare_cost(KEY_COMPARE_COST),
-    m_memory_temptable_create_cost(MEMORY_TEMPTABLE_CREATE_COST),
-    m_memory_temptable_row_cost(MEMORY_TEMPTABLE_ROW_COST),
-    m_disk_temptable_create_cost(DISK_TEMPTABLE_CREATE_COST),
-    m_disk_temptable_row_cost(DISK_TEMPTABLE_ROW_COST)
-  {}
+  Server_cost_constants()
+      : m_row_evaluate_cost(ROW_EVALUATE_COST),
+        m_key_compare_cost(KEY_COMPARE_COST),
+        m_memory_temptable_create_cost(MEMORY_TEMPTABLE_CREATE_COST),
+        m_memory_temptable_row_cost(MEMORY_TEMPTABLE_ROW_COST),
+        m_disk_temptable_create_cost(DISK_TEMPTABLE_CREATE_COST),
+        m_disk_temptable_row_cost(DISK_TEMPTABLE_ROW_COST)
+  {
+  }
 
   /**
     Cost for evaluating the query condition on a row.
@@ -82,37 +87,25 @@ public:
   /**
     Cost for creating an internal temporary table in memory.
   */
-  double memory_temptable_create_cost() const
-  {
-    return m_memory_temptable_create_cost;
-  }
+  double memory_temptable_create_cost() const { return m_memory_temptable_create_cost; }
 
   /**
     Cost for retrieving or storing a row in an internal temporary table
     stored in memory.
   */
-  double memory_temptable_row_cost() const
-  {
-    return m_memory_temptable_row_cost;
-  }
+  double memory_temptable_row_cost() const { return m_memory_temptable_row_cost; }
 
   /**
     Cost for creating an internal temporary table in a disk resident
     storage engine.
   */
-  double disk_temptable_create_cost() const
-  {
-    return m_disk_temptable_create_cost;
-  }
+  double disk_temptable_create_cost() const { return m_disk_temptable_create_cost; }
 
   /**
     Cost for retrieving or storing a row in an internal disk resident
     temporary table.
   */
-  double disk_temptable_row_cost() const
-  {
-    return m_disk_temptable_row_cost;
-  }
+  double disk_temptable_row_cost() const { return m_disk_temptable_row_cost; }
 
   /**
     Set the value of one of the cost constants.
@@ -125,8 +118,7 @@ public:
 
   cost_constant_error set(const LEX_CSTRING &name, const double value);
 
-private:
-
+ private:
   /*
     This section declares constants for the default values. The actual
     default values are found in the .cc file.
@@ -188,7 +180,6 @@ private:
   double m_disk_temptable_row_cost;
 };
 
-
 /**
   Cost constants for a storage engine.
 
@@ -198,12 +189,14 @@ private:
 
 class SE_cost_constants
 {
-public:
-  SE_cost_constants() : m_memory_block_read_cost(MEMORY_BLOCK_READ_COST),
-    m_io_block_read_cost(IO_BLOCK_READ_COST),
-    m_memory_block_read_cost_default(true),
-    m_io_block_read_cost_default(true)
-  {}
+ public:
+  SE_cost_constants()
+      : m_memory_block_read_cost(MEMORY_BLOCK_READ_COST),
+        m_io_block_read_cost(IO_BLOCK_READ_COST),
+        m_memory_block_read_cost_default(true),
+        m_io_block_read_cost_default(true)
+  {
+  }
 
   virtual ~SE_cost_constants() {}
 
@@ -219,7 +212,7 @@ public:
 
   double io_block_read_cost() const { return m_io_block_read_cost; }
 
-protected:
+ protected:
   /**
     Set the value of one of the cost constants.
 
@@ -237,10 +230,9 @@ protected:
     @return Status for updating the cost constant
   */
 
-  virtual cost_constant_error set(const LEX_CSTRING &name, const double value,
-                                  bool default_value);
+  virtual cost_constant_error set(const LEX_CSTRING &name, const double value, bool default_value);
 
-protected:
+ protected:
   friend class Cost_model_constants;
 
   /**
@@ -267,8 +259,7 @@ protected:
     @return Status for updating the cost constant
   */
 
-  cost_constant_error update_default(const LEX_CSTRING &name,
-                                     const double value);
+  cost_constant_error update_default(const LEX_CSTRING &name, const double value);
 
   /**
     Utility function for changing the value of a cost constant.
@@ -287,10 +278,10 @@ protected:
                                             or not
   */
 
-  void update_cost_value(double *cost_constant, bool *cost_constant_is_default,
-                         double new_value, bool new_value_is_default);
+  void update_cost_value(double *cost_constant, bool *cost_constant_is_default, double new_value,
+                         bool new_value_is_default);
 
-private:
+ private:
   /*
     This section specifies default values for cost constants.
   */
@@ -315,14 +306,13 @@ private:
     This section has boolean variables that is used for knowing whether
     the above cost variables is using the default value or not.
   */
-  
+
   /// Whether the memory_block_read_cost is a default value or not
   bool m_memory_block_read_cost_default;
 
   /// Whether the io_block_read_cost is a default value or not
   bool m_io_block_read_cost_default;
 };
-
 
 /**
   Class that keeps all cost constants for a storage engine. Since
@@ -335,7 +325,7 @@ private:
 
 class Cost_model_se_info
 {
-public:
+ public:
   /**
     Constructor that just initializes the class.
   */
@@ -346,15 +336,15 @@ public:
   */
   ~Cost_model_se_info();
 
-private:
+ private:
   /*
     Since this object owns the cost constant objects, we must prevent that we
     create copies of this object that share the cost constant objects.
   */
-  Cost_model_se_info(const Cost_model_se_info&);
-  Cost_model_se_info& operator=(const Cost_model_se_info& rhs);
+  Cost_model_se_info(const Cost_model_se_info &);
+  Cost_model_se_info &operator=(const Cost_model_se_info &rhs);
 
-protected:
+ protected:
   friend class Cost_model_constants;
 
   /**
@@ -366,16 +356,14 @@ protected:
                           used for
   */
 
-  void set_cost_constants(SE_cost_constants *cost_constants,
-                          unsigned int storage_class)
+  void set_cost_constants(SE_cost_constants *cost_constants, unsigned int storage_class)
   {
     assert(cost_constants != NULL);
     assert(storage_class < MAX_STORAGE_CLASSES);
     assert(m_se_cost_constants[storage_class] == NULL);
 
-    m_se_cost_constants[storage_class]= cost_constants;
+    m_se_cost_constants[storage_class] = cost_constants;
   }
-
 
   /**
     Retrieve the cost constants to be used for this storage engine for
@@ -409,7 +397,7 @@ protected:
     return m_se_cost_constants[storage_class];
   }
 
-private:
+ private:
   /**
     Array of cost constant sets for this storage engine. There will
     be one set of cost constants for each device type defined for the
@@ -418,14 +406,13 @@ private:
   SE_cost_constants *m_se_cost_constants[MAX_STORAGE_CLASSES];
 };
 
-
 /**
   Set of all cost constants used by the server and all storage engines.
 */
 
 class Cost_model_constants
 {
-public:
+ public:
   /**
     Creates a set with cost constants using the default values defined in
     the source code.
@@ -448,10 +435,7 @@ public:
     @return the cost constants for the server
   */
 
-  const Server_cost_constants *get_server_cost_constants() const
-  {
-    return &m_server_constants;
-  }
+  const Server_cost_constants *get_server_cost_constants() const { return &m_server_constants; }
 
   /**
     Return the cost constants that should be used for a given table.
@@ -472,8 +456,7 @@ public:
     @return Status for updating the cost constant
   */
 
-  cost_constant_error update_server_cost_constant(const LEX_CSTRING &name,
-                                                  double value);
+  cost_constant_error update_server_cost_constant(const LEX_CSTRING &name, double value);
 
   /**
     Update the value for one of the storage engine cost constants.
@@ -487,23 +470,17 @@ public:
     @return Status for updating the cost constant
   */
 
-  cost_constant_error update_engine_cost_constant(THD *thd,
-                                                  const LEX_CSTRING &se_name,
-                                                  uint storage_category,
-                                                  const LEX_CSTRING &name,
-                                                  double value);
+  cost_constant_error update_engine_cost_constant(THD *thd, const LEX_CSTRING &se_name, uint storage_category,
+                                                  const LEX_CSTRING &name, double value);
 
-protected:
+ protected:
   friend class Cost_constant_cache;
 
   /**
     Increment the reference counter for this cost constant set
   */
 
-  void inc_ref_count()
-  {
-    m_ref_counter++;
-  }
+  void inc_ref_count() { m_ref_counter++; }
 
   /**
     Decrement the reference counter for this cost constant set
@@ -522,7 +499,7 @@ protected:
     return m_ref_counter;
   }
 
-private:
+ private:
   /**
     Utility function for finding the slot number for a storage engine
     based on the storage engine name.
@@ -537,8 +514,7 @@ private:
             is no handler for this name
   */
 
-  virtual uint find_handler_slot_from_name(THD *thd,
-                                           const LEX_CSTRING &name) const;
+  virtual uint find_handler_slot_from_name(THD *thd, const LEX_CSTRING &name) const;
 
   /**
     Update the default value for a storage engine cost constant.
@@ -550,9 +526,7 @@ private:
     @return Status for updating the cost constant
   */
 
-  cost_constant_error update_engine_default_cost(const LEX_CSTRING &name,
-                                                 uint storage_category,
-                                                 double value);
+  cost_constant_error update_engine_default_cost(const LEX_CSTRING &name, uint storage_category, double value);
 
   /// Cost constants for server operations
   Server_cost_constants m_server_constants;

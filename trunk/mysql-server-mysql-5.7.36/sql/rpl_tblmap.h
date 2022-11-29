@@ -24,7 +24,7 @@
 #define TABLE_MAPPING_H
 
 #include "my_global.h"
-#include "hash.h"        // HASH
+#include "hash.h"  // HASH
 
 /* Forward declarations */
 #ifndef MYSQL_CLIENT
@@ -34,7 +34,6 @@ class Table_map_log_event;
 typedef Table_map_log_event TABLE;
 void free_table_map_log_event(TABLE *table);
 #endif
-
 
 /*
   CLASS table_mapping
@@ -62,37 +61,39 @@ void free_table_map_log_event(TABLE *table);
   A dedicated MEM_ROOT needs to be used, see below.
 */
 
-class table_mapping {
-
-private:
+class table_mapping
+{
+ private:
   MEM_ROOT m_mem_root;
 
-public:
-
-  enum enum_error {
-      ERR_NO_ERROR = 0,
-      ERR_LIMIT_EXCEEDED,
-      ERR_MEMORY_ALLOCATION
+ public:
+  enum enum_error
+  {
+    ERR_NO_ERROR = 0,
+    ERR_LIMIT_EXCEEDED,
+    ERR_MEMORY_ALLOCATION
   };
 
   table_mapping();
   ~table_mapping();
 
-  TABLE* get_table(ulonglong table_id);
+  TABLE *get_table(ulonglong table_id);
 
-  int       set_table(ulonglong table_id, TABLE* table);
-  int       remove_table(ulonglong table_id);
-  void      clear_tables();
-  ulong     count() const { return m_table_ids.records; }
+  int set_table(ulonglong table_id, TABLE *table);
+  int remove_table(ulonglong table_id);
+  void clear_tables();
+  ulong count() const { return m_table_ids.records; }
 
-private:
+ private:
   /*
     This is a POD (Plain Old Data).  Keep it that way (we apply offsetof() to
     it, which only works for PODs)
   */
-  struct entry { 
+  struct entry
+  {
     ulonglong table_id;
-    union {
+    union
+    {
       TABLE *table;
       entry *next;
     };
@@ -100,9 +101,7 @@ private:
 
   entry *find_entry(ulonglong table_id)
   {
-    return (entry *) my_hash_search(&m_table_ids,
-                                    (uchar*)&table_id,
-                                    sizeof(table_id));
+    return (entry *)my_hash_search(&m_table_ids, (uchar *)&table_id, sizeof(table_id));
   }
   int expand();
 

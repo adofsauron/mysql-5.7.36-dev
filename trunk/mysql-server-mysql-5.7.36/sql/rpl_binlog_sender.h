@@ -25,12 +25,11 @@
 
 #ifdef HAVE_REPLICATION
 #include "my_global.h"
-#include "binlog.h"           // LOG_INFO
-#include "binlog_event.h"     // enum_binlog_checksum_alg, Log_event_type
+#include "binlog.h"        // LOG_INFO
+#include "binlog_event.h"  // enum_binlog_checksum_alg, Log_event_type
 #include "m_string.h"
-#include "mysqld_error.h"     // ER_*
-#include "sql_error.h"        // Diagnostics_area
-
+#include "mysqld_error.h"  // ER_*
+#include "sql_error.h"     // Diagnostics_area
 
 /**
   The major logic of dump thread is implemented in this class. It sends
@@ -38,9 +37,8 @@
 */
 class Binlog_sender
 {
-public:
-  Binlog_sender(THD *thd, const char *start_file, my_off_t start_pos,
-                Gtid_set *exclude_gtids, uint32 flag);
+ public:
+  Binlog_sender(THD *thd, const char *start_file, my_off_t start_pos, Gtid_set *exclude_gtids, uint32 flag);
 
   ~Binlog_sender() {}
 
@@ -55,14 +53,11 @@ public:
 
     @param type The last processed event type.
    */
-  inline void set_prev_event_type(binary_log::Log_event_type type)
-  {
-    m_prev_event_type= type;
-  }
+  inline void set_prev_event_type(binary_log::Log_event_type type) { m_prev_event_type = type; }
 
-private:
+ private:
   THD *m_thd;
-  String& m_packet;
+  String &m_packet;
 
   /* Requested start binlog file and position */
   const char *m_start_file;
@@ -187,7 +182,7 @@ private:
   /** Check if the requested binlog file and position are valid */
   int check_start_file();
   /** Transform read error numbers to error messages. */
-  const char* log_read_error_msg(int error);
+  const char *log_read_error_msg(int error);
 
   /**
     It dumps a binlog file. Events are read and sent one by one. If it need
@@ -298,9 +293,8 @@ private:
 
      @return It returns 0 if succeeds, otherwise 1 is returned.
   */
-  int read_event(IO_CACHE *log_cache,
-                 binary_log::enum_binlog_checksum_alg checksum_alg,
-                 uchar **event_ptr, uint32 *event_len);
+  int read_event(IO_CACHE *log_cache, binary_log::enum_binlog_checksum_alg checksum_alg, uchar **event_ptr,
+                 uint32 *event_len);
   /**
     Check if it is allowed to send this event type.
 
@@ -317,8 +311,7 @@ private:
     calls set_fatal_error().
     @retval false The event is allowed.
   */
-  bool check_event_type(binary_log::Log_event_type type,
-                        const char *log_file, my_off_t log_pos);
+  bool check_event_type(binary_log::Log_event_type type, const char *log_file, my_off_t log_pos);
   /**
     It checks if the event is in m_exclude_gtid.
 
@@ -339,8 +332,7 @@ private:
 
     @return It returns true if it should be skipped, otherwise false is turned.
   */
-  bool skip_event(const uchar *event_ptr, uint32 event_len,
-                  bool in_exclude_group);
+  bool skip_event(const uchar *event_ptr, uint32 event_len, bool in_exclude_group);
 
   void calc_event_checksum(uchar *event_ptr, size_t event_len);
   int flush_net();
@@ -361,7 +353,7 @@ private:
                           if event_len is 0, then the caller needs to extend
                           the buffer itself.
   */
-  int reset_transmit_packet(ushort flags, size_t event_len= 0);
+  int reset_transmit_packet(ushort flags, size_t event_len = 0);
 
   /**
     It waits until receiving an update_cond signal. It will send heartbeat
@@ -389,43 +381,33 @@ private:
   bool has_error() { return m_errno != 0; }
   inline void set_error(int errorno, const char *errmsg)
   {
-    my_snprintf(m_errmsg_buf, sizeof(m_errmsg_buf), "%.*s",
-                MYSQL_ERRMSG_SIZE - 1, errmsg);
-    m_errmsg= m_errmsg_buf;
-    m_errno= errorno;
+    my_snprintf(m_errmsg_buf, sizeof(m_errmsg_buf), "%.*s", MYSQL_ERRMSG_SIZE - 1, errmsg);
+    m_errmsg = m_errmsg_buf;
+    m_errno = errorno;
   }
 
-  inline void set_unknow_error(const char *errmsg)
-  {
-    set_error(ER_UNKNOWN_ERROR, errmsg);
-  }
+  inline void set_unknow_error(const char *errmsg) { set_error(ER_UNKNOWN_ERROR, errmsg); }
 
-  inline void set_fatal_error(const char *errmsg)
-  {
-    set_error(ER_MASTER_FATAL_ERROR_READING_BINLOG, errmsg);
-  }
+  inline void set_fatal_error(const char *errmsg) { set_error(ER_MASTER_FATAL_ERROR_READING_BINLOG, errmsg); }
 
-  inline bool is_fatal_error()
-  {
-    return m_errno == ER_MASTER_FATAL_ERROR_READING_BINLOG;
-  }
+  inline bool is_fatal_error() { return m_errno == ER_MASTER_FATAL_ERROR_READING_BINLOG; }
 
   inline bool event_checksum_on()
   {
     return m_event_checksum_alg > binary_log::BINLOG_CHECKSUM_ALG_OFF &&
-      m_event_checksum_alg < binary_log::BINLOG_CHECKSUM_ALG_ENUM_END;
+           m_event_checksum_alg < binary_log::BINLOG_CHECKSUM_ALG_ENUM_END;
   }
 
   inline void set_last_pos(my_off_t log_pos)
   {
-    m_last_file= m_linfo.log_file_name;
-    m_last_pos= log_pos;
+    m_last_file = m_linfo.log_file_name;
+    m_last_pos = log_pos;
   }
 
   inline void set_last_file(const char *log_file)
   {
     strcpy(m_last_file_buf, log_file);
-    m_last_file= m_last_file_buf;
+    m_last_file = m_last_file_buf;
   }
 
   /**
@@ -476,5 +458,5 @@ private:
   void calc_shrink_buffer_size(size_t current_size);
 };
 
-#endif // HAVE_REPLICATION
-#endif // DEFINED_RPL_BINLOG_SENDER
+#endif  // HAVE_REPLICATION
+#endif  // DEFINED_RPL_BINLOG_SENDER

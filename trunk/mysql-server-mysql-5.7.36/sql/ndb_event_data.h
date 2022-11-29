@@ -25,17 +25,17 @@
 #ifndef NDB_EVENT_DATA_H
 #define NDB_EVENT_DATA_H
 
-#include <my_global.h> // my_alloc.h
-#include <my_alloc.h> // MEM_ROOT
+#include <my_global.h>  // my_alloc.h
+#include <my_alloc.h>   // MEM_ROOT
 #include <my_bitmap.h>
 
 #include <ndbapi/ndbapi_limits.h>
 
 class Ndb_event_data
 {
-public:
-  Ndb_event_data(); // Not implemented
-  Ndb_event_data(const Ndb_event_data&); // Not implemented
+ public:
+  Ndb_event_data();                        // Not implemented
+  Ndb_event_data(const Ndb_event_data &);  // Not implemented
   Ndb_event_data(struct NDB_SHARE *the_share);
 
   ~Ndb_event_data();
@@ -46,11 +46,9 @@ public:
   union NdbValue *ndb_value[2];
   /* Bitmap with bit set for all primary key columns. */
   MY_BITMAP *pk_bitmap;
-  my_bitmap_map pk_bitbuf[(NDB_MAX_ATTRIBUTES_IN_TABLE +
-                            8*sizeof(my_bitmap_map) - 1) /
-                           (8*sizeof(my_bitmap_map))];
+  my_bitmap_map pk_bitbuf[(NDB_MAX_ATTRIBUTES_IN_TABLE + 8 * sizeof(my_bitmap_map) - 1) / (8 * sizeof(my_bitmap_map))];
 
-  void print(const char* where, FILE* file) const;
+  void print(const char *where, FILE *file) const;
   void init_pk_bitmap();
   void generate_minimal_bitmap(MY_BITMAP *before, MY_BITMAP *after);
 };

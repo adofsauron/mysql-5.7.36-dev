@@ -27,17 +27,14 @@
 
 class Compiled_in_command_iterator : public Command_iterator
 {
-public:
-  Compiled_in_command_iterator() : is_active(false)
-  {}
-  virtual ~Compiled_in_command_iterator()
-  {
-    end();
-  }
+ public:
+  Compiled_in_command_iterator() : is_active(false) {}
+  virtual ~Compiled_in_command_iterator() { end(); }
   void begin(void);
   int next(std::string &query, int *read_error, int *iterator_type);
   void end(void);
-private:
+
+ private:
   bool is_active;
 };
 

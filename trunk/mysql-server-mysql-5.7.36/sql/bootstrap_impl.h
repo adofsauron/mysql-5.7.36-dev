@@ -23,13 +23,12 @@
 #ifndef BOOTSTRAP_IMPL_H
 #define BOOTSTRAP_IMPL_H 1
 #include <string>
-#include "sql_bootstrap.h"       // MAX_BOOTSTRAP_QUERY_SIZE
-
+#include "sql_bootstrap.h"  // MAX_BOOTSTRAP_QUERY_SIZE
 
 /** abstract interface to reading bootstrap commands */
 class Command_iterator
 {
-public:
+ public:
   /** start processing the iterator */
   virtual void begin(void) {}
 
@@ -42,7 +41,7 @@ public:
                              (if it is from a file or a compiled one).
     @return one of the READ_BOOTSTRAP
   */
-  virtual int next(std::string &query, int *read_error, int *query_source)= 0;
+  virtual int next(std::string &query, int *read_error, int *query_source) = 0;
 
   /** end processing the iterator */
   virtual void end(void) {}
@@ -50,7 +49,7 @@ public:
   /** The current bootstrap command reader */
   static Command_iterator *current_iterator;
 
-protected:
+ protected:
   /** needed because of the virtual functions */
   virtual ~Command_iterator() {}
 };
@@ -58,24 +57,22 @@ protected:
 /** File bootstrap command reader */
 class File_command_iterator : public Command_iterator
 {
-public:
+ public:
   File_command_iterator(fgets_input_t input, fgets_fn_t fgets_fn)
-    : m_input(input), m_fgets_fn(fgets_fn), is_allocated(false)
-  {}
+      : m_input(input), m_fgets_fn(fgets_fn), is_allocated(false)
+  {
+  }
   File_command_iterator(const char *file_name);
   virtual ~File_command_iterator();
 
   int next(std::string &query, int *read_error, int *query_source);
   void end(void);
-  bool has_file()
-  {
-    return m_input != 0;
-  }
-protected:
+  bool has_file() { return m_input != 0; }
+
+ protected:
   fgets_input_t m_input;
   fgets_fn_t m_fgets_fn;
   bool is_allocated;
 };
-
 
 #endif /* BOOTSTRAP_IMPL_H */

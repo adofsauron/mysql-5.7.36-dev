@@ -27,7 +27,7 @@
 #include "auth/sql_security_ctx.h"  // Security_context
 
 /* max size of log messages (error log, plugins' logging, general log) */
-static const uint MAX_LOG_BUFFER_SIZE= 1024;
+static const uint MAX_LOG_BUFFER_SIZE = 1024;
 
 struct TABLE_LIST;
 
@@ -83,7 +83,6 @@ struct TABLE_LIST;
     Number of queries not using indexes logged to the slow query log per min.
 */
 
-
 class Query_logger;
 class Log_to_file_event_handler;
 
@@ -97,16 +96,15 @@ enum enum_log_table_type
 
 class File_query_log
 {
-  File_query_log(enum_log_table_type log_type)
-  : m_log_type(log_type), name(NULL), write_error(false), log_open(false)
+  File_query_log(enum_log_table_type log_type) : m_log_type(log_type), name(NULL), write_error(false), log_open(false)
   {
     memset(&log_file, 0, sizeof(log_file));
     mysql_mutex_init(key_LOG_LOCK_log, &LOCK_log, MY_MUTEX_INIT_SLOW);
 #ifdef HAVE_PSI_INTERFACE
     if (log_type == QUERY_LOG_GENERAL)
-      m_log_file_key= key_file_general_log;
+      m_log_file_key = key_file_general_log;
     else if (log_type == QUERY_LOG_SLOW)
-      m_log_file_key= key_file_slow_log;
+      m_log_file_key = key_file_slow_log;
 #endif
   }
 
@@ -158,10 +156,8 @@ class File_query_log
 
      @return true if error, false otherwise.
   */
-  bool write_general(ulonglong event_utime, const char *user_host,
-                     size_t user_host_len, my_thread_id thread_id,
-                     const char *command_type, size_t command_type_len,
-                     const char *sql_text, size_t sql_text_len);
+  bool write_general(ulonglong event_utime, const char *user_host, size_t user_host_len, my_thread_id thread_id,
+                     const char *command_type, size_t command_type_len, const char *sql_text, size_t sql_text_len);
 
   /**
      Log a query to the traditional slow log file.
@@ -182,12 +178,11 @@ class File_query_log
 
      @return true if error, false otherwise.
 */
-  bool write_slow(THD *thd, ulonglong current_utime, ulonglong query_start_arg,
-                  const char *user_host, size_t user_host_len,
-                  ulonglong query_utime, ulonglong lock_utime, bool is_command,
+  bool write_slow(THD *thd, ulonglong current_utime, ulonglong query_start_arg, const char *user_host,
+                  size_t user_host_len, ulonglong query_utime, ulonglong lock_utime, bool is_command,
                   const char *sql_text, size_t sql_text_len);
 
-private:
+ private:
   /** Type of log file. */
   const enum_log_table_type m_log_type;
 
@@ -220,14 +215,13 @@ private:
   friend class Query_logger;
 };
 
-
 /**
    Abstract superclass for handling logging to slow/general logs.
    Currently has two subclasses, for table and file based logging.
 */
 class Log_event_handler
 {
-public:
+ public:
   Log_event_handler() {}
   virtual ~Log_event_handler() {}
 
@@ -252,11 +246,9 @@ public:
      @retval  false   OK
      @retval  true    error occured
   */
-  virtual bool log_slow(THD *thd, ulonglong current_utime,
-                        ulonglong query_start_arg, const char *user_host,
-                        size_t user_host_len, ulonglong query_utime,
-                        ulonglong lock_utime, bool is_command,
-                        const char *sql_text, size_t sql_text_len)= 0;
+  virtual bool log_slow(THD *thd, ulonglong current_utime, ulonglong query_start_arg, const char *user_host,
+                        size_t user_host_len, ulonglong query_utime, ulonglong lock_utime, bool is_command,
+                        const char *sql_text, size_t sql_text_len) = 0;
 
   /**
      Log command to the general log.
@@ -284,33 +276,26 @@ public:
      @retval  false   OK
      @retval  true    error occured
   */
-  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host,
-                           size_t user_host_len, my_thread_id thread_id,
-                           const char *command_type, size_t command_type_len,
-                           const char *sql_text, size_t sql_text_len,
-                           const CHARSET_INFO *client_cs)= 0;
+  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host, size_t user_host_len,
+                           my_thread_id thread_id, const char *command_type, size_t command_type_len,
+                           const char *sql_text, size_t sql_text_len, const CHARSET_INFO *client_cs) = 0;
 };
 
-
 /** Class responsible for table based logging. */
-class Log_to_csv_event_handler: public Log_event_handler
+class Log_to_csv_event_handler : public Log_event_handler
 {
-public:
+ public:
   /** @see Log_event_handler::log_slow(). */
-  virtual bool log_slow(THD *thd, ulonglong current_utime,
-                        ulonglong query_start_arg, const char *user_host,
-                        size_t user_host_len, ulonglong query_utime,
-                        ulonglong lock_utime, bool is_command,
+  virtual bool log_slow(THD *thd, ulonglong current_utime, ulonglong query_start_arg, const char *user_host,
+                        size_t user_host_len, ulonglong query_utime, ulonglong lock_utime, bool is_command,
                         const char *sql_text, size_t sql_text_len);
 
   /** @see Log_event_handler::log_general(). */
-  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host,
-                           size_t user_host_len, my_thread_id thread_id,
-                           const char *command_type, size_t command_type_len,
-                           const char *sql_text, size_t sql_text_len,
-                           const CHARSET_INFO *client_cs);
+  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host, size_t user_host_len,
+                           my_thread_id thread_id, const char *command_type, size_t command_type_len,
+                           const char *sql_text, size_t sql_text_len, const CHARSET_INFO *client_cs);
 
-private:
+ private:
   /**
      Check if log table for given log type exists and can be opened.
 
@@ -324,42 +309,34 @@ private:
   friend class Query_logger;
 };
 
-
 /**
    Class responsible for file based logging.
    Basically a wrapper around File_query_log.
 */
-class Log_to_file_event_handler: public Log_event_handler
+class Log_to_file_event_handler : public Log_event_handler
 {
   File_query_log mysql_general_log;
   File_query_log mysql_slow_log;
 
-public:
+ public:
   /**
      Wrapper around File_query_log::write_slow() for slow log.
      @see Log_event_handler::log_slow().
   */
-  virtual bool log_slow(THD *thd, ulonglong current_utime,
-                        ulonglong query_start_arg, const char *user_host,
-                        size_t user_host_len, ulonglong query_utime,
-                        ulonglong lock_utime, bool is_command,
+  virtual bool log_slow(THD *thd, ulonglong current_utime, ulonglong query_start_arg, const char *user_host,
+                        size_t user_host_len, ulonglong query_utime, ulonglong lock_utime, bool is_command,
                         const char *sql_text, size_t sql_text_len);
 
   /**
      Wrapper around File_query_log::write_general() for general log.
      @see Log_event_handler::log_general().
   */
-  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host,
-                           size_t user_host_len, my_thread_id thread_id,
-                           const char *command_type, size_t command_type_len,
-                           const char *sql_text, size_t sql_text_len,
-                           const CHARSET_INFO *client_cs);
+  virtual bool log_general(THD *thd, ulonglong event_utime, const char *user_host, size_t user_host_len,
+                           my_thread_id thread_id, const char *command_type, size_t command_type_len,
+                           const char *sql_text, size_t sql_text_len, const CHARSET_INFO *client_cs);
 
-private:
-  Log_to_file_event_handler()
-    : mysql_general_log(QUERY_LOG_GENERAL),
-    mysql_slow_log(QUERY_LOG_SLOW)
-  { }
+ private:
+  Log_to_file_event_handler() : mysql_general_log(QUERY_LOG_GENERAL), mysql_slow_log(QUERY_LOG_SLOW) {}
 
   /** Close slow and general log files. */
   void cleanup()
@@ -380,12 +357,10 @@ private:
   friend class Query_logger;
 };
 
-
 /* Log event handler flags */
-static const uint LOG_NONE= 1;
-static const uint LOG_FILE= 2;
-static const uint LOG_TABLE= 4;
-
+static const uint LOG_NONE = 1;
+static const uint LOG_FILE = 2;
+static const uint LOG_TABLE = 4;
 
 /** Class which manages slow and general log event handlers. */
 class Query_logger
@@ -394,7 +369,7 @@ class Query_logger
      Currently we have only 2 kinds of logging functions: old-fashioned
      file logs and csv logging routines.
   */
-  static const uint MAX_LOG_HANDLERS_NUM= 2;
+  static const uint MAX_LOG_HANDLERS_NUM = 2;
 
   /**
      RW-lock protecting Query_logger.
@@ -411,7 +386,7 @@ class Query_logger
   Log_event_handler *slow_log_handler_list[MAX_LOG_HANDLERS_NUM + 1];
   Log_event_handler *general_log_handler_list[MAX_LOG_HANDLERS_NUM + 1];
 
-private:
+ private:
   /**
      Setup log event handlers for the given log_type.
 
@@ -420,10 +395,8 @@ private:
   */
   void init_query_log(enum_log_table_type log_type, ulonglong log_printer);
 
-public:
-  Query_logger()
-    : file_log_handler(NULL)
-  { }
+ public:
+  Query_logger() : file_log_handler(NULL) {}
 
   /**
      Check if table logging is turned on for the given log_type.
@@ -439,7 +412,7 @@ public:
     else if (log_type == QUERY_LOG_GENERAL)
       return (opt_general_log && (log_output_options & LOG_TABLE));
     assert(false);
-    return false;                             /* make compiler happy */
+    return false; /* make compiler happy */
   }
 
   /**
@@ -450,7 +423,9 @@ public:
      @return true if the file logging is on, false otherwise.
   */
   bool is_log_file_enabled(enum_log_table_type log_type) const
-  { return file_log_handler->get_query_log(log_type)->is_open(); }
+  {
+    return file_log_handler->get_query_log(log_type)->is_open();
+  }
 
   /**
      Perform basic log initialization: create file-based log handler.
@@ -462,7 +437,7 @@ public:
   */
   void init()
   {
-    file_log_handler= new Log_to_file_event_handler; // Causes mutex init
+    file_log_handler = new Log_to_file_event_handler;  // Causes mutex init
     mysql_rwlock_init(key_rwlock_LOCK_logger, &LOCK_logger);
   }
 
@@ -490,8 +465,7 @@ public:
 
      @return true if error, false otherwise.
   */
-  bool general_log_print(THD *thd, enum_server_command command,
-                         const char *format, ...);
+  bool general_log_print(THD *thd, enum_server_command command, const char *format, ...);
 
   /**
      Write query to general query log.
@@ -503,8 +477,7 @@ public:
 
      @return true if error, false otherwise.
   */
-  bool general_log_write(THD *thd, enum_server_command command,
-                         const char *query, size_t query_length);
+  bool general_log_write(THD *thd, enum_server_command command, const char *query, size_t query_length);
 
   /**
      Enable log event handlers for slow/general log.
@@ -549,8 +522,7 @@ public:
 
      @retval QUERY_LOG_NONE, QUERY_LOG_SLOW or QUERY_LOG_GENERAL
   */
-  enum_log_table_type check_if_log_table(TABLE_LIST *table_list,
-                                         bool check_if_opened) const;
+  enum_log_table_type check_if_log_table(TABLE_LIST *table_list, bool check_if_opened) const;
 };
 
 extern Query_logger query_logger;
@@ -613,8 +585,7 @@ void log_slow_do(THD *thd);
 */
 void log_slow_statement(THD *thd);
 
-
-#ifdef MYSQL_SERVER // Security_context not defined otherwise.
+#ifdef MYSQL_SERVER  // Security_context not defined otherwise.
 
 /**
   @class Log_throttle
@@ -642,7 +613,7 @@ class Log_throttle
   */
   ulong count;
 
-protected:
+ protected:
   /**
     Template for the summary line. Should contain %lu as the only
     conversion specification.
@@ -688,18 +659,17 @@ protected:
     @param msg           use this template containing %lu as only non-literal
   */
   Log_throttle(ulong window_usecs, const char *msg)
-              : window_end(0), window_size(window_usecs),
-                count(0), summary_template(msg)
-  {}
+      : window_end(0), window_size(window_usecs), count(0), summary_template(msg)
+  {
+  }
 
-public:
+ public:
   /**
     We're rate-limiting messages per minute; 60,000,000 microsecs = 60s
     Debugging is less tedious with a window in the region of 5000000
   */
-  static const ulong LOG_THROTTLE_WINDOW_SIZE= 60000000;
+  static const ulong LOG_THROTTLE_WINDOW_SIZE = 60000000;
 };
-
 
 /**
   @class Slow_log_throttle
@@ -708,7 +678,7 @@ public:
 
 class Slow_log_throttle : public Log_throttle
 {
-private:
+ private:
   /**
     We're using our own (empty) security context during summary generation.
     That way, the aggregate value of the suppressed queries isn't printed
@@ -754,12 +724,9 @@ private:
   /**
     Actually print the prepared summary to log.
   */
-  void print_summary(THD *thd, ulong suppressed,
-                     ulonglong print_lock_time,
-                     ulonglong print_exec_time);
+  void print_summary(THD *thd, ulong suppressed, ulonglong print_lock_time, ulonglong print_exec_time);
 
-public:
-
+ public:
   /**
     @param threshold     suppress after this many queries ...
     @param window_usecs  ... in this many micro-seconds
@@ -767,8 +734,7 @@ public:
     @param msg           use this template containing %lu as only non-literal
   */
   Slow_log_throttle(ulong *threshold, mysql_mutex_t *lock, ulong window_usecs,
-                    bool (*logger)(THD *, const char *, size_t),
-                    const char *msg);
+                    bool (*logger)(THD *, const char *, size_t), const char *msg);
 
   /**
     Prepare and print a summary of suppressed lines to log.
@@ -795,7 +761,6 @@ public:
   bool log(THD *thd, bool eligible);
 };
 
-
 /**
   @class Slow_log_throttle
   @brief Used for rate-limiting a error logs.
@@ -803,7 +768,7 @@ public:
 
 class Error_log_throttle : public Log_throttle
 {
-private:
+ private:
   /**
     The routine we call to actually log a line (i.e. our summary).
   */
@@ -812,22 +777,18 @@ private:
   /**
     Actually print the prepared summary to log.
   */
-  void print_summary(ulong suppressed)
-  {
-    (*log_summary)(summary_template, suppressed);
-  }
+  void print_summary(ulong suppressed) { (*log_summary)(summary_template, suppressed); }
 
-public:
+ public:
   /**
     @param window_usecs  ... in this many micro-seconds
     @param logger        call this function to log a single line (our summary)
     @param msg           use this template containing %lu as only non-literal
   */
-  Error_log_throttle(ulong window_usecs,
-                     void (*logger)(const char*, ...),
-                     const char *msg)
-  : Log_throttle(window_usecs, msg), log_summary(logger)
-  {}
+  Error_log_throttle(ulong window_usecs, void (*logger)(const char *, ...), const char *msg)
+      : Log_throttle(window_usecs, msg), log_summary(logger)
+  {
+  }
 
   /**
     Prepare and print a summary of suppressed lines to log.
@@ -848,10 +809,9 @@ public:
   bool log();
 };
 
-
 extern Slow_log_throttle log_throttle_qni;
 
-#endif // MYSQL_SERVER
+#endif  // MYSQL_SERVER
 
 ////////////////////////////////////////////////////////////
 //
@@ -863,22 +823,19 @@ extern Slow_log_throttle log_throttle_qni;
    Prints a printf style error message to the error log.
    @see error_log_print
 */
-void sql_print_error(const char *format, ...)
-  MY_ATTRIBUTE((format(printf, 1, 2)));
+void sql_print_error(const char *format, ...) MY_ATTRIBUTE((format(printf, 1, 2)));
 
 /**
    Prints a printf style warning message to the error log.
    @see error_log_print
 */
-void sql_print_warning(const char *format, ...)
-  MY_ATTRIBUTE((format(printf, 1, 2)));
+void sql_print_warning(const char *format, ...) MY_ATTRIBUTE((format(printf, 1, 2)));
 
 /**
    Prints a printf style information message to the error log.
    @see error_log_print
 */
-void sql_print_information(const char *format, ...)
-  MY_ATTRIBUTE((format(printf, 1, 2)));
+void sql_print_information(const char *format, ...) MY_ATTRIBUTE((format(printf, 1, 2)));
 
 /**
    Prints a printf style message to the error log.
@@ -889,8 +846,7 @@ void sql_print_information(const char *format, ...)
    @param format         Printf style format of message
    @param args           va_list list of arguments for the message
 */
-void error_log_print(enum loglevel level, const char *format, va_list args)
-  MY_ATTRIBUTE((format(printf, 2, 0)));
+void error_log_print(enum loglevel level, const char *format, va_list args) MY_ATTRIBUTE((format(printf, 2, 0)));
 
 /**
   Initialize structures (e.g. mutex) needed by the error log.

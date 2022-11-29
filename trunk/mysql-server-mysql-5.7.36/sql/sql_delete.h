@@ -23,9 +23,9 @@
 #ifndef SQL_DELETE_INCLUDED
 #define SQL_DELETE_INCLUDED
 
-#include "my_base.h"     // ha_rows
-#include "sql_class.h"   // Query_result_interceptor
-#include "sql_cmd_dml.h" // Sql_cmd_dml
+#include "my_base.h"      // ha_rows
+#include "sql_class.h"    // Query_result_interceptor
+#include "sql_cmd_dml.h"  // Sql_cmd_dml
 
 class THD;
 class Unique;
@@ -35,7 +35,7 @@ bool mysql_prepare_delete(THD *thd);
 bool mysql_delete(THD *thd, ha_rows rows);
 int mysql_multi_delete_prepare(THD *thd, uint *table_count);
 
-class Query_result_delete :public Query_result_interceptor
+class Query_result_delete : public Query_result_interceptor
 {
   TABLE_LIST *delete_tables;
   /// Pointers to temporary files used for delayed deletion of rows
@@ -63,28 +63,24 @@ class Query_result_delete :public Query_result_interceptor
   */
   bool error_handled;
 
-public:
+ public:
   Query_result_delete(TABLE_LIST *dt, uint num_of_tables);
   ~Query_result_delete();
   virtual bool need_explain_interceptor() const { return true; }
   int prepare(List<Item> &list, SELECT_LEX_UNIT *u);
   bool send_data(List<Item> &items);
-  bool initialize_tables (JOIN *join);
-  void send_error(uint errcode,const char *err);
+  bool initialize_tables(JOIN *join);
+  void send_error(uint errcode, const char *err);
   int do_deletes();
   int do_table_deletes(TABLE *table);
   bool send_eof();
-  inline ha_rows num_deleted()
-  {
-    return deleted;
-  }
+  inline ha_rows num_deleted() { return deleted; }
   virtual void abort_result_set();
 };
 
-
 class Sql_cmd_delete : public Sql_cmd_dml
 {
-public:
+ public:
   virtual enum_sql_command sql_command_code() const { return SQLCOM_DELETE; }
 
   virtual bool execute(THD *thd);
@@ -96,19 +92,15 @@ public:
     return false;
   }
 
-private:
+ private:
   bool mysql_prepare_delete(THD *thd);
   bool mysql_delete(THD *thd, ha_rows rows);
 };
 
-
 class Sql_cmd_delete_multi : public Sql_cmd_dml
 {
-public:
-  virtual enum_sql_command sql_command_code() const
-  {
-    return SQLCOM_DELETE_MULTI;
-  }
+ public:
+  virtual enum_sql_command sql_command_code() const { return SQLCOM_DELETE_MULTI; }
 
   virtual bool execute(THD *thd);
 
@@ -119,9 +111,8 @@ public:
     return mysql_multi_delete_prepare(thd, &table_count);
   }
 
-private:
+ private:
   int mysql_multi_delete_prepare(THD *thd, uint *table_count);
 };
-
 
 #endif /* SQL_DELETE_INCLUDED */

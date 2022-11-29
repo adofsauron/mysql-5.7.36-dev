@@ -42,16 +42,14 @@ class Field;
 
 class Table_trigger_field_support
 {
-public:
-  virtual TABLE *get_subject_table()= 0;
+ public:
+  virtual TABLE *get_subject_table() = 0;
 
-  virtual Field *get_trigger_variable_field(enum_trigger_variable_type v,
-                                            int field_index)= 0;
+  virtual Field *get_trigger_variable_field(enum_trigger_variable_type v, int field_index) = 0;
 
-  virtual ~Table_trigger_field_support()
-  { }
+  virtual ~Table_trigger_field_support() {}
 };
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // TABLE_TRIGGER_FIELD_SUPPORT_H_INCLUDED
+#endif  // TABLE_TRIGGER_FIELD_SUPPORT_H_INCLUDED

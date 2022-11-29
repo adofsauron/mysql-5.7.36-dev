@@ -33,7 +33,8 @@ class sys_var;
 struct st_mysql_plugin;
 struct st_plugin_dl;
 
-enum enum_plugin_load_option {
+enum enum_plugin_load_option
+{
   PLUGIN_OFF,
   PLUGIN_ON,
   PLUGIN_FORCE,
@@ -48,10 +49,10 @@ struct st_plugin_int
   st_mysql_plugin *plugin;
   st_plugin_dl *plugin_dl;
   uint state;
-  uint ref_count;               /* number of threads using the plugin */
-  void *data;                   /* plugin type specific, e.g. handlerton */
-  MEM_ROOT mem_root;            /* memory for dynamic plugin structures */
-  sys_var *system_vars;         /* server variables for this plugin */
+  uint ref_count;                      /* number of threads using the plugin */
+  void *data;                          /* plugin type specific, e.g. handlerton */
+  MEM_ROOT mem_root;                   /* memory for dynamic plugin structures */
+  sys_var *system_vars;                /* server variables for this plugin */
   enum_plugin_load_option load_option; /* OFF, ON, FORCE, F+PERMANENT */
 };
 
@@ -63,69 +64,33 @@ struct st_plugin_int
 #ifdef NDEBUG
 typedef struct st_plugin_int *plugin_ref;
 
-inline st_mysql_plugin *plugin_decl(st_plugin_int *ref)
-{
-  return ref->plugin;
-}
-inline st_plugin_dl *plugin_dlib(st_plugin_int *ref)
-{
-  return ref->plugin_dl;
-}
-template<typename T>
+inline st_mysql_plugin *plugin_decl(st_plugin_int *ref) { return ref->plugin; }
+inline st_plugin_dl *plugin_dlib(st_plugin_int *ref) { return ref->plugin_dl; }
+template <typename T>
 inline T plugin_data(st_plugin_int *ref)
 {
   return static_cast<T>(ref->data);
 }
-inline LEX_STRING *plugin_name(st_plugin_int *ref)
-{
-  return &(ref->name);
-}
-inline uint plugin_state(st_plugin_int *ref)
-{
-  return ref->state;
-}
-inline enum_plugin_load_option plugin_load_option(st_plugin_int *ref)
-{
-  return ref->load_option;
-}
-inline bool plugin_equals(st_plugin_int *ref1, st_plugin_int *ref2)
-{
-  return ref1 == ref2;
-}
+inline LEX_STRING *plugin_name(st_plugin_int *ref) { return &(ref->name); }
+inline uint plugin_state(st_plugin_int *ref) { return ref->state; }
+inline enum_plugin_load_option plugin_load_option(st_plugin_int *ref) { return ref->load_option; }
+inline bool plugin_equals(st_plugin_int *ref1, st_plugin_int *ref2) { return ref1 == ref2; }
 
 #else
 
 typedef struct st_plugin_int **plugin_ref;
 
-inline st_mysql_plugin *plugin_decl(st_plugin_int **ref)
-{
-  return ref[0]->plugin;
-}
-inline st_plugin_dl *plugin_dlib(st_plugin_int **ref)
-{
-  return ref[0]->plugin_dl;
-}
-template<typename T>
+inline st_mysql_plugin *plugin_decl(st_plugin_int **ref) { return ref[0]->plugin; }
+inline st_plugin_dl *plugin_dlib(st_plugin_int **ref) { return ref[0]->plugin_dl; }
+template <typename T>
 inline T plugin_data(st_plugin_int **ref)
 {
   return static_cast<T>(ref[0]->data);
 }
-inline LEX_STRING *plugin_name(st_plugin_int **ref)
-{
-  return &(ref[0]->name);
-}
-inline uint plugin_state(st_plugin_int **ref)
-{
-  return ref[0]->state;
-}
-inline enum_plugin_load_option plugin_load_option(st_plugin_int **ref)
-{
-  return ref[0]->load_option;
-}
-inline bool plugin_equals(st_plugin_int **ref1, st_plugin_int **ref2)
-{
-  return ref1 && ref2 && (ref1[0] == ref2[0]);
-}
+inline LEX_STRING *plugin_name(st_plugin_int **ref) { return &(ref[0]->name); }
+inline uint plugin_state(st_plugin_int **ref) { return ref[0]->state; }
+inline enum_plugin_load_option plugin_load_option(st_plugin_int **ref) { return ref[0]->load_option; }
+inline bool plugin_equals(st_plugin_int **ref1, st_plugin_int **ref2) { return ref1 && ref2 && (ref1[0] == ref2[0]); }
 #endif
 
 /**
@@ -135,16 +100,13 @@ inline bool plugin_equals(st_plugin_int **ref1, st_plugin_int **ref2)
 */
 class Plugin_array : public Prealloced_array<plugin_ref, 2>
 {
-public:
+ public:
   /**
     Class construction.
 
     @param psi_key PSI key.
   */
-  explicit Plugin_array(PSI_memory_key psi_key) :
-    Prealloced_array<plugin_ref, 2>(psi_key)
-  {
-  }
+  explicit Plugin_array(PSI_memory_key psi_key) : Prealloced_array<plugin_ref, 2>(psi_key) {}
 
   /**
     Check, whether the plugin specified by the plugin argument has been
@@ -159,7 +121,7 @@ public:
   {
     Plugin_array::iterator i;
 
-    for (i= begin(); i != end(); ++i)
+    for (i = begin(); i != end(); ++i)
       if (plugin_equals(*i, plugin))
         return true;
 

@@ -24,21 +24,21 @@
 #define MYSQLD_THD_MANAGER_INCLUDED
 
 #include "my_global.h"
-#include "my_atomic.h"         // my_atomic_add32
-#include "my_thread_local.h"   // my_thread_id
+#include "my_atomic.h"        // my_atomic_add32
+#include "my_thread_local.h"  // my_thread_id
 #include "prealloced_array.h"
 
 class THD;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-void thd_lock_thread_count(THD *thd);
-void thd_unlock_thread_count(THD *thd);
+  void thd_lock_thread_count(THD *thd);
+  void thd_unlock_thread_count(THD *thd);
 #ifdef __cplusplus
 }
 #endif
-
 
 /**
   Base class to perform actions on all thds in the thd list.
@@ -47,11 +47,10 @@ void thd_unlock_thread_count(THD *thd);
 
 class Do_THD_Impl
 {
-public:
+ public:
   virtual ~Do_THD_Impl() {}
-  virtual void operator()(THD*) = 0;
+  virtual void operator()(THD *) = 0;
 };
-
 
 /**
   Base class to find specific thd from the thd list.
@@ -61,7 +60,7 @@ public:
 
 class Find_THD_Impl
 {
-public:
+ public:
   virtual ~Find_THD_Impl() {}
   /**
     Override this operator to provide implementation to find specific thd.
@@ -72,9 +71,8 @@ public:
       @retval true  for matching thd
               false otherwise
   */
-  virtual bool operator()(THD* thd) = 0;
+  virtual bool operator()(THD *thd) = 0;
 };
-
 
 /**
   This class maintains THD object of all registered threads.
@@ -89,7 +87,7 @@ public:
 
 class Global_THD_manager
 {
-public:
+ public:
   /**
     Value for thread_id reserved for THDs which does not have an
     assigned value yet. get_new_thread_id() will never return this
@@ -100,7 +98,7 @@ public:
   /**
     Retrieves singleton instance
   */
-  static Global_THD_manager* get_instance()
+  static Global_THD_manager *get_instance()
   {
     assert(thd_manager != NULL);
     return thd_manager;
@@ -123,7 +121,7 @@ public:
     Internally used to bypass code.
     It enables unit test scripts to create dummy THD object for testing.
   */
-  void set_unit_test() { unit_test= true; }
+  void set_unit_test() { unit_test = true; }
 
   /**
     Adds THD to global THD list.
@@ -149,18 +147,12 @@ public:
   /**
     Increments thread running statistic variable.
   */
-  void inc_thread_running()
-  {
-    my_atomic_add32(&num_thread_running, 1);
-  }
+  void inc_thread_running() { my_atomic_add32(&num_thread_running, 1); }
 
   /**
     Decrements thread running statistic variable.
   */
-  void dec_thread_running()
-  {
-    my_atomic_add32(&num_thread_running, -1);
-  }
+  void dec_thread_running() { my_atomic_add32(&num_thread_running, -1); }
 
   /**
     Retrieves thread created statistic variable.
@@ -168,18 +160,12 @@ public:
                       after server start
     @note             This is a dirty read.
   */
-  ulonglong get_num_thread_created() const
-  {
-    return static_cast<ulonglong>(thread_created);
-  }
+  ulonglong get_num_thread_created() const { return static_cast<ulonglong>(thread_created); }
 
   /**
     Increments thread created statistic variable.
   */
-  void inc_thread_created()
-  {
-    my_atomic_add64(&thread_created, 1);
-  }
+  void inc_thread_created() { my_atomic_add64(&thread_created, 1); }
 
   /**
     Returns an unused thread id.
@@ -239,12 +225,12 @@ public:
       @retval THD* Matching THD
       @retval NULL When THD is not found in the list
   */
-  THD* find_thd(Find_THD_Impl *func);
+  THD *find_thd(Find_THD_Impl *func);
 
   // Declared static as it is referenced in handle_fatal_signal()
   static int global_thd_count;
 
-private:
+ private:
   Global_THD_manager();
   ~Global_THD_manager();
 
@@ -252,7 +238,7 @@ private:
   static Global_THD_manager *thd_manager;
 
   // Array of current THDs. Protected by LOCK_thd_list.
-  typedef Prealloced_array<THD*, 500, true> THD_array;
+  typedef Prealloced_array<THD *, 500, true> THD_array;
   THD_array thd_list;
 
   // Array of thread ID in current use. Protected by LOCK_thread_ids.

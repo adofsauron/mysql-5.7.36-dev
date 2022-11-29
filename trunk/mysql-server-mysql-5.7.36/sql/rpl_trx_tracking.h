@@ -23,12 +23,11 @@
 
 #define RPL_TRX_TRACKING_INCLUDED
 
-//#include <my_inttypes.h>
+// #include <my_inttypes.h>
 #include <map>
 
 #include "my_dbug.h"
 #include "sql_class.h"
-
 
 /**
   Logical timestamp generator for logical timestamping binlog transactions.
@@ -37,9 +36,9 @@
   The class provides necessary interfaces including that of
   generating a next consecutive value for the latter.
 */
-class  Logical_clock
+class Logical_clock
 {
-private:
+ private:
   int64 state;
   /*
     Offset is subtracted from the actual "absolute time" value at
@@ -49,7 +48,8 @@ private:
     The member is updated (incremented) per binary log rotation.
   */
   int64 offset;
-public:
+
+ public:
   Logical_clock();
   int64 step();
   int64 set_if_greater(int64 new_val);
@@ -65,7 +65,7 @@ public:
   {
     assert(offset <= new_offset);
 
-    offset= new_offset;
+    offset = new_offset;
   }
 };
 
@@ -75,7 +75,7 @@ public:
 */
 class Commit_order_trx_dependency_tracker
 {
-public:
+ public:
   /**
     Main function that gets the dependencies using the COMMIT_ORDER tracker.
 
@@ -87,15 +87,12 @@ public:
 
   void update_max_committed(int64 sequence_number);
 
-  Logical_clock get_max_committed_transaction()
-  {
-    return m_max_committed_transaction;
-  }
+  Logical_clock get_max_committed_transaction() { return m_max_committed_transaction; }
 
   int64 step();
   void rotate();
 
-private:
+ private:
   /* Committed transactions timestamp */
   Logical_clock m_max_committed_transaction;
 
@@ -109,11 +106,11 @@ private:
 */
 class Writeset_trx_dependency_tracker
 {
-public:
-  Writeset_trx_dependency_tracker(uint64 max_history_size):
-    m_opt_max_history_size(max_history_size),
-    m_writeset_history_start(0)
-  {}
+ public:
+  Writeset_trx_dependency_tracker(uint64 max_history_size)
+      : m_opt_max_history_size(max_history_size), m_writeset_history_start(0)
+  {
+  }
 
   /**
     Main function that gets the dependencies using the WRITESET tracker.
@@ -126,7 +123,7 @@ public:
 
   void rotate(int64 start);
 
-   /* option opt_binlog_transaction_dependency_history_size - atomic var */
+  /* option opt_binlog_transaction_dependency_history_size - atomic var */
   int64 m_opt_max_history_size;
   /* option opt_binlog_transaction_dependency_history_size */
   ulong m_opt_max_history_size_base_var;
@@ -135,11 +132,9 @@ public:
     Returns the value for the max history size with an atomic read to the var
     @return the value of opt_max_history_size
   */
-  ulong get_opt_max_history_size(){
-    return static_cast<ulong>(my_atomic_load64(&m_opt_max_history_size));
-  }
+  ulong get_opt_max_history_size() { return static_cast<ulong>(my_atomic_load64(&m_opt_max_history_size)); }
 
-private:
+ private:
   /*
     Monitor the last transaction with write-set to use as the minimal
     commit parent when logical clock source is WRITE_SET, i.e., the most recent
@@ -156,7 +151,7 @@ private:
     Track the last transaction sequence number that changed each row
     in the database, using row hashes from the writeset as the index.
   */
-  typedef std::map<uint64,int64> Writeset_history;
+  typedef std::map<uint64, int64> Writeset_history;
   Writeset_history m_writeset_history;
 };
 
@@ -166,7 +161,7 @@ private:
 */
 class Writeset_session_trx_dependency_tracker
 {
-public:
+ public:
   /**
     Main function that gets the dependencies using the WRITESET_SESSION tracker.
 
@@ -194,12 +189,12 @@ enum enum_binlog_transaction_dependency_tracking
     locks before trx1 released its locks, then trx2 is marked such that the
     slave can schedule it in parallel with trx1.
   */
-  DEPENDENCY_TRACKING_COMMIT_ORDER= 0,
+  DEPENDENCY_TRACKING_COMMIT_ORDER = 0,
   /**
     Tracks dependencies based on the set of rows updated. Any two transactions
     that change disjoint sets of rows, are said concurrent and non-contending.
   */
-  DEPENDENCY_TRACKING_WRITESET= 1,
+  DEPENDENCY_TRACKING_WRITESET = 1,
   /**
     Tracks dependencies based on the set of rows updated per session. Any two
     transactions that change disjoint sets of rows, on different sessions,
@@ -207,7 +202,7 @@ enum enum_binlog_transaction_dependency_tracking
     are always said to be dependent, i.e., are never concurrent and
     non-contending.
   */
-  DEPENDENCY_TRACKING_WRITESET_SESSION= 2
+  DEPENDENCY_TRACKING_WRITESET_SESSION = 2
 };
 
 /**
@@ -217,9 +212,8 @@ enum enum_binlog_transaction_dependency_tracking
 */
 class Transaction_dependency_tracker
 {
-public:
-  Transaction_dependency_tracker():
-    m_opt_tracking_mode(DEPENDENCY_TRACKING_COMMIT_ORDER), m_writeset(25000) {}
+ public:
+  Transaction_dependency_tracker() : m_opt_tracking_mode(DEPENDENCY_TRACKING_COMMIT_ORDER), m_writeset(25000) {}
 
   void get_dependency(THD *thd, int64 &sequence_number, int64 &commit_parent);
 
@@ -231,19 +225,16 @@ public:
   int64 step();
   void rotate();
 
-public:
+ public:
   /* option opt_binlog_transaction_dependency_tracking */
   int64 m_opt_tracking_mode;
 
   /* option opt_binlog_transaction_dependency_tracking associated with sysvar */
   long m_opt_tracking_mode_value;
 
-  Writeset_trx_dependency_tracker *get_writeset()
-  {
-    return &m_writeset;
-  }
+  Writeset_trx_dependency_tracker *get_writeset() { return &m_writeset; }
 
-private:
+ private:
   Writeset_trx_dependency_tracker m_writeset;
   Commit_order_trx_dependency_tracker m_commit_order;
   Writeset_session_trx_dependency_tracker m_writeset_session;

@@ -24,14 +24,14 @@
 #define SQL_DO_INCLUDED
 
 #include "sql_class.h"
- 
+
 class THD;
 struct LEX;
 
-class Query_result_do :public Query_result
+class Query_result_do : public Query_result
 {
-public:
-  Query_result_do(THD *thd): Query_result() {}
+ public:
+  Query_result_do(THD *thd) : Query_result() {}
   bool send_result_set_metadata(List<Item> &list, uint flags) { return false; }
   bool send_data(List<Item> &items);
   bool send_eof();

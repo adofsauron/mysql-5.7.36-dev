@@ -24,7 +24,7 @@
 #define RPL_INFO_DUMMY_H
 
 #include "my_global.h"
-#include "rpl_info_handler.h"      // Rpl_info_handler
+#include "rpl_info_handler.h"  // Rpl_info_handler
 
 /**
   Defines a dummy handler that should only be internally accessed.
@@ -35,11 +35,11 @@
 */
 class Rpl_info_dummy : public Rpl_info_handler
 {
-public:
+ public:
   Rpl_info_dummy(const int nparam);
-  virtual ~Rpl_info_dummy() { };
+  virtual ~Rpl_info_dummy(){};
 
-private:
+ private:
   int do_init_info();
   int do_init_info(uint instance);
   enum_return_check do_check_info();
@@ -53,32 +53,25 @@ private:
   int do_prepare_info_for_read();
   int do_prepare_info_for_write();
   bool do_set_info(const int pos, const char *value);
-  bool do_set_info(const int pos, const uchar *value,
-                   const size_t size);
+  bool do_set_info(const int pos, const uchar *value, const size_t size);
   bool do_set_info(const int pos, const int value);
   bool do_set_info(const int pos, const ulong value);
   bool do_set_info(const int pos, const float value);
   bool do_set_info(const int pos, const Server_ids *value);
-  bool do_get_info(const int pos, char *value, const size_t size,
-                   const char *default_value);
-  bool do_get_info(const int pos, uchar *value, const size_t size,
-                   const uchar *default_value);
-  bool do_get_info(const int pos, int *value,
-                   const int default_value);
-  bool do_get_info(const int pos, ulong *value,
-                   const ulong default_value);
-  bool do_get_info(const int pos, float *value,
-                   const float default_value);
-  bool do_get_info(const int pos, Server_ids *value,
-                   const Server_ids *default_value);
-  char* do_get_description_info();
+  bool do_get_info(const int pos, char *value, const size_t size, const char *default_value);
+  bool do_get_info(const int pos, uchar *value, const size_t size, const uchar *default_value);
+  bool do_get_info(const int pos, int *value, const int default_value);
+  bool do_get_info(const int pos, ulong *value, const ulong default_value);
+  bool do_get_info(const int pos, float *value, const float default_value);
+  bool do_get_info(const int pos, Server_ids *value, const Server_ids *default_value);
+  char *do_get_description_info();
   bool do_is_transactional();
   bool do_update_is_transactional();
   uint do_get_rpl_info_type();
 
-  static const bool abort= FALSE;
+  static const bool abort = FALSE;
 
-  Rpl_info_dummy& operator=(const Rpl_info_dummy& info);
-  Rpl_info_dummy(const Rpl_info_dummy& info);
+  Rpl_info_dummy &operator=(const Rpl_info_dummy &info);
+  Rpl_info_dummy(const Rpl_info_dummy &info);
 };
 #endif /* RPL_INFO_DUMMY_H */

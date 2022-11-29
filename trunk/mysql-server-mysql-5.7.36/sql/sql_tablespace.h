@@ -23,11 +23,10 @@
 #ifndef SQL_TABLESPACE_INCLUDED
 #define SQL_TABLESPACE_INCLUDED
 
-#include "table.h"                              // enum_ident_name_check
+#include "table.h"  // enum_ident_name_check
 
 class THD;
 class st_alter_tablespace;
-
 
 /**
   Check if tablespace name is valid
@@ -53,6 +52,6 @@ class st_alter_tablespace;
 
 enum_ident_name_check check_tablespace_name(const char *tablespace_name);
 
-int mysql_alter_tablespace(THD* thd, st_alter_tablespace *ts_info);
+int mysql_alter_tablespace(THD *thd, st_alter_tablespace *ts_info);
 
 #endif /* SQL_TABLESPACE_INCLUDED */

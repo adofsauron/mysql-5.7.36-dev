@@ -25,8 +25,8 @@
 
 #include "protocol_callback.h"
 #include "sql_class.h"
-#include "my_thread.h"           /* my_thread_id */
-#include "violite.h"             /* enum_vio_type */
+#include "my_thread.h" /* my_thread_id */
+#include "violite.h"   /* enum_vio_type */
 
 /**
   @file
@@ -42,7 +42,7 @@ extern PSI_statement_info stmt_info_new_packet;
 
 class Srv_session
 {
-public:
+ public:
   /**
     Initializes the module.
 
@@ -84,7 +84,6 @@ public:
   */
   static void deinit_thread();
 
-
   /**
     Checks if a plugin has left threads and sessions
 
@@ -113,7 +112,6 @@ public:
     Returns the number currently running threads initialized by this class.
   */
   static unsigned int thread_count(const void *plugin_name);
-
 
   /* Non-static members follow */
 
@@ -198,17 +196,14 @@ public:
       1   error
       0   success
   */
-  int execute_command(enum enum_server_command command,
-                      const union COM_DATA * data,
-                      const CHARSET_INFO * client_cs,
-                      const struct st_command_service_cbs * command_callbacks,
-                      enum cs_text_or_binary text_or_binary,
-                      void * callbacks_context);
+  int execute_command(enum enum_server_command command, const union COM_DATA *data, const CHARSET_INFO *client_cs,
+                      const struct st_command_service_cbs *command_callbacks, enum cs_text_or_binary text_or_binary,
+                      void *callbacks_context);
 
   /**
     Returns the internal THD object
   */
-  inline THD* get_thd() { return &thd; }
+  inline THD *get_thd() { return &thd; }
 
   /**
     Returns the ID of a session.
@@ -261,13 +256,13 @@ public:
 
   struct st_err_protocol_ctx
   {
-    st_err_protocol_ctx(srv_session_error_cb h, void *h_ctx) :
-       handler(h), handler_context(h_ctx) {}
+    st_err_protocol_ctx(srv_session_error_cb h, void *h_ctx) : handler(h), handler_context(h_ctx) {}
 
     srv_session_error_cb handler;
     void *handler_context;
   };
-private:
+
+ private:
   /**
     Sets session's state to attached
 
@@ -290,7 +285,7 @@ private:
 
   class Session_backup_and_attach
   {
-  public:
+   public:
     /**
       Constructs a session state object. Saves state then attaches a session.
       Uses RAII.
@@ -305,12 +300,13 @@ private:
     */
     ~Session_backup_and_attach();
 
-  private:
+   private:
     Srv_session *session;
     Srv_session *old_session; /* used in srv_session threads */
     THD *backup_thd;
     bool in_close_session;
-  public:
+
+   public:
     bool attach_error;
   };
 };

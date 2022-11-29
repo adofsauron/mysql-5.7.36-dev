@@ -47,84 +47,61 @@ class Event_queue_element_for_exec;
 class Events;
 class THD;
 
-void
-pre_init_event_thread(THD* thd);
+void pre_init_event_thread(THD *thd);
 
-bool
-post_init_event_thread(THD* thd);
+bool post_init_event_thread(THD *thd);
 
-void
-deinit_event_thread(THD *thd);
-
+void deinit_event_thread(THD *thd);
 
 class Event_worker_thread
 {
-public:
-  static void
-  init(Event_db_repository *db_repository_arg)
-  {
-    db_repository= db_repository_arg;
-  }
+ public:
+  static void init(Event_db_repository *db_repository_arg) { db_repository = db_repository_arg; }
 
-  void
-  run(THD *thd, Event_queue_element_for_exec *event);
+  void run(THD *thd, Event_queue_element_for_exec *event);
 
-private:
-  void
-  print_warnings(THD *thd, Event_job_data *et);
+ private:
+  void print_warnings(THD *thd, Event_job_data *et);
 
   static Event_db_repository *db_repository;
 };
 
-
 class Event_scheduler
 {
-public:
+ public:
   Event_scheduler(Event_queue *event_queue_arg);
   ~Event_scheduler();
 
-
   /* State changing methods follow */
 
-  bool
-  start(int *err_no);
+  bool start(int *err_no);
 
-  bool
-  stop();
+  bool stop();
 
   /*
     Need to be public because has to be called from the function
     passed to my_thread_create.
   */
-  bool
-  run(THD *thd);
-
+  bool run(THD *thd);
 
   /* Information retrieving methods follow */
-  bool
-  is_running();
+  bool is_running();
 
-  void
-  dump_internal_status();
+  void dump_internal_status();
 
-private:
-  int
-  workers_count();
+ private:
+  int workers_count();
 
   /* helper functions */
-  bool
-  execute_top(Event_queue_element_for_exec *event_name);
+  bool execute_top(Event_queue_element_for_exec *event_name);
 
   /* helper functions for working with mutexes & conditionals */
-  void
-  lock_data(const char *func, uint line);
+  void lock_data(const char *func, uint line);
 
-  void
-  unlock_data(const char *func, uint line);
+  void unlock_data(const char *func, uint line);
 
-  void
-  cond_wait(THD *thd, struct timespec *abstime, const PSI_stage_info *stage,
-            const char *src_func, const char *src_file, uint src_line);
+  void cond_wait(THD *thd, struct timespec *abstime, const PSI_stage_info *stage, const char *src_func,
+                 const char *src_file, uint src_line);
 
   mysql_mutex_t LOCK_scheduler_state;
 
@@ -146,14 +123,14 @@ private:
 
   uint mutex_last_locked_at_line;
   uint mutex_last_unlocked_at_line;
-  const char* mutex_last_locked_in_func;
-  const char* mutex_last_unlocked_in_func;
+  const char *mutex_last_locked_in_func;
+  const char *mutex_last_unlocked_in_func;
   bool mutex_scheduler_data_locked;
   bool waiting_on_cond;
 
   ulonglong started_events;
 
-private:
+ private:
   /* Prevent use of these */
   Event_scheduler(const Event_scheduler &);
   void operator=(Event_scheduler &);

@@ -34,17 +34,14 @@ typedef struct charset_info_st CHARSET_INFO;
 typedef struct st_mem_root MEM_ROOT;
 typedef unsigned int PSI_memory_key;
 
-void init_sql_alloc(PSI_memory_key key,
-                    MEM_ROOT *root, size_t block_size, size_t pre_alloc_size);
+void init_sql_alloc(PSI_memory_key key, MEM_ROOT *root, size_t block_size, size_t pre_alloc_size);
 
 void *sql_alloc(size_t);
 void *sql_calloc(size_t);
 char *sql_strdup(const char *str);
 char *sql_strmake(const char *str, size_t len);
-void *sql_memdup(const void * ptr, size_t size);
-char *sql_strmake_with_convert(const char *str, size_t arg_length,
-			       const CHARSET_INFO *from_cs,
-			       size_t max_res_length,
-			       const CHARSET_INFO *to_cs, size_t *result_length);
+void *sql_memdup(const void *ptr, size_t size);
+char *sql_strmake_with_convert(const char *str, size_t arg_length, const CHARSET_INFO *from_cs, size_t max_res_length,
+                               const CHARSET_INFO *to_cs, size_t *result_length);
 
 #endif /* THR_MALLOC_INCLUDED */

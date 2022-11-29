@@ -29,7 +29,6 @@
 #include <new>
 #include <limits>
 
-
 /**
   Malloc_allocator is a C++ STL memory allocator based on my_malloc/my_free.
 
@@ -51,50 +50,49 @@
   "basic_string assumes that allocators are default-constructible"
 */
 
-template <class T> class Malloc_allocator
+template <class T>
+class Malloc_allocator
 {
   // This cannot be const if we want to be able to swap.
   PSI_memory_key m_key;
 
-public:
+ public:
   typedef T value_type;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 
-  typedef T* pointer;
-  typedef const T* const_pointer;
+  typedef T *pointer;
+  typedef const T *const_pointer;
 
-  typedef T& reference;
-  typedef const T& const_reference;
+  typedef T &reference;
+  typedef const T &const_reference;
 
   pointer address(reference r) const { return &r; }
   const_pointer address(const_reference r) const { return &r; }
 
-  explicit Malloc_allocator(PSI_memory_key key) : m_key(key)
-  {}
+  explicit Malloc_allocator(PSI_memory_key key) : m_key(key) {}
 
-  template <class U> Malloc_allocator(const Malloc_allocator<U> &other)
-    : m_key(other.psi_key())
-  {}
-
-  template <class U> Malloc_allocator & operator=
-    (const Malloc_allocator<U> &other)
+  template <class U>
+  Malloc_allocator(const Malloc_allocator<U> &other) : m_key(other.psi_key())
   {
-    assert(m_key == other.psi_key()); // Don't swap key.
   }
 
-  ~Malloc_allocator()
-  {}
+  template <class U>
+  Malloc_allocator &operator=(const Malloc_allocator<U> &other)
+  {
+    assert(m_key == other.psi_key());  // Don't swap key.
+  }
 
-  pointer allocate(size_type n, const_pointer hint= 0)
+  ~Malloc_allocator() {}
+
+  pointer allocate(size_type n, const_pointer hint = 0)
   {
     if (n == 0)
       return NULL;
     if (n > max_size())
       throw std::bad_alloc();
 
-    pointer p= static_cast<pointer>(my_malloc(m_key, n * sizeof(T),
-                                              MYF(MY_WME | ME_FATALERROR)));
+    pointer p = static_cast<pointer>(my_malloc(m_key, n * sizeof(T), MYF(MY_WME | ME_FATALERROR)));
     if (p == NULL)
       throw std::bad_alloc();
     return p;
@@ -102,46 +100,53 @@ public:
 
   void deallocate(pointer p, size_type n) { my_free(p); }
 
-  void construct(pointer p, const T& val)
+  void construct(pointer p, const T &val)
   {
     assert(p != NULL);
-    try {
-      new(p) T(val);
-    } catch (...) {
-      assert(false); // Constructor should not throw an exception.
+    try
+    {
+      new (p) T(val);
+    }
+    catch (...)
+    {
+      assert(false);  // Constructor should not throw an exception.
     }
   }
 
   void destroy(pointer p)
   {
     assert(p != NULL);
-    try {
+    try
+    {
       p->~T();
-    } catch (...) {
-      assert(false); // Destructor should not throw an exception
+    }
+    catch (...)
+    {
+      assert(false);  // Destructor should not throw an exception
     }
   }
 
-  size_type max_size() const
-  {
-    return std::numeric_limits<size_t>::max() / sizeof(T);
-  }
+  size_type max_size() const { return std::numeric_limits<size_t>::max() / sizeof(T); }
 
-  template <class U> struct rebind { typedef Malloc_allocator<U> other; };
+  template <class U>
+  struct rebind
+  {
+    typedef Malloc_allocator<U> other;
+  };
 
   PSI_memory_key psi_key() const { return m_key; }
 };
 
 template <class T>
-bool operator== (const Malloc_allocator<T>& a1, const Malloc_allocator<T>& a2)
+bool operator==(const Malloc_allocator<T> &a1, const Malloc_allocator<T> &a2)
 {
   return a1.psi_key() == a2.psi_key();
 }
 
 template <class T>
-bool operator!= (const Malloc_allocator<T>& a1, const Malloc_allocator<T>& a2)
+bool operator!=(const Malloc_allocator<T> &a1, const Malloc_allocator<T> &a2)
 {
   return a1.psi_key() != a2.psi_key();
 }
 
-#endif // MALLOC_ALLOCATOR_INCLUDED
+#endif  // MALLOC_ALLOCATOR_INCLUDED

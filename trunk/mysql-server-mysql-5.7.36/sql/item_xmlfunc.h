@@ -23,33 +23,26 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-#include "item_strfunc.h"     // Item_str_func
+#include "item_strfunc.h"  // Item_str_func
 
 /* This file defines all XML functions */
 
-class Item_xml_str_func: public Item_str_func
+class Item_xml_str_func : public Item_str_func
 {
-protected:
+ protected:
   String tmp_value, pxml;
   Item *nodeset_func;
   String xpath_tmp_value;
-public:
-  Item_xml_str_func(const POS &pos, Item *a, Item *b): 
-    Item_str_func(pos, a,b) 
-  {
-    maybe_null= TRUE;
-  }
-  Item_xml_str_func(const POS &pos, Item *a, Item *b, Item *c): 
-    Item_str_func(pos, a,b,c) 
-  {
-    maybe_null= TRUE;
-  }
+
+ public:
+  Item_xml_str_func(const POS &pos, Item *a, Item *b) : Item_str_func(pos, a, b) { maybe_null = TRUE; }
+  Item_xml_str_func(const POS &pos, Item *a, Item *b, Item *c) : Item_str_func(pos, a, b, c) { maybe_null = TRUE; }
   void fix_length_and_dec();
   String *parse_xml(String *raw_xml, String *parsed_xml_buf);
   bool check_gcol_func_processor(uchar *int_arg) { return false; }
 
-protected:
-  /** 
+ protected:
+  /**
     Parse the specified XPATH expression and initialize @c nodeset_func.
 
     @note This is normally called in resolve phase since we only support
@@ -58,32 +51,26 @@ protected:
 
     @param xpath_expr XPATH expression to be parsed
    */
-  void parse_xpath(Item* xpath_expr);
+  void parse_xpath(Item *xpath_expr);
 };
 
-
-class Item_func_xml_extractvalue: public Item_xml_str_func
+class Item_func_xml_extractvalue : public Item_xml_str_func
 {
-public:
-  Item_func_xml_extractvalue(const POS &pos, Item *a, Item *b)
-    :Item_xml_str_func(pos, a, b)
-  {}
+ public:
+  Item_func_xml_extractvalue(const POS &pos, Item *a, Item *b) : Item_xml_str_func(pos, a, b) {}
   const char *func_name() const { return "extractvalue"; }
   String *val_str(String *);
 };
 
-
-class Item_func_xml_update: public Item_xml_str_func
+class Item_func_xml_update : public Item_xml_str_func
 {
   String tmp_value2, tmp_value3;
-public:
-  Item_func_xml_update(const POS &pos, Item *a, Item *b, Item *c)
-    :Item_xml_str_func(pos, a, b, c)
-  {}
+
+ public:
+  Item_func_xml_update(const POS &pos, Item *a, Item *b, Item *c) : Item_xml_str_func(pos, a, b, c) {}
   const char *func_name() const { return "updatexml"; }
   String *val_str(String *);
-  bool check_gcol_func_processor(uchar *int_arg)
-  { return true; }
+  bool check_gcol_func_processor(uchar *int_arg) { return true; }
 };
 
 #endif /* ITEM_XMLFUNC_INCLUDED */

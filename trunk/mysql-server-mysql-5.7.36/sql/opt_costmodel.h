@@ -24,12 +24,11 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-#include "my_dbug.h"                            // assert
-#include "sql_const.h"                          // defines for cost constants
+#include "my_dbug.h"    // assert
+#include "sql_const.h"  // defines for cost constants
 #include "opt_costconstants.h"
 
 struct TABLE;
-
 
 /**
   API for getting cost estimates for server operations that are not
@@ -38,16 +37,20 @@ struct TABLE;
 
 class Cost_model_server
 {
-public:
+ public:
   /**
     Temporary table types that the cost model differentiate between.
   */
-  enum enum_tmptable_type { MEMORY_TMPTABLE, DISK_TMPTABLE };
+  enum enum_tmptable_type
+  {
+    MEMORY_TMPTABLE,
+    DISK_TMPTABLE
+  };
 
   Cost_model_server() : m_cost_constants(NULL), m_server_cost_constants(NULL)
   {
 #if !defined(NDEBUG)
-    m_initialized= false;
+    m_initialized = false;
 #endif
   }
 
@@ -104,42 +107,30 @@ public:
     return keys * m_server_cost_constants->key_compare_cost();
   }
 
-private:
+ private:
   /**
     Cost of creating a temporary table in the memory storage engine.
   */
 
-  double memory_tmptable_create_cost() const
-  {
-    return m_server_cost_constants->memory_temptable_create_cost();
-  }
+  double memory_tmptable_create_cost() const { return m_server_cost_constants->memory_temptable_create_cost(); }
 
   /**
     Cost of storing or retrieving a row using the memory storage engine.
   */
 
-  double memory_tmptable_row_cost() const
-  {
-    return m_server_cost_constants->memory_temptable_row_cost();
-  }
+  double memory_tmptable_row_cost() const { return m_server_cost_constants->memory_temptable_row_cost(); }
 
   /**
     Cost of creating a temporary table using a disk based storage engine.
   */
 
-  double disk_tmptable_create_cost() const
-  {
-    return m_server_cost_constants->disk_temptable_create_cost();
-  }
+  double disk_tmptable_create_cost() const { return m_server_cost_constants->disk_temptable_create_cost(); }
 
   /**
     Cost of storing or retriving a row using a disk based storage engine.
   */
 
-  double disk_tmptable_row_cost() const
-  {
-    return m_server_cost_constants->disk_temptable_row_cost();
-  }
+  double disk_tmptable_row_cost() const { return m_server_cost_constants->disk_temptable_row_cost(); }
 
   /**
     Cost estimate for a row operation (insert, read) on a temporary table.
@@ -156,7 +147,7 @@ private:
     return disk_tmptable_row_cost();
   }
 
-public:
+ public:
   /**
     Cost estimate for creating a temporary table.
 
@@ -185,8 +176,7 @@ public:
     @return The estimated cost
   */
 
-  double tmptable_readwrite_cost(enum_tmptable_type tmptable_type, 
-                                 double write_rows, double read_rows) const
+  double tmptable_readwrite_cost(enum_tmptable_type tmptable_type, double write_rows, double read_rows) const
   {
     assert(m_initialized);
     assert(write_rows >= 0.0);
@@ -195,7 +185,7 @@ public:
     return (write_rows + read_rows) * tmptable_row_cost(tmptable_type);
   }
 
-protected:
+ protected:
   friend class Cost_model_table;
   /**
     Return a pointer to the object containing the current cost constants.
@@ -210,11 +200,11 @@ protected:
     return m_cost_constants;
   }
 
-private:
+ private:
   /// Cost constants to use in cost calculations
   const Cost_model_constants *m_cost_constants;
 
-protected: // To be able make a gunit fake sub class
+ protected:  // To be able make a gunit fake sub class
   /*
     Cost constants for the server operations. The purpose for this is
     to have direct access to these instead of having to go through the
@@ -230,7 +220,6 @@ protected: // To be able make a gunit fake sub class
 #endif
 };
 
-
 /**
   API for getting cost estimates for operations on table data.
 
@@ -240,12 +229,11 @@ protected: // To be able make a gunit fake sub class
 
 class Cost_model_table
 {
-public:
-  Cost_model_table() : m_cost_model_server(NULL), m_se_cost_constants(NULL),
-    m_table(NULL)
+ public:
+  Cost_model_table() : m_cost_model_server(NULL), m_se_cost_constants(NULL), m_table(NULL)
   {
 #if !defined(NDEBUG)
-    m_initialized= false;
+    m_initialized = false;
 #endif
   }
 
@@ -289,9 +277,9 @@ public:
   */
 
   double key_compare_cost(double keys) const
-   {
-     assert(m_initialized);
-     assert(keys >= 0.0);
+  {
+    assert(m_initialized);
+    assert(keys >= 0.0);
 
     return m_cost_model_server->key_compare_cost(keys);
   }
@@ -315,7 +303,7 @@ public:
   /**
     Cost of reading a number of blocks from the storage engine when the
     block is already in a memory buffer
-  
+
     @param blocks number of blocks to read
 
     @return Cost estimate
@@ -331,7 +319,7 @@ public:
 
   /**
     Cost of reading a number of random pages from a table.
-  
+
     @param pages number of pages to read
 
     @return Cost estimate
@@ -341,7 +329,7 @@ public:
 
   /**
     Cost of reading a number of random pages from an index.
-  
+
     @param index the index number
     @param pages number of pages to read
 
@@ -353,7 +341,7 @@ public:
   /**
     The fixed part of the cost for doing a sequential seek on disk.
 
-    For a harddisk, this corresponds to half a rotation (see comment 
+    For a harddisk, this corresponds to half a rotation (see comment
     for get_sweep_read_cost() in handler.cc).
   */
 
@@ -364,7 +352,7 @@ public:
     return DISK_SEEK_BASE_COST * io_block_read_cost(1.0);
   }
 
-private:
+ private:
   /**
     The cost for seeking past one block in a sequential seek.
 
@@ -377,12 +365,9 @@ private:
     See the comments for this constant in sql_const.h.
   */
 
-  double disk_seek_prop_cost() const
-  {
-    return DISK_SEEK_PROP_COST * io_block_read_cost(1.0);
-  }
+  double disk_seek_prop_cost() const { return DISK_SEEK_PROP_COST * io_block_read_cost(1.0); }
 
-public:
+ public:
   /**
     Cost estimate for a sequential disk seek where a given number of blocks
     are skipped.
@@ -397,12 +382,11 @@ public:
     assert(seek_blocks >= 0.0);
     assert(m_initialized);
 
-    const double cost= disk_seek_base_cost() +
-                       disk_seek_prop_cost() * seek_blocks;
+    const double cost = disk_seek_base_cost() + disk_seek_prop_cost() * seek_blocks;
     return cost;
   }
 
-protected: // To be able make a gunit fake sub class
+ protected:  // To be able make a gunit fake sub class
   /**
     Pointer to the cost model for the query. This is used for getting
     cost estimates for server operations.
@@ -421,7 +405,7 @@ protected: // To be able make a gunit fake sub class
   bool m_initialized;
 #endif
 
-private:
+ private:
   /// The table that this is the cost model for
   const TABLE *m_table;
 };

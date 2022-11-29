@@ -26,8 +26,8 @@
 #ifdef HAVE_REPLICATION
 
 #include "my_global.h"
-#include "rpl_channel_service_interface.h" // enum_channel_type
-#include "rpl_info_handler.h"              // enum_return_check
+#include "rpl_channel_service_interface.h"  // enum_channel_type
+#include "rpl_info_handler.h"               // enum_return_check
 
 #include <vector>
 #include <string>
@@ -38,50 +38,42 @@ class Relay_log_info;
 class Rpl_info;
 class Slave_worker;
 
-
 extern ulong opt_mi_repository_id;
 extern ulong opt_rli_repository_id;
 
 class Rpl_info_factory
 {
-public:
-  static bool create_slave_info_objects(uint mi_option, uint rli_option, int
-                                        thread_mask, Multisource_info *pchannel_map);
+ public:
+  static bool create_slave_info_objects(uint mi_option, uint rli_option, int thread_mask,
+                                        Multisource_info *pchannel_map);
 
-  static Master_info* create_mi_and_rli_objects(uint mi_option,
-                                                uint rli_option,
-                                                const char* channel,
-                                                bool convert_repo,
-                                                Multisource_info* channel_map);
+  static Master_info *create_mi_and_rli_objects(uint mi_option, uint rli_option, const char *channel, bool convert_repo,
+                                                Multisource_info *channel_map);
 
-  static Master_info *create_mi(uint rli_option, const char* channel,
-                                bool conver_repo);
-  static bool change_mi_repository(Master_info *mi, const uint mi_option,
-                                   const char **msg);
-  static Relay_log_info *create_rli(uint rli_option, bool is_slave_recovery,
-                                    const char* channel, bool convert_repo);
-  static bool change_rli_repository(Relay_log_info *rli, const uint rli_option,
-                                    const char **msg);
-  static Slave_worker *create_worker(uint rli_option, uint worker_id,
-                                     Relay_log_info *rli,
+  static Master_info *create_mi(uint rli_option, const char *channel, bool conver_repo);
+  static bool change_mi_repository(Master_info *mi, const uint mi_option, const char **msg);
+  static Relay_log_info *create_rli(uint rli_option, bool is_slave_recovery, const char *channel, bool convert_repo);
+  static bool change_rli_repository(Relay_log_info *rli, const uint rli_option, const char **msg);
+  static Slave_worker *create_worker(uint rli_option, uint worker_id, Relay_log_info *rli,
                                      bool is_gaps_collecting_phase);
   static bool reset_workers(Relay_log_info *rli);
-private:
+
+ private:
   typedef struct
   {
     uint n_fields;
     char name[FN_REFLEN];
     char pattern[FN_REFLEN];
-    bool name_indexed; // whether file name should include instance number
+    bool name_indexed;  // whether file name should include instance number
   } struct_file_data;
 
   typedef struct
   {
     uint n_fields;
-    const char* schema;
-    const char* name;
+    const char *schema;
+    const char *name;
     uint n_pk_fields;
-    const uint* pk_field_indexes;
+    const uint *pk_field_indexes;
   } struct_table_data;
 
   static struct_table_data rli_table_data;
@@ -92,42 +84,24 @@ private:
   static struct_file_data worker_file_data;
 
   static void init_repository_metadata();
-  static bool decide_repository(Rpl_info *info,
-                                uint option,
-                                Rpl_info_handler **handler_src,
-                                Rpl_info_handler **handler_dest,
-                                const char **msg);
-  static bool init_repositories(const struct_table_data table_data,
-                                const struct_file_data file_data,
-                                uint option,
-                                uint instance,
-                                Rpl_info_handler **handler_src,
-                                Rpl_info_handler **handler_dest,
+  static bool decide_repository(Rpl_info *info, uint option, Rpl_info_handler **handler_src,
+                                Rpl_info_handler **handler_dest, const char **msg);
+  static bool init_repositories(const struct_table_data table_data, const struct_file_data file_data, uint option,
+                                uint instance, Rpl_info_handler **handler_src, Rpl_info_handler **handler_dest,
                                 const char **msg);
 
-  static enum_return_check check_src_repository(Rpl_info *info,
-                                                uint option,
-                                                Rpl_info_handler **handler_src);
-  static bool check_error_repository(Rpl_info *info,
-                                     Rpl_info_handler *handler_src,
-                                     Rpl_info_handler *handler_dst,
-                                     enum_return_check err_src,
-                                     enum_return_check err_dst,
-                                     const char **msg);
-  static bool init_repositories(Rpl_info *info,
-                                Rpl_info_handler **handler_src,
-                                Rpl_info_handler **handler_dst,
+  static enum_return_check check_src_repository(Rpl_info *info, uint option, Rpl_info_handler **handler_src);
+  static bool check_error_repository(Rpl_info *info, Rpl_info_handler *handler_src, Rpl_info_handler *handler_dst,
+                                     enum_return_check err_src, enum_return_check err_dst, const char **msg);
+  static bool init_repositories(Rpl_info *info, Rpl_info_handler **handler_src, Rpl_info_handler **handler_dst,
                                 const char **msg);
-  static bool scan_repositories(uint* found_instances,
-                                uint* found_rep_option,
-                                const struct_table_data table_data,
+  static bool scan_repositories(uint *found_instances, uint *found_rep_option, const struct_table_data table_data,
                                 const struct_file_data file_data, const char **msg);
-  static bool load_channel_names_from_repository(std::vector<std::string> & channel_list, uint mi_instances,
+  static bool load_channel_names_from_repository(std::vector<std::string> &channel_list, uint mi_instances,
                                                  uint mi_repository, const char *default_channel,
                                                  bool *default_channel_created_previously);
 
-  static bool load_channel_names_from_table(std::vector<std::string> &channel_list,
-                                            const char *default_channel,
+  static bool load_channel_names_from_table(std::vector<std::string> &channel_list, const char *default_channel,
                                             bool *default_channel_created_previously);
 };
 

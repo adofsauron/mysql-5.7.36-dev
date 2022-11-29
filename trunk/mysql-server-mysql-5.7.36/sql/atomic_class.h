@@ -26,7 +26,6 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
    02110-1301 USA */
 
-
 #ifndef ATOMIC_CLASS_H_INCLUDED
 #define ATOMIC_CLASS_H_INCLUDED
 
@@ -38,9 +37,9 @@
 #define DEFINE_ATOMIC_CLASS(NAME, SUFFIX, TYPE)                         \
   class Atomic_##NAME                                                   \
   {                                                                     \
-public:                                                                 \
+   public:                                                              \
     /* Create a new Atomic_* object. */                                 \
-    Atomic_##NAME(TYPE n= 0)                                            \
+    Atomic_##NAME(TYPE n = 0)                                           \
     {                                                                   \
       my_atomic_store##SUFFIX(&value, n);                               \
     }                                                                   \
@@ -79,13 +78,13 @@ public:                                                                 \
     /* Set the value *non-atomically*. */                               \
     void non_atomic_set(TYPE n)                                         \
     {                                                                   \
-      value= n;                                                         \
+      value = n;                                                        \
     }                                                                   \
     /* Add to the value *non-atomically*. */                            \
     TYPE non_atomic_add(TYPE n)                                         \
     {                                                                   \
-      TYPE ret= value;                                                  \
-      value+= n;                                                        \
+      TYPE ret = value;                                                 \
+      value += n;                                                       \
       return ret;                                                       \
     }                                                                   \
     /* Set the value to the greatest of (old, n). */                    \
@@ -100,29 +99,30 @@ public:                                                                 \
     /* the old value and the the function returns true.  Otherwise, */  \
     /* *guess is set to the current value (which is greater than or */  \
     /* equal to n), and the function returns false. */                  \
-    bool atomic_set_to_max(TYPE n, TYPE *guess= NULL)                   \
+    bool atomic_set_to_max(TYPE n, TYPE *guess = NULL)                  \
     {                                                                   \
       TYPE _guess;                                                      \
       if (guess == NULL)                                                \
       {                                                                 \
-        _guess= n - 1;                                                  \
-        guess= &_guess;                                                 \
+        _guess = n - 1;                                                 \
+        guess = &_guess;                                                \
       }                                                                 \
       else                                                              \
         assert(*guess < n);                                             \
       bool ret;                                                         \
-      do {                                                              \
-        ret= atomic_compare_and_swap(guess, n);                         \
+      do                                                                \
+      {                                                                 \
+        ret = atomic_compare_and_swap(guess, n);                        \
       } while (!ret && *guess < n);                                     \
       return ret;                                                       \
     }                                                                   \
                                                                         \
-private:                                                                \
+   private:                                                             \
     TYPE value;                                                         \
   }
 
 DEFINE_ATOMIC_CLASS(int32, 32, int32);
 DEFINE_ATOMIC_CLASS(int64, 64, int64);
-//DEFINE_ATOMIC_CLASS(pointer, ptr, void *);
+// DEFINE_ATOMIC_CLASS(pointer, ptr, void *);
 
-#endif //ifndef ATOMIC_CLASS_H_INCLUDED
+#endif  // ifndef ATOMIC_CLASS_H_INCLUDED

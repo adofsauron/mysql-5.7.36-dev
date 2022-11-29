@@ -30,20 +30,15 @@
 
 enum frm_type_enum
 {
-  FRMTYPE_ERROR= 0,
+  FRMTYPE_ERROR = 0,
   FRMTYPE_TABLE,
   FRMTYPE_VIEW
 };
 
-
 frm_type_enum dd_frm_type(THD *thd, char *path, enum legacy_db_type *dbt);
 
-bool dd_frm_storage_engine(THD *thd, const char *db, const char *table_name,
-                           handlerton **table_type);
-bool dd_check_storage_engine_flag(THD *thd,
-                                  const char *db, const char *table_name,
-                                  uint32 flag,
-                                  bool *yes_no);
+bool dd_frm_storage_engine(THD *thd, const char *db, const char *table_name, handlerton **table_type);
+bool dd_check_storage_engine_flag(THD *thd, const char *db, const char *table_name, uint32 flag, bool *yes_no);
 bool dd_recreate_table(THD *thd, const char *db, const char *table_name);
 
-#endif // DATADICT_INCLUDED
+#endif  // DATADICT_INCLUDED

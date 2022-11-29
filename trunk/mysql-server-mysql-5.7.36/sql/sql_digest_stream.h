@@ -43,16 +43,12 @@ struct sql_digest_state
 
   inline void reset(unsigned char *token_array, uint length)
   {
-    m_last_id_index= 0;
+    m_last_id_index = 0;
     m_digest_storage.reset(token_array, length);
   }
 
-  inline bool is_empty()
-  {
-    return m_digest_storage.is_empty();
-  }
+  inline bool is_empty() { return m_digest_storage.is_empty(); }
 };
 typedef struct sql_digest_state sql_digest_state;
 
 #endif
-

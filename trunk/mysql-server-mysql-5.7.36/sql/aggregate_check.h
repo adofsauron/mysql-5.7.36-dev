@@ -391,7 +391,8 @@ there are no functional dependencies in this view.
 So let's assume that the query expression is a query specification (let's note
 it VS):
 @verbatim
-CREATE VIEW V AS SELECT [DISTINCT] VE1 AS C1, VE2 AS C2, ... FROM ... WHERE ... [GROUP BY ...] [HAVING ...] [ORDER BY ...]
+CREATE VIEW V AS SELECT [DISTINCT] VE1 AS C1, VE2 AS C2, ... FROM ... WHERE ... [GROUP BY ...] [HAVING ...] [ORDER BY
+...]
 @endverbatim
 
 If {VE1, VE2, VE3} are columns of tables of the FROM clause, and {VE1,
@@ -472,7 +473,6 @@ struct TABLE_LIST;
   myclass(myclass const &);                     \
   void operator=(myclass const &)
 
-
 /**
    Utility mixin class to be able to walk() only parts of item trees.
 
@@ -489,13 +489,16 @@ struct TABLE_LIST;
 */
 class Item_tree_walker
 {
-protected:
+ protected:
   Item_tree_walker() : stopped_at_item(NULL) {}
   ~Item_tree_walker() { assert(!stopped_at_item); }
 
   /// Stops walking children of this item
   void stop_at(const Item *i)
-  { assert(!stopped_at_item); stopped_at_item= i; }
+  {
+    assert(!stopped_at_item);
+    stopped_at_item = i;
+  }
 
   /**
      @returns if we are stopped. If item 'i' is where we stopped, restarts the
@@ -516,7 +519,7 @@ protected:
           returned back to this root (WALK_POSTFIX call), left the tree part:
           enable the walk again, for other tree parts.
         */
-        stopped_at_item= NULL;
+        stopped_at_item = NULL;
       }
       // No further processing to do for this item:
       return true;
@@ -524,27 +527,22 @@ protected:
     return false;
   }
 
-private:
+ private:
   const Item *stopped_at_item;
   FORBID_COPY_CTOR_AND_ASSIGN_OP(Item_tree_walker);
 };
 
-
 /**
    Checks for queries which have DISTINCT.
 */
-class Distinct_check: public Item_tree_walker, public Sql_alloc
+class Distinct_check : public Item_tree_walker, public Sql_alloc
 {
-public:
-
-  Distinct_check(st_select_lex *select_arg)
-    : select(select_arg), failed_ident(NULL)
-  {}
+ public:
+  Distinct_check(st_select_lex *select_arg) : select(select_arg), failed_ident(NULL) {}
 
   bool check_query(THD *thd);
 
-private:
-
+ private:
   /// Query block which we are validating
   st_select_lex *const select;
   /// Identifier which triggered an error
@@ -563,32 +561,35 @@ private:
   FORBID_COPY_CTOR_AND_ASSIGN_OP(Distinct_check);
 };
 
-
 /**
    Checks for queries which have GROUP BY or aggregate functions.
 */
-class Group_check: public Item_tree_walker, public Sql_alloc
+class Group_check : public Item_tree_walker, public Sql_alloc
 {
-public:
-
+ public:
   Group_check(st_select_lex *select_arg, st_mem_root *root)
-    : select(select_arg), search_in_underlying(false),
-    non_null_in_source(false),
-    table(NULL), group_in_fd(~0ULL), m_root(root), fd(root),
-    whole_tables_fd(0), mat_tables(root), failed_ident(NULL)
-    {}
+      : select(select_arg),
+        search_in_underlying(false),
+        non_null_in_source(false),
+        table(NULL),
+        group_in_fd(~0ULL),
+        m_root(root),
+        fd(root),
+        whole_tables_fd(0),
+        mat_tables(root),
+        failed_ident(NULL)
+  {
+  }
 
   ~Group_check()
   {
-    for (uint j= 0; j < mat_tables.size(); ++j)
-      delete mat_tables.at(j);
+    for (uint j = 0; j < mat_tables.size(); ++j) delete mat_tables.at(j);
   }
 
   bool check_query(THD *thd);
   void to_opt_trace(THD *thd);
 
-private:
-
+ private:
   /// Query block which we are validating
   st_select_lex *const select;
 
@@ -654,30 +655,34 @@ private:
   bool is_child() const { return table != NULL; }
 
   /// Private ctor, for a Group_check to build a child Group_check
-  Group_check(st_select_lex *select_arg, st_mem_root *root,
-              TABLE_LIST *table_arg)
-    : select(select_arg), search_in_underlying(false),
-    non_null_in_source(false), table(table_arg),
-    group_in_fd(0ULL), m_root(root), fd(root), whole_tables_fd(0),
-    mat_tables(root)
-    {
-      assert(table);
-    }
+  Group_check(st_select_lex *select_arg, st_mem_root *root, TABLE_LIST *table_arg)
+      : select(select_arg),
+        search_in_underlying(false),
+        non_null_in_source(false),
+        table(table_arg),
+        group_in_fd(0ULL),
+        m_root(root),
+        fd(root),
+        whole_tables_fd(0),
+        mat_tables(root)
+  {
+    assert(table);
+  }
   bool check_expression(THD *thd, Item *expr, bool in_select_list);
   /// Shortcut for common use of Item::local_column()
-  bool local_column(Item *item) const
-  { return item->local_column(select).is_true(); }
-  void add_to_fd(Item *item, bool local_column, bool add_to_mat_table= true);
-  void add_to_fd(table_map m) { whole_tables_fd|= m; find_group_in_fd(NULL); }
+  bool local_column(Item *item) const { return item->local_column(select).is_true(); }
+  void add_to_fd(Item *item, bool local_column, bool add_to_mat_table = true);
+  void add_to_fd(table_map m)
+  {
+    whole_tables_fd |= m;
+    find_group_in_fd(NULL);
+  }
   void add_to_source_of_mat_table(Item_field *item_field, TABLE_LIST *tl);
   bool is_in_fd(Item *item);
   bool is_in_fd_of_underlying(Item_ident *item);
-  void analyze_conjunct(Item *cond, Item *conjunct, table_map weak_tables,
-                        bool weak_side_upwards);
-  void analyze_scalar_eq(Item *cond, Item *left_item, Item *right_item,
-                         table_map weak_tables, bool weak_side_upwards);
-  void find_fd_in_cond(Item *cond, table_map weak_tables,
-                       bool weak_side_upwards);
+  void analyze_conjunct(Item *cond, Item *conjunct, table_map weak_tables, bool weak_side_upwards);
+  void analyze_scalar_eq(Item *cond, Item *left_item, Item *right_item, table_map weak_tables, bool weak_side_upwards);
+  void find_fd_in_cond(Item *cond, table_map weak_tables, bool weak_side_upwards);
   void find_fd_in_joined_table(List<TABLE_LIST> *join_list);
   void to_opt_trace2(Opt_trace_context *ctx, Opt_trace_object *parent);
   void find_group_in_fd(Item *item);
@@ -690,8 +695,7 @@ private:
     CHECK_STRONG_SIDE_COLUMN,
     CHECK_COLUMN
   };
-  bool do_ident_check(Item_ident *i, table_map tm,
-                      enum enum_ident_check type);
+  bool do_ident_check(Item_ident *i, table_map tm, enum enum_ident_check type);
 
   /**
      Just because we need to go through Item::walk() to reach all items to

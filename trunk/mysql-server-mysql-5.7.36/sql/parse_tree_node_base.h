@@ -35,11 +35,11 @@ class THD;
 class st_select_lex;
 
 // uncachable cause
-#define UNCACHEABLE_DEPENDENT   1
-#define UNCACHEABLE_RAND        2
-#define UNCACHEABLE_SIDEEFFECT	4
+#define UNCACHEABLE_DEPENDENT 1
+#define UNCACHEABLE_RAND 2
+#define UNCACHEABLE_SIDEEFFECT 4
 /* For uncorrelated SELECT in an UNION with some correlated SELECTs */
-#define UNCACHEABLE_UNITED      8
+#define UNCACHEABLE_UNITED 8
 #define UNCACHEABLE_CHECKOPTION 16
 
 /**
@@ -48,32 +48,32 @@ class st_select_lex;
 
 enum enum_parsing_context
 {
-  CTX_NONE= 0, ///< Empty value
-  CTX_MESSAGE, ///< "No tables used" messages etc.
-  CTX_TABLE, ///< for single-table UPDATE/DELETE/INSERT/REPLACE
-  CTX_SELECT_LIST, ///< SELECT (subquery), (subquery)...
-  CTX_UPDATE_VALUE_LIST, ///< UPDATE ... SET field=(subquery)...
+  CTX_NONE = 0,           ///< Empty value
+  CTX_MESSAGE,            ///< "No tables used" messages etc.
+  CTX_TABLE,              ///< for single-table UPDATE/DELETE/INSERT/REPLACE
+  CTX_SELECT_LIST,        ///< SELECT (subquery), (subquery)...
+  CTX_UPDATE_VALUE_LIST,  ///< UPDATE ... SET field=(subquery)...
   CTX_JOIN,
   CTX_QEP_TAB,
   CTX_MATERIALIZATION,
   CTX_DUPLICATES_WEEDOUT,
-  CTX_DERIVED, ///< "Derived" subquery
-  CTX_WHERE, ///< Subquery in WHERE clause item tree
-  CTX_ON,    ///< ON clause context
-  CTX_HAVING, ///< Subquery in HAVING clause item tree
-  CTX_ORDER_BY, ///< ORDER BY clause execution context
-  CTX_GROUP_BY, ///< GROUP BY clause execution context
-  CTX_SIMPLE_ORDER_BY, ///< ORDER BY clause execution context
-  CTX_SIMPLE_GROUP_BY, ///< GROUP BY clause execution context
-  CTX_DISTINCT, ///< DISTINCT clause execution context
-  CTX_SIMPLE_DISTINCT, ///< DISTINCT clause execution context
-  CTX_BUFFER_RESULT, ///< see SQL_BUFFER_RESULT in the manual
-  CTX_ORDER_BY_SQ, ///< Subquery in ORDER BY clause item tree
-  CTX_GROUP_BY_SQ, ///< Subquery in GROUP BY clause item tree
-  CTX_OPTIMIZED_AWAY_SUBQUERY, ///< Subquery executed once during optimization
+  CTX_DERIVED,                  ///< "Derived" subquery
+  CTX_WHERE,                    ///< Subquery in WHERE clause item tree
+  CTX_ON,                       ///< ON clause context
+  CTX_HAVING,                   ///< Subquery in HAVING clause item tree
+  CTX_ORDER_BY,                 ///< ORDER BY clause execution context
+  CTX_GROUP_BY,                 ///< GROUP BY clause execution context
+  CTX_SIMPLE_ORDER_BY,          ///< ORDER BY clause execution context
+  CTX_SIMPLE_GROUP_BY,          ///< GROUP BY clause execution context
+  CTX_DISTINCT,                 ///< DISTINCT clause execution context
+  CTX_SIMPLE_DISTINCT,          ///< DISTINCT clause execution context
+  CTX_BUFFER_RESULT,            ///< see SQL_BUFFER_RESULT in the manual
+  CTX_ORDER_BY_SQ,              ///< Subquery in ORDER BY clause item tree
+  CTX_GROUP_BY_SQ,              ///< Subquery in GROUP BY clause item tree
+  CTX_OPTIMIZED_AWAY_SUBQUERY,  ///< Subquery executed once during optimization
   CTX_UNION,
-  CTX_UNION_RESULT, ///< Pseudo-table context for UNION result
-  CTX_QUERY_SPEC ///< Inner SELECTs of UNION expression
+  CTX_UNION_RESULT,  ///< Pseudo-table context for UNION result
+  CTX_QUERY_SPEC     ///< Inner SELECTs of UNION expression
 };
 
 /*
@@ -88,62 +88,60 @@ typedef YYLTYPE POS;
 /**
   Environment data for the contextualization phase
 */
-struct Parse_context {
-  THD * const thd;              ///< Current thread handler
-  MEM_ROOT *mem_root;           ///< Current MEM_ROOT
-  st_select_lex * select;       ///< Current SELECT_LEX object
+struct Parse_context
+{
+  THD *const thd;         ///< Current thread handler
+  MEM_ROOT *mem_root;     ///< Current MEM_ROOT
+  st_select_lex *select;  ///< Current SELECT_LEX object
 
   Parse_context(THD *thd, st_select_lex *select);
 };
 
-
 // defined in sql_parse.cc:
 bool check_stack_overrun(THD *thd, long margin, uchar *dummy);
-
 
 /**
   Base class for parse tree nodes
 */
 class Parse_tree_node
 {
-  friend class Item; // for direct access to the "contextualized" field
+  friend class Item;  // for direct access to the "contextualized" field
 
-  Parse_tree_node(const Parse_tree_node &); // undefined
-  void operator=(const Parse_tree_node &); // undefined
+  Parse_tree_node(const Parse_tree_node &);  // undefined
+  void operator=(const Parse_tree_node &);   // undefined
 
 #ifndef NDEBUG
-private:
-  bool contextualized; // true if the node object is contextualized
-  bool transitional; // TODO: remove that after parser refactoring
-#endif//NDEBUG
+ private:
+  bool contextualized;  // true if the node object is contextualized
+  bool transitional;    // TODO: remove that after parser refactoring
+#endif                  // NDEBUG
 
-public:
-  static void *operator new(size_t size, MEM_ROOT *mem_root) throw ()
-  { return alloc_root(mem_root, size); }
-  static void operator delete(void *ptr,size_t size) { TRASH(ptr, size); }
+ public:
+  static void *operator new(size_t size, MEM_ROOT *mem_root) throw() { return alloc_root(mem_root, size); }
+  static void operator delete(void *ptr, size_t size) { TRASH(ptr, size); }
   static void operator delete(void *ptr, MEM_ROOT *mem_root) {}
 
-protected:
+ protected:
   Parse_tree_node()
   {
 #ifndef NDEBUG
-    contextualized= false;
-    transitional= false;
-#endif//NDEBUG
+    contextualized = false;
+    transitional = false;
+#endif  // NDEBUG
   }
 
-public:
+ public:
   virtual ~Parse_tree_node() {}
 
 #ifndef NDEBUG
   bool is_contextualized() const { return contextualized; }
-#endif//NDEBUG
+#endif  // NDEBUG
 
   /**
     Do all context-sensitive things and mark the node as contextualized
 
     @param      pc      current parse context
-    
+
     @retval     false   success
     @retval     true    syntax/OOM/etc error
   */
@@ -155,7 +153,7 @@ public:
       assert(contextualized);
       return false;
     }
-#endif//NDEBUG
+#endif  // NDEBUG
 
     uchar dummy;
     if (check_stack_overrun(pc->thd, STACK_MIN_SIZE, &dummy))
@@ -163,8 +161,8 @@ public:
 
 #ifndef NDEBUG
     assert(!contextualized);
-    contextualized= true;
-#endif//NDEBUG
+    contextualized = true;
+#endif  // NDEBUG
 
     return false;
   }
@@ -200,15 +198,13 @@ public:
   {
 #ifndef NDEBUG
     assert(!contextualized && !transitional);
-    transitional= true;
-    contextualized= true;
-#endif//NDEBUG
+    transitional = true;
+    contextualized = true;
+#endif  // NDEBUG
     return false;
   }
 
-  void error(Parse_context *pc,
-             const POS &position,
-             const char * msg= NULL) const;
+  void error(Parse_context *pc, const POS &position, const char *msg = NULL) const;
 };
 
 #endif /* PARSE_TREE_NODE_INCLUDED */

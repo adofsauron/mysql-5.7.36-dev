@@ -30,14 +30,14 @@ class Item;
 class THD;
 class sp_name;
 
-#define EVEX_GET_FIELD_FAILED   -2
-#define EVEX_BAD_PARAMS         -5
-#define EVEX_MICROSECOND_UNSUP  -6
+#define EVEX_GET_FIELD_FAILED -2
+#define EVEX_BAD_PARAMS -5
+#define EVEX_MICROSECOND_UNSUP -6
 #define EVEX_MAX_INTERVAL_VALUE 1000000000L
 
 class Event_parse_data : public Sql_alloc
 {
-public:
+ public:
   /*
     ENABLED = feature can function normally (is turned on)
     SLAVESIDE_DISABLED = feature is turned off on slave
@@ -47,7 +47,7 @@ public:
   {
     ENABLED = 1,
     DISABLED,
-    SLAVESIDE_DISABLED  
+    SLAVESIDE_DISABLED
   };
 
   enum enum_on_completion
@@ -75,12 +75,12 @@ public:
 
   LEX_STRING dbname;
   LEX_STRING name;
-  LEX_STRING definer;// combination of user and host
+  LEX_STRING definer;  // combination of user and host
   LEX_STRING comment;
 
-  Item* item_starts;
-  Item* item_ends;
-  Item* item_execute_at;
+  Item *item_starts;
+  Item *item_ends;
+  Item *item_execute_at;
 
   my_time_t starts;
   my_time_t ends;
@@ -90,49 +90,37 @@ public:
   my_bool execute_at_null;
 
   sp_name *identifier;
-  Item* item_expression;
+  Item *item_expression;
   longlong expression;
   interval_type interval;
 
-  static Event_parse_data *
-  new_instance(THD *thd);
+  static Event_parse_data *new_instance(THD *thd);
 
-  bool
-  check_parse_data(THD *thd);
+  bool check_parse_data(THD *thd);
 
-  bool
-  check_dates(THD *thd, int previous_on_completion);
+  bool check_dates(THD *thd, int previous_on_completion);
 
-private:
+ private:
+  void init_definer(THD *thd);
 
-  void
-  init_definer(THD *thd);
+  void init_name(THD *thd, sp_name *spn);
 
-  void
-  init_name(THD *thd, sp_name *spn);
+  int init_execute_at(THD *thd);
 
-  int
-  init_execute_at(THD *thd);
+  int init_interval(THD *thd);
 
-  int
-  init_interval(THD *thd);
+  int init_starts(THD *thd);
 
-  int
-  init_starts(THD *thd);
-
-  int
-  init_ends(THD *thd);
+  int init_ends(THD *thd);
 
   Event_parse_data();
   ~Event_parse_data();
 
-  void
-  report_bad_value(const char *item_name, Item *bad_item);
+  void report_bad_value(const char *item_name, Item *bad_item);
 
-  void
-  check_if_in_the_past(THD *thd, my_time_t ltime_utc);
+  void check_if_in_the_past(THD *thd, my_time_t ltime_utc);
 
-  Event_parse_data(const Event_parse_data &);	/* Prevent use of these */
+  Event_parse_data(const Event_parse_data &); /* Prevent use of these */
   void check_originator_id(THD *thd);
   void operator=(Event_parse_data &);
 };

@@ -21,12 +21,8 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 */
-int ndbcluster_connect(int (*connect_callback)(void),
-                       ulong wait_connected,
-                       uint connection_pool_size,
-                       bool optimized_node_select,
-                       const char* connect_string,
-                       uint force_nodeid,
+int ndbcluster_connect(int (*connect_callback)(void), ulong wait_connected, uint connection_pool_size,
+                       bool optimized_node_select, const char *connect_string, uint force_nodeid,
                        uint recv_thread_activation_threshold);
 
 void ndbcluster_disconnect(void);
@@ -36,12 +32,8 @@ ulonglong ndb_get_latest_trans_gci();
 void ndb_set_latest_trans_gci(ulonglong val);
 int ndb_has_node_id(uint id);
 int ndb_set_recv_thread_activation_threshold(Uint32 threshold);
-int ndb_set_recv_thread_cpu(Uint16 *cpuid_array,
-                            Uint32 cpuid_array_size);
-void ndb_get_connection_stats(Uint64* statsArr);
+int ndb_set_recv_thread_cpu(Uint16 *cpuid_array, Uint32 cpuid_array_size);
+void ndb_get_connection_stats(Uint64 *statsArr);
 
 /* perform random sleep in the range milli_sleep to 2*milli_sleep */
-inline void do_retry_sleep(unsigned milli_sleep)
-{
-  my_sleep(1000*(milli_sleep + 5*(rand()%(milli_sleep/5))));
-}
+inline void do_retry_sleep(unsigned milli_sleep) { my_sleep(1000 * (milli_sleep + 5 * (rand() % (milli_sleep / 5)))); }

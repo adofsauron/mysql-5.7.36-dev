@@ -24,10 +24,9 @@
 #define LOCKING_SERVICE_INCLUDED
 
 #include "my_global.h"
-#include "mysql/service_locking.h" // enum_locking_service_lock_type
+#include "mysql/service_locking.h"  // enum_locking_service_lock_type
 
 class THD;
-
 
 /**
   Acquire locking service locks.
@@ -45,9 +44,8 @@ class THD;
   @note both lock_namespace and lock_names are limited to 64 characters max.
   Names are compared using binary comparison.
 */
-int acquire_locking_service_locks(MYSQL_THD opaque_thd, const char* lock_namespace,
-                                  const char**lock_names, size_t lock_num,
-                                  enum enum_locking_service_lock_type lock_type,
+int acquire_locking_service_locks(MYSQL_THD opaque_thd, const char *lock_namespace, const char **lock_names,
+                                  size_t lock_num, enum enum_locking_service_lock_type lock_type,
                                   unsigned long lock_timeout);
 
 /**
@@ -60,7 +58,7 @@ int acquire_locking_service_locks(MYSQL_THD opaque_thd, const char* lock_namespa
   @retval 1              Release failed, error has been reported.
   @retval 0              Release successful, all locks acquired.
 */
-int release_locking_service_locks(MYSQL_THD opaque_thd, const char* lock_namespace);
+int release_locking_service_locks(MYSQL_THD opaque_thd, const char *lock_namespace);
 
 /**
   Release all locking service locks taken by the given connection

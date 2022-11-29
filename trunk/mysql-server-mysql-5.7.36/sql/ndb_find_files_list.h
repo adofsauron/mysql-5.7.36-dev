@@ -28,7 +28,6 @@
 #include <my_global.h>
 #include <mysql/mysql_lex_string.h>
 
-
 /**
   Ndb_find_files_list
 
@@ -50,30 +49,23 @@
 
 */
 
-class Ndb_find_files_list {
-  class THD* const m_thd;
-  struct Ndb_find_files_list_impl* m_impl;
+class Ndb_find_files_list
+{
+  class THD *const m_thd;
+  struct Ndb_find_files_list_impl *m_impl;
 
-  bool find_files_impl(const char *db,
-                       const char *path,
-                       bool dir);
-public:
-  explicit Ndb_find_files_list(class THD* thd);
+  bool find_files_impl(const char *db, const char *path, bool dir);
+
+ public:
+  explicit Ndb_find_files_list(class THD *thd);
   ~Ndb_find_files_list();
 
-  bool find_databases(const char *path)
-  {
-    return find_files_impl(NULL, path, true);
-  }
+  bool find_databases(const char *path) { return find_files_impl(NULL, path, true); }
 
-  bool find_tables(const char *db,
-                   const char *path)
-  {
-    return find_files_impl(db, path, false);
-  }
+  bool find_tables(const char *db, const char *path) { return find_files_impl(db, path, false); }
 
   // Return the name of next found file
-  MYSQL_LEX_STRING* next();
+  MYSQL_LEX_STRING *next();
 
   // Return the number of found files
   uint found_files() const;

@@ -32,18 +32,16 @@ class set_var;
 class String;
 typedef struct charset_info_st CHARSET_INFO;
 
-
 enum enum_session_tracker
 {
-  SESSION_SYSVARS_TRACKER,                       /* Session system variables */
-  CURRENT_SCHEMA_TRACKER,                        /* Current schema */
+  SESSION_SYSVARS_TRACKER, /* Session system variables */
+  CURRENT_SCHEMA_TRACKER,  /* Current schema */
   SESSION_STATE_CHANGE_TRACKER,
-  SESSION_GTIDS_TRACKER,                         /* Tracks GTIDs */
-  TRANSACTION_INFO_TRACKER                       /* Transaction state */
+  SESSION_GTIDS_TRACKER,   /* Tracks GTIDs */
+  TRANSACTION_INFO_TRACKER /* Transaction state */
 };
 
 #define SESSION_TRACKER_END TRANSACTION_INFO_TRACKER
-
 
 /**
   State_tracker
@@ -67,48 +65,42 @@ enum enum_session_tracker
 
 class State_tracker
 {
-protected:
+ protected:
   /** Is tracking enabled for a particular session state type ? */
   bool m_enabled;
 
   /** Has the session state type changed ? */
   bool m_changed;
 
-public:
+ public:
   /** Constructor */
-  State_tracker() : m_enabled(false), m_changed(false)
-  {}
+  State_tracker() : m_enabled(false), m_changed(false) {}
 
   /** Destructor */
-  virtual ~State_tracker()
-  {}
+  virtual ~State_tracker() {}
 
   /** Getters */
-  bool is_enabled() const
-  { return m_enabled; }
+  bool is_enabled() const { return m_enabled; }
 
-  bool is_changed() const
-  { return m_changed; }
+  bool is_changed() const { return m_changed; }
 
   /** Called in the constructor of THD*/
-  virtual bool enable(THD *thd)= 0;
+  virtual bool enable(THD *thd) = 0;
 
   /** To be invoked when the tracker's system variable is checked (ON_CHECK). */
-  virtual bool check(THD *thd, set_var *var)= 0;
+  virtual bool check(THD *thd, set_var *var) = 0;
 
   /** To be invoked when the tracker's system variable is updated (ON_UPDATE).*/
-  virtual bool update(THD *thd)= 0;
+  virtual bool update(THD *thd) = 0;
 
   /** Store changed data into the given buffer. */
-  virtual bool store(THD *thd, String &buf)= 0;
+  virtual bool store(THD *thd, String &buf) = 0;
 
   /** Mark the entity as changed. */
-  virtual void mark_as_changed(THD *thd, LEX_CSTRING *name)= 0;
+  virtual void mark_as_changed(THD *thd, LEX_CSTRING *name) = 0;
 
-  virtual void claim_memory_ownership()
-  {}
+  virtual void claim_memory_ownership() {}
 };
-
 
 /**
   Session_tracker
@@ -120,33 +112,26 @@ public:
 
 class Session_tracker
 {
-private:
+ private:
   State_tracker *m_trackers[SESSION_TRACKER_END + 1];
 
   /* The following two functions are private to disable copying. */
   /** Copy constructor */
-  Session_tracker(Session_tracker const &other)
-  {
-    assert(FALSE);
-  }
+  Session_tracker(Session_tracker const &other) { assert(FALSE); }
 
   /** Copy assignment operator */
-  Session_tracker& operator= (Session_tracker const &rhs)
+  Session_tracker &operator=(Session_tracker const &rhs)
   {
     assert(FALSE);
     return *this;
   }
 
-public:
-
+ public:
   /** Constructor */
-  Session_tracker()
-  {}
+  Session_tracker() {}
 
   /** Destructor */
-  ~Session_tracker()
-  {
-  }
+  ~Session_tracker() {}
   /**
     Initialize Session_tracker objects and enable them based on the
     tracker_xxx variables' value that the session inherit from global
@@ -172,8 +157,7 @@ public:
   void store(THD *thd, String &main_buf);
   void deinit()
   {
-    for (int i= 0; i <= SESSION_TRACKER_END; i ++)
-      delete m_trackers[i];
+    for (int i = 0; i <= SESSION_TRACKER_END; i++) delete m_trackers[i];
   }
 
   void claim_memory_ownership();
@@ -194,86 +178,84 @@ public:
 
 class Session_state_change_tracker : public State_tracker
 {
-private:
-
+ private:
   void reset();
 
-public:
+ public:
   Session_state_change_tracker();
   bool enable(THD *thd);
-  bool check(THD *thd, set_var *var)
-  { return false; }
+  bool check(THD *thd, set_var *var) { return false; }
   bool update(THD *thd);
   bool store(THD *thd, String &buf);
   void mark_as_changed(THD *thd, LEX_CSTRING *tracked_item_name);
-  bool is_state_changed(THD*);
-  void ensure_enabled(THD *thd)
-  {}
+  bool is_state_changed(THD *);
+  void ensure_enabled(THD *thd) {}
 };
-
 
 /**
   Transaction_state_tracker
   ----------------------
-  This is a tracker class that enables & manages the tracking of 
+  This is a tracker class that enables & manages the tracking of
   current transaction info for a particular connection.
 */
 
 /**
   Transaction state (no transaction, transaction active, work attached, etc.)
 */
-enum enum_tx_state {
-  TX_EMPTY        =   0,  ///< "none of the below"
-  TX_EXPLICIT     =   1,  ///< an explicit transaction is active
-  TX_IMPLICIT     =   2,  ///< an implicit transaction is active
-  TX_READ_TRX     =   4,  ///<     transactional reads  were done
-  TX_READ_UNSAFE  =   8,  ///< non-transaction   reads  were done
-  TX_WRITE_TRX    =  16,  ///<     transactional writes were done
-  TX_WRITE_UNSAFE =  32,  ///< non-transactional writes were done
-  TX_STMT_UNSAFE  =  64,  ///< "unsafe" (non-deterministic like UUID()) stmts
-  TX_RESULT_SET   = 128,  ///< result-set was sent
-  TX_WITH_SNAPSHOT= 256,  ///< WITH CONSISTENT SNAPSHOT was used
-  TX_LOCKED_TABLES= 512   ///< LOCK TABLES is active
+enum enum_tx_state
+{
+  TX_EMPTY = 0,            ///< "none of the below"
+  TX_EXPLICIT = 1,         ///< an explicit transaction is active
+  TX_IMPLICIT = 2,         ///< an implicit transaction is active
+  TX_READ_TRX = 4,         ///<     transactional reads  were done
+  TX_READ_UNSAFE = 8,      ///< non-transaction   reads  were done
+  TX_WRITE_TRX = 16,       ///<     transactional writes were done
+  TX_WRITE_UNSAFE = 32,    ///< non-transactional writes were done
+  TX_STMT_UNSAFE = 64,     ///< "unsafe" (non-deterministic like UUID()) stmts
+  TX_RESULT_SET = 128,     ///< result-set was sent
+  TX_WITH_SNAPSHOT = 256,  ///< WITH CONSISTENT SNAPSHOT was used
+  TX_LOCKED_TABLES = 512   ///< LOCK TABLES is active
 };
 
 /**
   Transaction access mode
 */
-enum enum_tx_read_flags {
-  TX_READ_INHERIT =   0,  ///< not explicitly set, inherit session.tx_read_only
-  TX_READ_ONLY    =   1,  ///< START TRANSACTION READ ONLY,  or tx_read_only=1
-  TX_READ_WRITE   =   2,  ///< START TRANSACTION READ WRITE, or tx_read_only=0
+enum enum_tx_read_flags
+{
+  TX_READ_INHERIT = 0,  ///< not explicitly set, inherit session.tx_read_only
+  TX_READ_ONLY = 1,     ///< START TRANSACTION READ ONLY,  or tx_read_only=1
+  TX_READ_WRITE = 2,    ///< START TRANSACTION READ WRITE, or tx_read_only=0
 };
 
 /**
   Transaction isolation level
 */
-enum enum_tx_isol_level {
-  TX_ISOL_INHERIT     = 0, ///< not explicitly set, inherit session.tx_isolation
+enum enum_tx_isol_level
+{
+  TX_ISOL_INHERIT = 0,  ///< not explicitly set, inherit session.tx_isolation
   TX_ISOL_UNCOMMITTED = 1,
-  TX_ISOL_COMMITTED   = 2,
-  TX_ISOL_REPEATABLE  = 3,
-  TX_ISOL_SERIALIZABLE= 4
+  TX_ISOL_COMMITTED = 2,
+  TX_ISOL_REPEATABLE = 3,
+  TX_ISOL_SERIALIZABLE = 4
 };
 
 /**
   Transaction tracking level
 */
-enum enum_session_track_transaction_info {
-  TX_TRACK_NONE      = 0,  ///< do not send tracker items on transaction info
-  TX_TRACK_STATE     = 1,  ///< track transaction status
-  TX_TRACK_CHISTICS  = 2   ///< track status and characteristics
+enum enum_session_track_transaction_info
+{
+  TX_TRACK_NONE = 0,     ///< do not send tracker items on transaction info
+  TX_TRACK_STATE = 1,    ///< track transaction status
+  TX_TRACK_CHISTICS = 2  ///< track status and characteristics
 };
 
 class Transaction_state_tracker : public State_tracker
 {
-public:
+ public:
   /** Constructor */
   Transaction_state_tracker();
-  bool enable(THD *thd)
-  { return update(thd); }
-  bool check(THD *thd, set_var *var)
-  { return false; }
+  bool enable(THD *thd) { return update(thd); }
+  bool check(THD *thd, set_var *var) { return false; }
   bool update(THD *thd);
   bool store(THD *thd, String &buf);
   void mark_as_changed(THD *thd, LEX_CSTRING *tracked_item_name);
@@ -291,24 +273,25 @@ public:
   /** Helper function: turn table info into table access flag */
   enum_tx_state calc_trx_state(THD *thd, thr_lock_type l, bool has_trx);
 
-private:
-  enum enum_tx_changed {
-    TX_CHG_NONE     = 0,  ///< no changes from previous stmt
-    TX_CHG_STATE    = 1,  ///< state has changed from previous stmt
-    TX_CHG_CHISTICS = 2   ///< characteristics have changed from previous stmt
+ private:
+  enum enum_tx_changed
+  {
+    TX_CHG_NONE = 0,     ///< no changes from previous stmt
+    TX_CHG_STATE = 1,    ///< state has changed from previous stmt
+    TX_CHG_CHISTICS = 2  ///< characteristics have changed from previous stmt
   };
 
   /** any trackable changes caused by this statement? */
-  uint                     tx_changed;
+  uint tx_changed;
 
   /** transaction state */
-  uint                     tx_curr_state,  tx_reported_state;
+  uint tx_curr_state, tx_reported_state;
 
   /** r/w or r/o set? session default? */
-  enum enum_tx_read_flags  tx_read_flags;
+  enum enum_tx_read_flags tx_read_flags;
 
   /**  isolation level */
-  enum enum_tx_isol_level  tx_isol_level;
+  enum enum_tx_isol_level tx_isol_level;
 
   void reset();
 
@@ -320,6 +303,5 @@ private:
       mark_as_changed(thd, NULL);
   }
 };
-
 
 #endif /* SESSION_TRACKER_INCLUDED */

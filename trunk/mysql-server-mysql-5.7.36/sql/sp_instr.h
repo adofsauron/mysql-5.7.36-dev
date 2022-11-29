@@ -38,7 +38,7 @@
 */
 class sp_branch_instr
 {
-public:
+ public:
   /**
     Update the destination; used by the SP-instruction-optimizer.
 
@@ -55,8 +55,7 @@ public:
   */
   virtual void backpatch(uint dest) = 0;
 
-  virtual ~sp_branch_instr()
-  { }
+  virtual ~sp_branch_instr() {}
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -65,20 +64,15 @@ public:
   Base class for every SP-instruction. sp_instr defines interface and provides
   base implementation.
 */
-class sp_instr : public Query_arena,
-                 public Sql_alloc,
-                 public sp_printable
+class sp_instr : public Query_arena, public Sql_alloc, public sp_printable
 {
-public:
+ public:
   sp_instr(uint ip, sp_pcontext *ctx)
-   :Query_arena(0, STMT_INITIALIZED_FOR_SP),
-    m_marked(false),
-    m_ip(ip),
-    m_parsing_ctx(ctx)
-  { }
+      : Query_arena(0, STMT_INITIALIZED_FOR_SP), m_marked(false), m_ip(ip), m_parsing_ctx(ctx)
+  {
+  }
 
-  virtual ~sp_instr()
-  { free_items(); }
+  virtual ~sp_instr() { free_items(); }
 
   /**
     Execute this instruction
@@ -94,24 +88,21 @@ public:
   */
   virtual bool execute(THD *thd, uint *nextp) = 0;
 #ifdef HAVE_PSI_INTERFACE
-  virtual PSI_statement_info* get_psi_info() = 0;
+  virtual PSI_statement_info *get_psi_info() = 0;
 #endif
 
-  uint get_ip() const
-  { return m_ip; }
+  uint get_ip() const { return m_ip; }
 
   /**
     Get the continuation destination (instruction pointer for the CONTINUE
     HANDLER) of this instruction.
     @return the continuation destination
   */
-  virtual uint get_cont_dest() const
-  { return get_ip() + 1; }
+  virtual uint get_cont_dest() const { return get_ip() + 1; }
 
-  sp_pcontext *get_parsing_ctx() const
-  { return m_parsing_ctx; }
+  sp_pcontext *get_parsing_ctx() const { return m_parsing_ctx; }
 
-protected:
+ protected:
   /**
     Clear diagnostics area.
     @param thd         Thread context
@@ -126,7 +117,7 @@ protected:
   // The following operations are used solely for SP-code-optimizer.
   ///////////////////////////////////////////////////////////////////////////
 
-public:
+ public:
   /**
     Mark this instruction as reachable during optimization and return the
     index to the next instruction. Jump instruction will add their
@@ -134,7 +125,7 @@ public:
   */
   virtual uint opt_mark(sp_head *sp, List<sp_instr> *leads)
   {
-    m_marked= true;
+    m_marked = true;
     return get_ip() + 1;
   }
 
@@ -144,8 +135,7 @@ public:
     used to prevent the mark sweep from looping for ever. Return the
     end destination.
   */
-  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start)
-  { return get_ip(); }
+  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start) { return get_ip(); }
 
   /**
     Inform the instruction that it has been moved during optimization.
@@ -153,16 +143,13 @@ public:
     must also take care of their destination pointers. Forward jumps get
     pushed to the backpatch list 'ibp'.
   */
-  virtual void opt_move(uint dst, List<sp_branch_instr> *ibp)
-  { m_ip= dst; }
+  virtual void opt_move(uint dst, List<sp_branch_instr> *ibp) { m_ip = dst; }
 
-  bool opt_is_marked() const
-  { return m_marked; }
+  bool opt_is_marked() const { return m_marked; }
 
-  virtual SQL_I_List<Item_trigger_field>* get_instr_trig_field_list()
-  { return NULL; }
+  virtual SQL_I_List<Item_trigger_field> *get_instr_trig_field_list() { return NULL; }
 
-protected:
+ protected:
   /// Show if this instruction is reachable within the SP
   /// (used by SP-optimizer).
   bool m_marked;
@@ -173,10 +160,10 @@ protected:
   /// Instruction parsing context.
   sp_pcontext *m_parsing_ctx;
 
-private:
+ private:
   // Prevent use of copy constructor and assignment operator.
   sp_instr(const sp_instr &);
-  void operator= (sp_instr &);
+  void operator=(sp_instr &);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -192,17 +179,17 @@ private:
 */
 class sp_lex_instr : public sp_instr
 {
-public:
+ public:
   sp_lex_instr(uint ip, sp_pcontext *ctx, LEX *lex, bool is_lex_owner)
-   :sp_instr(ip, ctx),
-    m_lex(NULL),
-    m_is_lex_owner(false),
-    m_first_execution(true),
-    m_prelocking_tables(NULL),
-    m_lex_query_tables_own_last(NULL)
+      : sp_instr(ip, ctx),
+        m_lex(NULL),
+        m_is_lex_owner(false),
+        m_first_execution(true),
+        m_prelocking_tables(NULL),
+        m_lex_query_tables_own_last(NULL)
   {
     set_lex(lex, is_lex_owner);
-    memset(&m_lex_mem_root, 0, sizeof (MEM_ROOT));
+    memset(&m_lex_mem_root, 0, sizeof(MEM_ROOT));
   }
 
   virtual ~sp_lex_instr()
@@ -239,10 +226,9 @@ public:
   */
   bool validate_lex_and_execute_core(THD *thd, uint *nextp, bool open_tables);
 
-  virtual SQL_I_List<Item_trigger_field>* get_instr_trig_field_list()
-  { return &m_trig_field_list; }
+  virtual SQL_I_List<Item_trigger_field> *get_instr_trig_field_list() { return &m_trig_field_list; }
 
-private:
+ private:
   /**
     Prepare LEX and thread for execution of instruction, if requested open
     and lock LEX's tables, execute instruction's core function, perform
@@ -291,7 +277,7 @@ private:
   */
   void free_lex();
 
-public:
+ public:
   /////////////////////////////////////////////////////////////////////////
   // sp_instr implementation.
   /////////////////////////////////////////////////////////////////////////
@@ -307,7 +293,7 @@ public:
     return validate_lex_and_execute_core(thd, nextp, true);
   }
 
-protected:
+ protected:
   /////////////////////////////////////////////////////////////////////////
   // Interface (virtual) methods.
   /////////////////////////////////////////////////////////////////////////
@@ -356,8 +342,7 @@ protected:
     get_query(). Strictly speaking, this is a drawback of the current class
     hierarchy.
   */
-  virtual LEX_STRING get_expr_query() const
-  { return EMPTY_STR; }
+  virtual LEX_STRING get_expr_query() const { return EMPTY_STR; }
 
   /**
     Callback function which is called after the statement query string is
@@ -369,8 +354,7 @@ protected:
 
     @return Error flag.
   */
-  virtual bool on_after_expr_parsing(THD *thd)
-  { return false; }
+  virtual bool on_after_expr_parsing(THD *thd) { return false; }
 
   /**
     Destroy items in the free list before re-parsing the statement query
@@ -382,14 +366,14 @@ protected:
 
   /// LEX-object.
   LEX *m_lex;
-private:
-  /** 
+
+ private:
+  /**
     Mem-root for storing the LEX-tree during reparse. This
     mem-root is freed when a reparse is triggered or the stored
     routine is dropped.
   */
   MEM_ROOT m_lex_mem_root;
-
 
   /**
     Indicates whether this sp_lex_instr instance is responsible for
@@ -439,14 +423,11 @@ private:
 */
 class sp_instr_stmt : public sp_lex_instr
 {
-public:
-  sp_instr_stmt(uint ip,
-                LEX *lex,
-                LEX_STRING query)
-   :sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true),
-    m_query(query),
-    m_valid(true)
-  { }
+ public:
+  sp_instr_stmt(uint ip, LEX *lex, LEX_STRING query)
+      : sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true), m_query(query), m_valid(true)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_instr implementation.
@@ -466,22 +447,19 @@ public:
 
   virtual bool exec_core(THD *thd, uint *nextp);
 
-  virtual bool is_invalid() const
-  { return !m_valid; }
+  virtual bool is_invalid() const { return !m_valid; }
 
-  virtual void invalidate()
-  { m_valid= false; }
+  virtual void invalidate() { m_valid = false; }
 
-  virtual void get_query(String *sql_query) const
-  { sql_query->append(m_query.str, m_query.length); }
+  virtual void get_query(String *sql_query) const { sql_query->append(m_query.str, m_query.length); }
 
   virtual bool on_after_expr_parsing(THD *thd)
   {
-    m_valid= true;
+    m_valid = true;
     return false;
   }
 
-private:
+ private:
   /// Complete query of the SQL-statement.
   LEX_STRING m_query;
 
@@ -489,11 +467,8 @@ private:
   bool m_valid;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -506,18 +481,14 @@ public:
 */
 class sp_instr_set : public sp_lex_instr
 {
-public:
-  sp_instr_set(uint ip,
-               LEX *lex,
-	       uint offset,
-               Item *value_item,
-               LEX_STRING value_query,
-               bool is_lex_owner)
-   :sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, is_lex_owner),
-    m_offset(offset),
-    m_value_item(value_item),
-    m_value_query(value_query)
-  { }
+ public:
+  sp_instr_set(uint ip, LEX *lex, uint offset, Item *value_item, LEX_STRING value_query, bool is_lex_owner)
+      : sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, is_lex_owner),
+        m_offset(offset),
+        m_value_item(value_item),
+        m_value_query(value_query)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -531,25 +502,22 @@ public:
 
   virtual bool exec_core(THD *thd, uint *nextp);
 
-  virtual bool is_invalid() const
-  { return m_value_item == NULL; }
+  virtual bool is_invalid() const { return m_value_item == NULL; }
 
-  virtual void invalidate()
-  { m_value_item= NULL; }
+  virtual void invalidate() { m_value_item = NULL; }
 
   virtual bool on_after_expr_parsing(THD *thd)
   {
     assert(thd->lex->select_lex->item_list.elements == 1);
 
-    m_value_item= thd->lex->select_lex->item_list.head();
+    m_value_item = thd->lex->select_lex->item_list.head();
 
     return false;
   }
 
-  virtual LEX_STRING get_expr_query() const
-  { return m_value_query; }
+  virtual LEX_STRING get_expr_query() const { return m_value_query; }
 
-private:
+ private:
   /// Frame offset.
   uint m_offset;
 
@@ -560,12 +528,9 @@ private:
   LEX_STRING m_value_query;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
+ public:
   static PSI_statement_info psi_info;
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 #endif
 };
 
@@ -577,19 +542,16 @@ public:
 */
 class sp_instr_set_trigger_field : public sp_lex_instr
 {
-public:
-  sp_instr_set_trigger_field(uint ip,
-                             LEX *lex,
-                             LEX_STRING trigger_field_name,
-                             Item_trigger_field *trigger_field,
-                             Item *value_item,
-                             LEX_STRING value_query)
-   :sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true),
-    m_trigger_field_name(trigger_field_name),
-    m_trigger_field(trigger_field),
-    m_value_item(value_item),
-    m_value_query(value_query)
-  { }
+ public:
+  sp_instr_set_trigger_field(uint ip, LEX *lex, LEX_STRING trigger_field_name, Item_trigger_field *trigger_field,
+                             Item *value_item, LEX_STRING value_query)
+      : sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true),
+        m_trigger_field_name(trigger_field_name),
+        m_trigger_field(trigger_field),
+        m_value_item(value_item),
+        m_value_query(value_query)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -603,20 +565,17 @@ public:
 
   virtual bool exec_core(THD *thd, uint *nextp);
 
-  virtual bool is_invalid() const
-  { return m_value_item == NULL; }
+  virtual bool is_invalid() const { return m_value_item == NULL; }
 
-  virtual void invalidate()
-  { m_value_item= NULL; }
+  virtual void invalidate() { m_value_item = NULL; }
 
   virtual bool on_after_expr_parsing(THD *thd);
 
   virtual void cleanup_before_parsing(THD *thd);
 
-  virtual LEX_STRING get_expr_query() const
-  { return m_value_query; }
+  virtual LEX_STRING get_expr_query() const { return m_value_query; }
 
-private:
+ private:
   /// Trigger field name ("field_name" of the "NEW.field_name").
   LEX_STRING m_trigger_field_name;
 
@@ -630,11 +589,8 @@ private:
   LEX_STRING m_value_query;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -647,17 +603,14 @@ public:
 */
 class sp_instr_freturn : public sp_lex_instr
 {
-public:
-  sp_instr_freturn(uint ip,
-                   LEX *lex,
-		   Item *expr_item,
-                   LEX_STRING expr_query,
-                   enum enum_field_types return_field_type)
-   :sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true),
-    m_expr_item(expr_item),
-    m_expr_query(expr_query),
-    m_return_field_type(return_field_type)
-  { }
+ public:
+  sp_instr_freturn(uint ip, LEX *lex, Item *expr_item, LEX_STRING expr_query, enum enum_field_types return_field_type)
+      : sp_lex_instr(ip, lex->get_sp_current_parsing_ctx(), lex, true),
+        m_expr_item(expr_item),
+        m_expr_query(expr_query),
+        m_return_field_type(return_field_type)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -671,7 +624,7 @@ public:
 
   virtual uint opt_mark(sp_head *sp, List<sp_instr> *leads)
   {
-    m_marked= true;
+    m_marked = true;
     return UINT_MAX;
   }
 
@@ -681,28 +634,26 @@ public:
 
   virtual bool exec_core(THD *thd, uint *nextp);
 
-  virtual bool is_invalid() const
-  { return m_expr_item == NULL; }
+  virtual bool is_invalid() const { return m_expr_item == NULL; }
 
   virtual void invalidate()
   {
     // it's already deleted.
-    m_expr_item= NULL;
+    m_expr_item = NULL;
   }
 
   virtual bool on_after_expr_parsing(THD *thd)
   {
     assert(thd->lex->select_lex->item_list.elements == 1);
 
-    m_expr_item= thd->lex->select_lex->item_list.head();
+    m_expr_item = thd->lex->select_lex->item_list.head();
 
     return false;
   }
 
-  virtual LEX_STRING get_expr_query() const
-  { return m_expr_query; }
+  virtual LEX_STRING get_expr_query() const { return m_expr_query; }
 
-private:
+ private:
   /// RETURN-expression item.
   Item *m_expr_item;
 
@@ -713,11 +664,8 @@ private:
   enum enum_field_types m_return_field_type;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -735,21 +683,12 @@ public:
   for sp_instr_jump, sp_instr_set_case_expr and sp_instr_jump_case_when.
   Something like sp_regular_branch_instr (similar to sp_lex_branch_instr).
 */
-class sp_instr_jump : public sp_instr,
-                      public sp_branch_instr
+class sp_instr_jump : public sp_instr, public sp_branch_instr
 {
-public:
-  sp_instr_jump(uint ip, sp_pcontext *ctx)
-   :sp_instr(ip, ctx),
-    m_dest(0),
-    m_optdest(NULL)
-  { }
+ public:
+  sp_instr_jump(uint ip, sp_pcontext *ctx) : sp_instr(ip, ctx), m_dest(0), m_optdest(NULL) {}
 
-  sp_instr_jump(uint ip, sp_pcontext *ctx, uint dest)
-   :sp_instr(ip, ctx),
-    m_dest(dest),
-    m_optdest(NULL)
-  { }
+  sp_instr_jump(uint ip, sp_pcontext *ctx, uint dest) : sp_instr(ip, ctx), m_dest(dest), m_optdest(NULL) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -763,7 +702,7 @@ public:
 
   virtual bool execute(THD *thd, uint *nextp)
   {
-    *nextp= m_dest;
+    *nextp = m_dest;
     return false;
   }
 
@@ -780,17 +719,17 @@ public:
   virtual void set_destination(uint old_dest, uint new_dest)
   {
     if (m_dest == old_dest)
-      m_dest= new_dest;
+      m_dest = new_dest;
   }
 
   virtual void backpatch(uint dest)
   {
     /* Calling backpatch twice is a logic flaw in jump resolution. */
     assert(m_dest == 0);
-    m_dest= dest;
+    m_dest = dest;
   }
 
-protected:
+ protected:
   /// Where we will go.
   uint m_dest;
 
@@ -798,11 +737,8 @@ protected:
   sp_instr *m_optdest;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -814,36 +750,33 @@ public:
   sp_lex_branch_instr is a base class for SP-instructions, which might perform
   conditional jump depending on the value of an SQL-expression.
 */
-class sp_lex_branch_instr : public sp_lex_instr,
-                            public sp_branch_instr
+class sp_lex_branch_instr : public sp_lex_instr, public sp_branch_instr
 {
-protected:
-  sp_lex_branch_instr(uint ip, sp_pcontext *ctx, LEX *lex,
-                      Item *expr_item, LEX_STRING expr_query)
-   :sp_lex_instr(ip, ctx, lex, true),
-    m_dest(0),
-    m_cont_dest(0),
-    m_optdest(NULL),
-    m_cont_optdest(NULL),
-    m_expr_item(expr_item),
-    m_expr_query(expr_query)
-  { }
+ protected:
+  sp_lex_branch_instr(uint ip, sp_pcontext *ctx, LEX *lex, Item *expr_item, LEX_STRING expr_query)
+      : sp_lex_instr(ip, ctx, lex, true),
+        m_dest(0),
+        m_cont_dest(0),
+        m_optdest(NULL),
+        m_cont_optdest(NULL),
+        m_expr_item(expr_item),
+        m_expr_query(expr_query)
+  {
+  }
 
-  sp_lex_branch_instr(uint ip, sp_pcontext *ctx, LEX *lex,
-                      Item *expr_item, LEX_STRING expr_query,
-                      uint dest)
-   :sp_lex_instr(ip, ctx, lex, true),
-    m_dest(dest),
-    m_cont_dest(0),
-    m_optdest(NULL),
-    m_cont_optdest(NULL),
-    m_expr_item(expr_item),
-    m_expr_query(expr_query)
-  { }
+  sp_lex_branch_instr(uint ip, sp_pcontext *ctx, LEX *lex, Item *expr_item, LEX_STRING expr_query, uint dest)
+      : sp_lex_instr(ip, ctx, lex, true),
+        m_dest(dest),
+        m_cont_dest(0),
+        m_optdest(NULL),
+        m_cont_optdest(NULL),
+        m_expr_item(expr_item),
+        m_expr_query(expr_query)
+  {
+  }
 
-public:
-  void set_cont_dest(uint cont_dest)
-  { m_cont_dest= cont_dest; }
+ public:
+  void set_cont_dest(uint cont_dest) { m_cont_dest = cont_dest; }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_instr implementation.
@@ -853,21 +786,17 @@ public:
 
   virtual void opt_move(uint dst, List<sp_branch_instr> *ibp);
 
-  virtual uint get_cont_dest() const
-  { return m_cont_dest; }
+  virtual uint get_cont_dest() const { return m_cont_dest; }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_lex_instr implementation.
   /////////////////////////////////////////////////////////////////////////
 
-  virtual bool is_invalid() const
-  { return m_expr_item == NULL; }
+  virtual bool is_invalid() const { return m_expr_item == NULL; }
 
-  virtual void invalidate()
-  { m_expr_item= NULL; /* it's already deleted. */ }
+  virtual void invalidate() { m_expr_item = NULL; /* it's already deleted. */ }
 
-  virtual LEX_STRING get_expr_query() const
-  { return m_expr_query; }
+  virtual LEX_STRING get_expr_query() const { return m_expr_query; }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_branch_instr implementation.
@@ -876,20 +805,20 @@ public:
   virtual void set_destination(uint old_dest, uint new_dest)
   {
     if (m_dest == old_dest)
-      m_dest= new_dest;
+      m_dest = new_dest;
 
     if (m_cont_dest == old_dest)
-      m_cont_dest= new_dest;
+      m_cont_dest = new_dest;
   }
 
   virtual void backpatch(uint dest)
   {
     /* Calling backpatch twice is a logic flaw in jump resolution. */
     assert(m_dest == 0);
-    m_dest= dest;
+    m_dest = dest;
   }
 
-protected:
+ protected:
   /// Where we will go.
   uint m_dest;
 
@@ -915,23 +844,16 @@ protected:
 */
 class sp_instr_jump_if_not : public sp_lex_branch_instr
 {
-public:
-  sp_instr_jump_if_not(uint ip,
-                       LEX *lex,
-                       Item *expr_item,
-                       LEX_STRING expr_query)
-   :sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex,
-                        expr_item, expr_query)
-  { }
+ public:
+  sp_instr_jump_if_not(uint ip, LEX *lex, Item *expr_item, LEX_STRING expr_query)
+      : sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex, expr_item, expr_query)
+  {
+  }
 
-  sp_instr_jump_if_not(uint ip,
-                       LEX *lex,
-                       Item *expr_item,
-                       LEX_STRING expr_query,
-                       uint dest)
-   :sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex,
-                        expr_item, expr_query, dest)
-  { }
+  sp_instr_jump_if_not(uint ip, LEX *lex, Item *expr_item, LEX_STRING expr_query, uint dest)
+      : sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex, expr_item, expr_query, dest)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -949,17 +871,14 @@ public:
   {
     assert(thd->lex->select_lex->item_list.elements == 1);
 
-    m_expr_item= thd->lex->select_lex->item_list.head();
+    m_expr_item = thd->lex->select_lex->item_list.head();
 
     return false;
   }
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -975,16 +894,12 @@ public:
 */
 class sp_instr_set_case_expr : public sp_lex_branch_instr
 {
-public:
-  sp_instr_set_case_expr(uint ip,
-                         LEX *lex,
-                         uint case_expr_id,
-                         Item *case_expr_item,
-                         LEX_STRING case_expr_query)
-   :sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex,
-                        case_expr_item, case_expr_query),
-    m_case_expr_id(case_expr_id)
-  { }
+ public:
+  sp_instr_set_case_expr(uint ip, LEX *lex, uint case_expr_id, Item *case_expr_item, LEX_STRING case_expr_query)
+      : sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex, case_expr_item, case_expr_query),
+        m_case_expr_id(case_expr_id)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1020,11 +935,10 @@ public:
   virtual void set_destination(uint old_dest, uint new_dest)
   {
     if (m_cont_dest == old_dest)
-      m_cont_dest= new_dest;
+      m_cont_dest = new_dest;
   }
 
-  virtual void backpatch(uint dest)
-  { }
+  virtual void backpatch(uint dest) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_lex_instr implementation.
@@ -1036,21 +950,18 @@ public:
   {
     assert(thd->lex->select_lex->item_list.elements == 1);
 
-    m_expr_item= thd->lex->select_lex->item_list.head();
+    m_expr_item = thd->lex->select_lex->item_list.head();
 
     return false;
   }
 
-private:
+ private:
   /// Identifier (index) of the CASE-expression in the runtime context.
   uint m_case_expr_id;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1067,16 +978,12 @@ public:
 */
 class sp_instr_jump_case_when : public sp_lex_branch_instr
 {
-public:
-  sp_instr_jump_case_when(uint ip,
-                          LEX *lex,
-                          int case_expr_id,
-                          Item *when_expr_item,
-                          LEX_STRING when_expr_query)
-   :sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex,
-                        when_expr_item, when_expr_query),
-    m_case_expr_id(case_expr_id)
-  { }
+ public:
+  sp_instr_jump_case_when(uint ip, LEX *lex, int case_expr_id, Item *when_expr_item, LEX_STRING when_expr_query)
+      : sp_lex_branch_instr(ip, lex->get_sp_current_parsing_ctx(), lex, when_expr_item, when_expr_query),
+        m_case_expr_id(case_expr_id)
+  {
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1093,15 +1000,14 @@ public:
   virtual void invalidate()
   {
     // Items should be already deleted in lex-keeper.
-    m_case_expr_item= NULL;
-    m_eq_item= NULL;
-    m_expr_item= NULL; // it's a WHEN-expression.
+    m_case_expr_item = NULL;
+    m_eq_item = NULL;
+    m_expr_item = NULL;  // it's a WHEN-expression.
   }
 
-  virtual bool on_after_expr_parsing(THD *thd)
-  { return build_expr_items(thd); }
+  virtual bool on_after_expr_parsing(THD *thd) { return build_expr_items(thd); }
 
-private:
+ private:
   /**
     Build CASE-expression item tree:
       Item_func_eq(case-expression, when-i-expression)
@@ -1124,7 +1030,7 @@ private:
   */
   bool build_expr_items(THD *thd);
 
-private:
+ private:
   /// Identifier (index) of the CASE-expression in the runtime context.
   int m_case_expr_id;
 
@@ -1139,11 +1045,8 @@ private:
   Item *m_eq_item;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1155,14 +1058,9 @@ public:
 
 class sp_instr_hpush_jump : public sp_instr_jump
 {
-public:
-  sp_instr_hpush_jump(uint ip,
-                      sp_pcontext *ctx,
-                      sp_handler *handler)
-   :sp_instr_jump(ip, ctx),
-    m_handler(handler),
-    m_opt_hpop(0),
-    m_frame(ctx->current_var_count())
+ public:
+  sp_instr_hpush_jump(uint ip, sp_pcontext *ctx, sp_handler *handler)
+      : sp_instr_jump(ip, ctx), m_handler(handler), m_opt_hpop(0), m_frame(ctx->current_var_count())
   {
     assert(m_handler->condition_values.elements == 0);
   }
@@ -1170,14 +1068,12 @@ public:
   virtual ~sp_instr_hpush_jump()
   {
     m_handler->condition_values.empty();
-    m_handler= NULL;
+    m_handler = NULL;
   }
 
-  void add_condition(sp_condition_value *condition_value)
-  { m_handler->condition_values.push_back(condition_value); }
+  void add_condition(sp_condition_value *condition_value) { m_handler->condition_values.push_back(condition_value); }
 
-  sp_handler *get_handler()
-  { return m_handler; }
+  sp_handler *get_handler() { return m_handler; }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1194,8 +1090,7 @@ public:
   virtual uint opt_mark(sp_head *sp, List<sp_instr> *leads);
 
   /** Override sp_instr_jump's shortcut; we stop here. */
-  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start)
-  { return get_ip(); }
+  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start) { return get_ip(); }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_branch_instr implementation.
@@ -1205,12 +1100,12 @@ public:
   {
     assert(!m_dest || !m_opt_hpop);
     if (!m_dest)
-      m_dest= dest;
+      m_dest = dest;
     else
-      m_opt_hpop= dest;
+      m_opt_hpop = dest;
   }
 
-private:
+ private:
   /// Handler.
   sp_handler *m_handler;
 
@@ -1222,11 +1117,8 @@ private:
   uint m_frame;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1236,17 +1128,14 @@ public:
 
 class sp_instr_hpop : public sp_instr
 {
-public:
-  sp_instr_hpop(uint ip, sp_pcontext *ctx)
-    : sp_instr(ip, ctx)
-  { }
+ public:
+  sp_instr_hpop(uint ip, sp_pcontext *ctx) : sp_instr(ip, ctx) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
   /////////////////////////////////////////////////////////////////////////
 
-  virtual void print(String *str)
-  { str->append(STRING_WITH_LEN("hpop")); }
+  virtual void print(String *str) { str->append(STRING_WITH_LEN("hpop")); }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_instr implementation.
@@ -1255,11 +1144,8 @@ public:
   virtual bool execute(THD *thd, uint *nextp);
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1269,11 +1155,8 @@ public:
 
 class sp_instr_hreturn : public sp_instr_jump
 {
-public:
-  sp_instr_hreturn(uint ip, sp_pcontext *ctx)
-   :sp_instr_jump(ip, ctx),
-    m_frame(ctx->current_var_count())
-  { }
+ public:
+  sp_instr_hreturn(uint ip, sp_pcontext *ctx) : sp_instr_jump(ip, ctx), m_frame(ctx->current_var_count()) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1288,22 +1171,18 @@ public:
   virtual bool execute(THD *thd, uint *nextp);
 
   /** Override sp_instr_jump's shortcut; we stop here. */
-  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start)
-  { return get_ip(); }
+  virtual uint opt_shortcut_jump(sp_head *sp, sp_instr *start) { return get_ip(); }
 
   virtual uint opt_mark(sp_head *sp, List<sp_instr> *leads);
 
-private:
+ private:
   // This attribute is needed for SHOW PROCEDURE CODE only (i.e. it's needed in
   // debug version only). It's used in print().
   uint m_frame;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1332,21 +1211,14 @@ public:
 */
 class sp_instr_cpush : public sp_lex_instr
 {
-public:
-  sp_instr_cpush(uint ip,
-                 sp_pcontext *ctx,
-                 LEX *cursor_lex,
-                 LEX_STRING cursor_query,
-                 int cursor_idx)
-   :sp_lex_instr(ip, ctx, cursor_lex, true),
-    m_cursor_query(cursor_query),
-    m_valid(true),
-    m_cursor_idx(cursor_idx)
+ public:
+  sp_instr_cpush(uint ip, sp_pcontext *ctx, LEX *cursor_lex, LEX_STRING cursor_query, int cursor_idx)
+      : sp_lex_instr(ip, ctx, cursor_lex, true), m_cursor_query(cursor_query), m_valid(true), m_cursor_idx(cursor_idx)
   {
     // Cursor can't be stored in Query Cache, so we should prevent opening QC
     // for try to write results which are absent.
 
-    cursor_lex->safe_to_cache_query= false;
+    cursor_lex->safe_to_cache_query = false;
   }
 
   /////////////////////////////////////////////////////////////////////////
@@ -1365,7 +1237,8 @@ public:
     cursors and the call is not used.
   */
   virtual void cleanup_stmt()
-  { /* no op */ }
+  { /* no op */
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // sp_instr implementation.
@@ -1379,22 +1252,19 @@ public:
 
   virtual bool exec_core(THD *thd, uint *nextp);
 
-  virtual bool is_invalid() const
-  { return !m_valid; }
+  virtual bool is_invalid() const { return !m_valid; }
 
-  virtual void invalidate()
-  { m_valid= false; }
+  virtual void invalidate() { m_valid = false; }
 
-  virtual void get_query(String *sql_query) const
-  { sql_query->append(m_cursor_query.str, m_cursor_query.length); }
+  virtual void get_query(String *sql_query) const { sql_query->append(m_cursor_query.str, m_cursor_query.length); }
 
   virtual bool on_after_expr_parsing(THD *thd)
   {
-    m_valid= true;
+    m_valid = true;
     return false;
   }
 
-private:
+ private:
   /// This attribute keeps the cursor SELECT statement.
   LEX_STRING m_cursor_query;
 
@@ -1406,11 +1276,8 @@ private:
   int m_cursor_idx;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1424,11 +1291,8 @@ public:
 */
 class sp_instr_cpop : public sp_instr
 {
-public:
-  sp_instr_cpop(uint ip, sp_pcontext *ctx, uint count)
-   :sp_instr(ip, ctx),
-    m_count(count)
-  { }
+ public:
+  sp_instr_cpop(uint ip, sp_pcontext *ctx, uint count) : sp_instr(ip, ctx), m_count(count) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1442,15 +1306,12 @@ public:
 
   virtual bool execute(THD *thd, uint *nextp);
 
-private:
+ private:
   uint m_count;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1464,11 +1325,8 @@ public:
 */
 class sp_instr_copen : public sp_instr
 {
-public:
-  sp_instr_copen(uint ip, sp_pcontext *ctx, int cursor_idx)
-   :sp_instr(ip, ctx),
-    m_cursor_idx(cursor_idx)
-  { }
+ public:
+  sp_instr_copen(uint ip, sp_pcontext *ctx, int cursor_idx) : sp_instr(ip, ctx), m_cursor_idx(cursor_idx) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1482,16 +1340,13 @@ public:
 
   virtual bool execute(THD *thd, uint *nextp);
 
-private:
+ private:
   /// Used to identify the cursor in the sp_rcontext.
   int m_cursor_idx;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1506,11 +1361,8 @@ public:
 */
 class sp_instr_cclose : public sp_instr
 {
-public:
-  sp_instr_cclose(uint ip, sp_pcontext *ctx, int cursor_idx)
-   :sp_instr(ip, ctx),
-    m_cursor_idx(cursor_idx)
-  { }
+ public:
+  sp_instr_cclose(uint ip, sp_pcontext *ctx, int cursor_idx) : sp_instr(ip, ctx), m_cursor_idx(cursor_idx) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1524,16 +1376,13 @@ public:
 
   virtual bool execute(THD *thd, uint *nextp);
 
-private:
+ private:
   /// Used to identify the cursor in the sp_rcontext.
   int m_cursor_idx;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1548,11 +1397,8 @@ public:
 */
 class sp_instr_cfetch : public sp_instr
 {
-public:
-  sp_instr_cfetch(uint ip, sp_pcontext *ctx, int cursor_idx)
-   :sp_instr(ip, ctx),
-    m_cursor_idx(cursor_idx)
-  { }
+ public:
+  sp_instr_cfetch(uint ip, sp_pcontext *ctx, int cursor_idx) : sp_instr(ip, ctx), m_cursor_idx(cursor_idx) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1566,10 +1412,9 @@ public:
 
   virtual bool execute(THD *thd, uint *nextp);
 
-  void add_to_varlist(sp_variable *var)
-  { m_varlist.push_back(var); }
+  void add_to_varlist(sp_variable *var) { m_varlist.push_back(var); }
 
-private:
+ private:
   /// List of SP-variables to store fetched values.
   List<sp_variable> m_varlist;
 
@@ -1577,11 +1422,8 @@ private:
   int m_cursor_idx;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1597,11 +1439,8 @@ public:
 */
 class sp_instr_error : public sp_instr
 {
-public:
-  sp_instr_error(uint ip, sp_pcontext *ctx, int errcode)
-   :sp_instr(ip, ctx),
-    m_errcode(errcode)
-  { }
+ public:
+  sp_instr_error(uint ip, sp_pcontext *ctx, int errcode) : sp_instr(ip, ctx), m_errcode(errcode) {}
 
   /////////////////////////////////////////////////////////////////////////
   // sp_printable implementation.
@@ -1616,26 +1455,23 @@ public:
   virtual bool execute(THD *thd, uint *nextp)
   {
     my_message(m_errcode, ER(m_errcode), MYF(0));
-    *nextp= get_ip() + 1;
+    *nextp = get_ip() + 1;
     return true;
   }
 
   virtual uint opt_mark(sp_head *sp, List<sp_instr> *leads)
   {
-    m_marked= true;
+    m_marked = true;
     return UINT_MAX;
   }
 
-private:
+ private:
   /// The error code, which should be raised by this instruction.
   int m_errcode;
 
 #ifdef HAVE_PSI_INTERFACE
-public:
-  virtual PSI_statement_info* get_psi_info()
-  {
-    return & psi_info;
-  }
+ public:
+  virtual PSI_statement_info *get_psi_info() { return &psi_info; }
 
   static PSI_statement_info psi_info;
 #endif
@@ -1643,4 +1479,4 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // _SP_INSTR_H_
+#endif  // _SP_INSTR_H_

@@ -52,13 +52,11 @@
  */
 class st_row_event_key_info
 {
-public:
+ public:
   /**
    * User api
    */
-  st_row_event_key_info(const NdbDictionary::Table* _table,
-                        const uchar* _key_buff,
-                        Uint32 _key_buff_len,
+  st_row_event_key_info(const NdbDictionary::Table *_table, const uchar *_key_buff, Uint32 _key_buff_len,
                         Uint64 _transaction_id);
   Uint64 getTransactionId() const;
   void updateRowTransactionId(Uint64 mostRecentTransId);
@@ -67,23 +65,22 @@ public:
    * Hash Api
    */
   Uint32 hashValue() const;
-  bool equal(const st_row_event_key_info* other) const;
-  st_row_event_key_info* getNext() const;
-  void setNext(st_row_event_key_info* _next);
+  bool equal(const st_row_event_key_info *other) const;
+  st_row_event_key_info *getNext() const;
+  void setNext(st_row_event_key_info *_next);
 
-private:
+ private:
   /* Key : Table and Primary Key */
-  const NdbDictionary::Table* tableObj;
-  const uchar* packed_key;
+  const NdbDictionary::Table *tableObj;
+  const uchar *packed_key;
   Uint32 packed_key_len;
 
   /* Data : Transaction id */
   Uint64 transaction_id;
 
   /* Next ptr for hash */
-  st_row_event_key_info* hash_next;
+  st_row_event_key_info *hash_next;
 };
-
 
 class st_transaction;
 
@@ -95,35 +92,31 @@ class st_transaction;
 */
 class st_trans_dependency
 {
-public:
+ public:
   /* User Api */
-  st_trans_dependency(st_transaction* _target_transaction,
-                      st_transaction* _dependent_transaction,
-                      const st_trans_dependency* _next);
+  st_trans_dependency(st_transaction *_target_transaction, st_transaction *_dependent_transaction,
+                      const st_trans_dependency *_next);
 
-  st_transaction* getTargetTransaction() const;
-  st_transaction* getDependentTransaction() const;
-  const st_trans_dependency* getNextDependency() const;
-
+  st_transaction *getTargetTransaction() const;
+  st_transaction *getDependentTransaction() const;
+  const st_trans_dependency *getNextDependency() const;
 
   /* Hash Api */
   Uint32 hashValue() const;
-  bool equal(const st_trans_dependency* other) const;
-  st_trans_dependency* getNext() const;
-  void setNext(st_trans_dependency* _next);
+  bool equal(const st_trans_dependency *other) const;
+  st_trans_dependency *getNext() const;
+  void setNext(st_trans_dependency *_next);
 
-private:
+ private:
   /* Key */
-  st_transaction* target_transaction;
-  st_transaction* dependent_transaction;
+  st_transaction *target_transaction;
+  st_transaction *dependent_transaction;
 
   /* Rest of co-dependents of target_transaction */
-  const st_trans_dependency* next_entry;
+  const st_trans_dependency *next_entry;
 
-  st_trans_dependency* hash_next;
+  st_trans_dependency *hash_next;
 };
-
-
 
 /**
    st_transaction
@@ -132,23 +125,23 @@ private:
 */
 class st_transaction
 {
-public:
+ public:
   /* User Api */
   st_transaction(Uint64 _transaction_id);
 
   Uint64 getTransactionId() const;
   bool getInConflict() const;
   void setInConflict();
-  const st_trans_dependency* getDependencyListHead() const;
-  void setDependencyListHead(st_trans_dependency* head);
+  const st_trans_dependency *getDependencyListHead() const;
+  void setDependencyListHead(st_trans_dependency *head);
 
   /* Hash Api */
   Uint32 hashValue() const;
-  bool equal(const st_transaction* other) const;
-  st_transaction* getNext() const;
-  void setNext(st_transaction* _next);
+  bool equal(const st_transaction *other) const;
+  st_transaction *getNext() const;
+  void setNext(st_transaction *_next);
 
-private:
+ private:
   /* Key */
   Uint64 transaction_id;
 
@@ -156,10 +149,10 @@ private:
   /* Is this transaction (and therefore its dependents) in conflict? */
   bool in_conflict;
   /* Head of list of dependencies */
-  st_trans_dependency* dependency_list_head;
+  st_trans_dependency *dependency_list_head;
 
   /* Hash ptr */
-  st_transaction* hash_next;
+  st_transaction *hash_next;
 };
 
 typedef struct st_mem_root MEM_ROOT;
@@ -170,18 +163,17 @@ typedef struct st_mem_root MEM_ROOT;
  */
 struct st_mem_root_allocator
 {
-  MEM_ROOT* mem_root;
+  MEM_ROOT *mem_root;
 
-  static void* alloc(void* ctx, size_t bytes);
-  static void* mem_calloc(void* ctx, size_t nelem, size_t bytes);
-  static void mem_free(void* ctx, void* mem);
-  st_mem_root_allocator(MEM_ROOT* _mem_root);
+  static void *alloc(void *ctx, size_t bytes);
+  static void *mem_calloc(void *ctx, size_t nelem, size_t bytes);
+  static void mem_free(void *ctx, void *mem);
+  st_mem_root_allocator(MEM_ROOT *_mem_root);
 };
-
 
 class DependencyTracker
 {
-public:
+ public:
   static const Uint64 InvalidTransactionId = ~Uint64(0);
 
   /**
@@ -191,7 +183,7 @@ public:
      memory from the passed mem_root.
      To discard dependency tracker, just free the passed mem_root.
   */
-  static DependencyTracker* newDependencyTracker(MEM_ROOT* mem_root);
+  static DependencyTracker *newDependencyTracker(MEM_ROOT *mem_root);
 
   /**
      track_operation
@@ -204,9 +196,7 @@ public:
      passed table + primary key from a different transaction
      then a transaction dependency is recorded.
   */
-  int track_operation(const NdbDictionary::Table* table,
-                      const NdbRecord* key_rec,
-                      const uchar* row,
+  int track_operation(const NdbDictionary::Table *table, const NdbRecord *key_rec, const uchar *row,
                       Uint64 transaction_id);
 
   /**
@@ -232,7 +222,7 @@ public:
      Returns string containing error description.
      NULL if no error.
   */
-  const char* get_error_text() const;
+  const char *get_error_text() const;
 
   /**
      get_conflict_count
@@ -241,8 +231,8 @@ public:
   */
   Uint32 get_conflict_count() const;
 
-private:
-  DependencyTracker(MEM_ROOT* mem_root);
+ private:
+  DependencyTracker(MEM_ROOT *mem_root);
 
   /**
      get_or_create_transaction
@@ -251,7 +241,7 @@ private:
      given transaction id.
      Returns Null on allocation failure.
   */
-  st_transaction* get_or_create_transaction(Uint64 trans_id);
+  st_transaction *get_or_create_transaction(Uint64 trans_id);
 
   /**
      add_dependency
@@ -277,8 +267,7 @@ private:
      include_dependents_of_current = false causes the traversal to skip
      dependents of the current node.
   */
-  st_transaction* get_next_dependency(const st_transaction* current,
-                                      bool include_dependents_of_current = true);
+  st_transaction *get_next_dependency(const st_transaction *current, bool include_dependents_of_current = true);
 
   /**
      dump_dependents
@@ -334,7 +323,7 @@ private:
 
   Uint32 conflicting_trans_count;
 
-  const char* error_text;
+  const char *error_text;
 };
 
 /* ifdef HAVE_NDB_BINLOG */

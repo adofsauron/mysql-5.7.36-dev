@@ -37,23 +37,22 @@
   the entry.
 */
 
-
-#include <my_thread.h> // my_bitmap.h
+#include <my_thread.h>  // my_bitmap.h
 #include <my_bitmap.h>
 
-struct NDB_SCHEMA_OBJECT {
+struct NDB_SCHEMA_OBJECT
+{
   native_mutex_t mutex;
   char *key;
   size_t key_length;
   uint use_count;
   MY_BITMAP slock_bitmap;
-  uint32 slock[256/32]; // 256 bits for lock status of table
+  uint32 slock[256 / 32];  // 256 bits for lock status of table
   uint32 table_id;
   uint32 table_version;
 };
 
-NDB_SCHEMA_OBJECT *ndb_get_schema_object(const char *key,
-                                         bool create_if_not_exists);
+NDB_SCHEMA_OBJECT *ndb_get_schema_object(const char *key, bool create_if_not_exists);
 
 void ndb_free_schema_object(NDB_SCHEMA_OBJECT **ndb_schema_object);
 

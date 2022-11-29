@@ -23,10 +23,10 @@
 #ifndef SQL_HANDLER_INCLUDED
 #define SQL_HANDLER_INCLUDED
 
-#include "my_base.h"                   /* ha_rkey_function, ha_rows */
-#include "sql_cmd.h"                   // Sql_cmd
-#include "sql_lex.h"                   // enum_ha_read_modes
-#include "sql_list.h"                  /* List */
+#include "my_base.h"  /* ha_rkey_function, ha_rows */
+#include "sql_cmd.h"  // Sql_cmd
+#include "sql_lex.h"  // enum_ha_read_modes
+#include "sql_list.h" /* List */
 
 class THD;
 struct TABLE_LIST;
@@ -40,21 +40,15 @@ struct TABLE_LIST;
 
 class Sql_cmd_handler_open : public Sql_cmd
 {
-public:
-  Sql_cmd_handler_open()
-  {}
+ public:
+  Sql_cmd_handler_open() {}
 
-  virtual ~Sql_cmd_handler_open()
-  {}
+  virtual ~Sql_cmd_handler_open() {}
 
-  virtual enum_sql_command sql_command_code() const
-  {
-    return SQLCOM_HA_OPEN;
-  }
+  virtual enum_sql_command sql_command_code() const { return SQLCOM_HA_OPEN; }
 
   virtual bool execute(THD *thd);
 };
-
 
 /**
   Sql_cmd_handler_read represents HANDLER READ statement.
@@ -66,26 +60,20 @@ public:
 
 class Sql_cmd_handler_read : public Sql_cmd
 {
-public:
-  Sql_cmd_handler_read(enum_ha_read_modes read_mode,
-                       const char *key_name,
-                       List<Item> *key_expr,
+ public:
+  Sql_cmd_handler_read(enum_ha_read_modes read_mode, const char *key_name, List<Item> *key_expr,
                        ha_rkey_function rkey_mode)
-    : m_read_mode(read_mode), m_key_name(key_name), m_key_expr(key_expr),
-      m_rkey_mode(rkey_mode)
-  {}
-
-  virtual ~Sql_cmd_handler_read()
-  {}
-
-  virtual enum_sql_command sql_command_code() const
+      : m_read_mode(read_mode), m_key_name(key_name), m_key_expr(key_expr), m_rkey_mode(rkey_mode)
   {
-    return SQLCOM_HA_READ;
   }
+
+  virtual ~Sql_cmd_handler_read() {}
+
+  virtual enum_sql_command sql_command_code() const { return SQLCOM_HA_READ; }
 
   virtual bool execute(THD *thd);
 
-private:
+ private:
   /** Read mode for HANDLER READ: FIRST, NEXT, LAST, ... */
   enum enum_ha_read_modes m_read_mode;
 
@@ -102,7 +90,6 @@ private:
   enum ha_rkey_function m_rkey_mode;
 };
 
-
 /**
   Sql_cmd_handler_close represents HANDLER CLOSE statement.
 
@@ -112,21 +99,15 @@ private:
 
 class Sql_cmd_handler_close : public Sql_cmd
 {
-public:
-  Sql_cmd_handler_close()
-  {}
+ public:
+  Sql_cmd_handler_close() {}
 
-  virtual ~Sql_cmd_handler_close()
-  {}
+  virtual ~Sql_cmd_handler_close() {}
 
-  virtual enum_sql_command sql_command_code() const
-  {
-    return SQLCOM_HA_CLOSE;
-  }
+  virtual enum_sql_command sql_command_code() const { return SQLCOM_HA_CLOSE; }
 
   virtual bool execute(THD *thd);
 };
-
 
 void mysql_ha_flush(THD *thd);
 void mysql_ha_flush_tables(THD *thd, TABLE_LIST *all_tables);
@@ -135,12 +116,8 @@ void mysql_ha_rm_temporary_tables(THD *thd);
 void mysql_ha_cleanup(THD *thd);
 void mysql_ha_set_explicit_lock_duration(THD *thd);
 
-typedef bool Log_func(THD*, TABLE*, bool,
-                      const uchar*, const uchar*);
+typedef bool Log_func(THD *, TABLE *, bool, const uchar *, const uchar *);
 
-int  binlog_log_row(TABLE* table,
-                          const uchar *before_record,
-                          const uchar *after_record,
-                          Log_func *log_func);
+int binlog_log_row(TABLE *table, const uchar *before_record, const uchar *after_record, Log_func *log_func);
 
 #endif /* SQL_HANDLER_INCLUDED */

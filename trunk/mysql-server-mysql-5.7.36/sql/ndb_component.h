@@ -29,7 +29,7 @@
 #include <thr_cond.h>
 #include <thr_mutex.h>
 
-extern "C" void * Ndb_component_run_C(void *);
+extern "C" void *Ndb_component_run_C(void *);
 
 /**
  * Baseclass encapsulating the different components
@@ -42,17 +42,17 @@ extern "C" void * Ndb_component_run_C(void *);
 
 class Ndb_component
 {
-public:
+ public:
   virtual int init();
   virtual int start();
   virtual int stop();
   virtual int deinit();
 
-protected:
+ protected:
   /**
    * Con/de-structor is protected...so that sub-class needs to provide own
    */
-  Ndb_component(const char* name);
+  Ndb_component(const char *name);
   virtual ~Ndb_component();
 
   /**
@@ -82,26 +82,21 @@ protected:
    */
   bool is_stop_requested();
 
-protected:
-  void log_verbose(unsigned verbose_level, const char* fmt, ...)
-    MY_ATTRIBUTE((format(printf, 3, 4)));
-  void log_error(const char *fmt, ...)
-    MY_ATTRIBUTE((format(printf, 2, 3)));
-  void log_warning(const char *fmt, ...)
-    MY_ATTRIBUTE((format(printf, 2, 3)));
-  void log_info(const char *fmt, ...)
-    MY_ATTRIBUTE((format(printf, 2, 3)));
+ protected:
+  void log_verbose(unsigned verbose_level, const char *fmt, ...) MY_ATTRIBUTE((format(printf, 3, 4)));
+  void log_error(const char *fmt, ...) MY_ATTRIBUTE((format(printf, 2, 3)));
+  void log_warning(const char *fmt, ...) MY_ATTRIBUTE((format(printf, 2, 3)));
+  void log_info(const char *fmt, ...) MY_ATTRIBUTE((format(printf, 2, 3)));
 
-private:
-
+ private:
   enum ThreadState
   {
-    TS_UNINIT   = 0,
-    TS_INIT     = 1,
+    TS_UNINIT = 0,
+    TS_INIT = 1,
     TS_STARTING = 2,
-    TS_RUNNING  = 3,
+    TS_RUNNING = 3,
     TS_STOPPING = 4,
-    TS_STOPPED  = 5
+    TS_STOPPED = 5
   };
 
   ThreadState m_thread_state;
@@ -109,10 +104,10 @@ private:
   native_mutex_t m_start_stop_mutex;
   native_cond_t m_start_stop_cond;
 
-  const char* m_name;
+  const char *m_name;
 
   void run_impl();
-  friend void * Ndb_component_run_C(void *);
+  friend void *Ndb_component_run_C(void *);
 };
 
 #endif

@@ -25,13 +25,12 @@
 #ifdef HAVE_REPLICATION
 
 #include "my_global.h"
-#include "sql_class.h"        // THD
+#include "sql_class.h"  // THD
 #include "rpl_rli_pdb.h"
-
 
 class Commit_order_manager
 {
-public:
+ public:
   Commit_order_manager(uint32 worker_numbers);
   ~Commit_order_manager();
 
@@ -83,7 +82,8 @@ public:
   }
 
   void report_deadlock(Slave_worker *worker);
-private:
+
+ private:
   enum order_commit_status
   {
     OCS_WAIT,
@@ -110,37 +110,36 @@ private:
   */
   uint32 queue_head;
   uint32 queue_tail;
-  static const uint32 QUEUE_EOF= 0xFFFFFFFF;
+  static const uint32 QUEUE_EOF = 0xFFFFFFFF;
   bool queue_empty() { return queue_head == QUEUE_EOF; }
 
   void queue_pop()
   {
-    queue_head= m_workers[queue_head].next;
+    queue_head = m_workers[queue_head].next;
     if (queue_head == QUEUE_EOF)
-      queue_tail= QUEUE_EOF;
+      queue_tail = QUEUE_EOF;
   }
 
   void queue_push(uint32 index)
   {
     if (queue_head == QUEUE_EOF)
-      queue_head= index;
+      queue_head = index;
     else
-      m_workers[queue_tail].next= index;
-    queue_tail= index;
-    m_workers[index].next= QUEUE_EOF;
+      m_workers[queue_tail].next = index;
+    queue_tail = index;
+    m_workers[index].next = QUEUE_EOF;
   }
 
   uint32 queue_front() { return queue_head; }
 
   // Copy constructor is not implemented
-  Commit_order_manager(const Commit_order_manager&);
-  Commit_order_manager& operator=(const Commit_order_manager&);
+  Commit_order_manager(const Commit_order_manager &);
+  Commit_order_manager &operator=(const Commit_order_manager &);
 };
 
 inline bool has_commit_order_manager(THD *thd)
 {
-  return is_mts_worker(thd) &&
-    thd->rli_slave->get_commit_order_manager() != NULL;
+  return is_mts_worker(thd) && thd->rli_slave->get_commit_order_manager() != NULL;
 }
 
 /**
@@ -201,18 +200,16 @@ inline bool has_commit_order_manager(THD *thd)
    @param[in] thd_wait_for The THD object of a session which is holding
                            a lock being acquired by current session.
 */
-inline void commit_order_manager_check_deadlock(THD* thd_self,
-                                                THD *thd_wait_for)
+inline void commit_order_manager_check_deadlock(THD *thd_self, THD *thd_wait_for)
 {
   DBUG_ENTER("commit_order_manager_check_deadlock");
 
-  Slave_worker *self_w= get_thd_worker(thd_self);
-  Slave_worker *wait_for_w= get_thd_worker(thd_wait_for);
-  Commit_order_manager *mngr= self_w->get_commit_order_manager();
+  Slave_worker *self_w = get_thd_worker(thd_self);
+  Slave_worker *wait_for_w = get_thd_worker(thd_wait_for);
+  Commit_order_manager *mngr = self_w->get_commit_order_manager();
 
   /* Check if both workers are working for the same channel */
-  if (mngr != NULL && self_w->c_rli == wait_for_w->c_rli &&
-      wait_for_w->sequence_number() > self_w->sequence_number())
+  if (mngr != NULL && self_w->c_rli == wait_for_w->c_rli && wait_for_w->sequence_number() > self_w->sequence_number())
   {
     DBUG_PRINT("info", ("Found slave order commit deadlock"));
     mngr->report_deadlock(wait_for_w);
@@ -220,5 +217,5 @@ inline void commit_order_manager_check_deadlock(THD* thd_self,
   DBUG_VOID_RETURN;
 }
 
-#endif //HAVE_REPLICATION
-#endif /*RPL_SLAVE_COMMIT_ORDER_MANAGER*/
+#endif  // HAVE_REPLICATION
+#endif  /*RPL_SLAVE_COMMIT_ORDER_MANAGER*/

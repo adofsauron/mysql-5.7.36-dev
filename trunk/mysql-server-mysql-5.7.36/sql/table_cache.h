@@ -44,7 +44,7 @@
 
 class Table_cache
 {
-private:
+ private:
   /**
     The table cache lock protects the following data:
 
@@ -98,10 +98,9 @@ private:
 #ifdef HAVE_PSI_INTERFACE
   static PSI_mutex_key m_lock_key;
   static PSI_mutex_info m_mutex_keys[];
-#endif 
+#endif
 
-private:
-
+ private:
 #ifdef EXTRA_DEBUG
   void check_unused();
 #else
@@ -112,8 +111,7 @@ private:
 
   inline void free_unused_tables_if_necessary(THD *thd);
 
-public:
-
+ public:
   bool init();
   void destroy();
   static void init_psi_keys();
@@ -125,8 +123,7 @@ public:
   /** Assert that caller owns lock on the table cache. */
   void assert_owner() { mysql_mutex_assert_owner(&m_lock); }
 
-  inline TABLE* get_table(THD *thd, my_hash_value_type hash_value,
-                          const char *key, size_t key_length,
+  inline TABLE *get_table(THD *thd, my_hash_value_type hash_value, const char *key, size_t key_length,
                           TABLE_SHARE **share);
 
   inline void release_table(THD *thd, TABLE *table);
@@ -144,35 +141,27 @@ public:
 #endif
 };
 
-
 /**
   Container class for all table cache instances in the system.
 */
 
 class Table_cache_manager
 {
-public:
-
+ public:
   /** Maximum supported number of table cache instances. */
-  static const int MAX_TABLE_CACHES= 64;
+  static const int MAX_TABLE_CACHES = 64;
 
   /** Default number of table cache instances */
-  static const int DEFAULT_MAX_TABLE_CACHES= 16;
+  static const int DEFAULT_MAX_TABLE_CACHES = 16;
 
   bool init();
   void destroy();
 
   /** Get instance of table cache to be used by particular connection. */
-  Table_cache* get_cache(THD *thd)
-  {
-    return &m_table_cache[thd->thread_id() % table_cache_instances];
-  }
+  Table_cache *get_cache(THD *thd) { return &m_table_cache[thd->thread_id() % table_cache_instances]; }
 
   /** Get index for the table cache in container. */
-  uint cache_index(Table_cache *cache) const
-  {
-    return static_cast<uint>(cache - &m_table_cache[0]);
-  }
+  uint cache_index(Table_cache *cache) const { return static_cast<uint>(cache - &m_table_cache[0]); }
 
   uint cached_tables();
 
@@ -181,9 +170,7 @@ public:
   void assert_owner_all();
   void assert_owner_all_and_tdc();
 
-  void free_table(THD *thd,
-                  enum_tdc_remove_table_type remove_type,
-                  TABLE_SHARE *share);
+  void free_table(THD *thd, enum_tdc_remove_table_type remove_type, TABLE_SHARE *share);
 
   void free_all_unused_tables();
 
@@ -193,8 +180,7 @@ public:
 
   friend class Table_cache_iterator;
 
-private:
-
+ private:
   /**
     An array of Table_cache instances.
     Only the first table_cache_instances elements in it are used.
@@ -202,9 +188,7 @@ private:
   Table_cache m_table_cache[MAX_TABLE_CACHES];
 };
 
-
 extern Table_cache_manager table_cache_manager;
-
 
 /**
   Element that represents the table in the specific table cache.
@@ -217,34 +201,26 @@ extern Table_cache_manager table_cache_manager;
 
 class Table_cache_element
 {
-private:
+ private:
   /*
     Doubly-linked (back-linked) lists of used and unused TABLE objects
     for this table in this table cache (one such list per table cache).
   */
-  typedef I_P_List <TABLE,
-                    I_P_List_adapter<TABLE,
-                                     &TABLE::cache_next,
-                                     &TABLE::cache_prev> > TABLE_list;
+  typedef I_P_List<TABLE, I_P_List_adapter<TABLE, &TABLE::cache_next, &TABLE::cache_prev>> TABLE_list;
 
   TABLE_list used_tables;
   TABLE_list free_tables;
   TABLE_SHARE *share;
 
-public:
+ public:
+  Table_cache_element(TABLE_SHARE *share_arg) : share(share_arg) {}
 
-  Table_cache_element(TABLE_SHARE *share_arg)
-    : share(share_arg)
-  {
-  }
-
-  TABLE_SHARE * get_share() const { return share; };
+  TABLE_SHARE *get_share() const { return share; };
 
   friend class Table_cache;
   friend class Table_cache_manager;
   friend class Table_cache_iterator;
 };
-
 
 /**
   Iterator which allows to go through all used TABLE instances
@@ -259,17 +235,16 @@ class Table_cache_iterator
 
   inline void move_to_next_table();
 
-public:
+ public:
   /**
     Construct iterator over all used TABLE objects for the table share.
 
     @note Assumes that caller owns locks on all table caches.
   */
   inline Table_cache_iterator(const TABLE_SHARE *share_arg);
-  inline TABLE* operator++(int);
+  inline TABLE *operator++(int);
   inline void rewind();
 };
-
 
 /**
   Add table to the tail of unused tables list for table cache
@@ -280,32 +255,30 @@ void Table_cache::link_unused_table(TABLE *table)
 {
   if (m_unused_tables)
   {
-    table->next= m_unused_tables;
-    table->prev= m_unused_tables->prev;
-    m_unused_tables->prev= table;
-    table->prev->next= table;
+    table->next = m_unused_tables;
+    table->prev = m_unused_tables->prev;
+    m_unused_tables->prev = table;
+    table->prev->next = table;
   }
   else
-    m_unused_tables= table->next= table->prev= table;
+    m_unused_tables = table->next = table->prev = table;
   check_unused();
 }
-
 
 /** Remove table from the unused tables list for table cache. */
 
 void Table_cache::unlink_unused_table(TABLE *table)
 {
-  table->next->prev= table->prev;
-  table->prev->next= table->next;
+  table->next->prev = table->prev;
+  table->prev->next = table->next;
   if (table == m_unused_tables)
   {
-    m_unused_tables= m_unused_tables->next;
+    m_unused_tables = m_unused_tables->next;
     if (table == m_unused_tables)
-      m_unused_tables= NULL;
+      m_unused_tables = NULL;
   }
   check_unused();
 }
-
 
 /**
   Free unused TABLE instances if total number of TABLE objects
@@ -328,10 +301,9 @@ void Table_cache::free_unused_tables_if_necessary(THD *thd)
   if (m_table_count > table_cache_size_per_instance && m_unused_tables)
   {
     mysql_mutex_lock(&LOCK_open);
-    while (m_table_count > table_cache_size_per_instance &&
-           m_unused_tables)
+    while (m_table_count > table_cache_size_per_instance && m_unused_tables)
     {
-      TABLE *table_to_free= m_unused_tables;
+      TABLE *table_to_free = m_unused_tables;
       remove_table(table_to_free);
       intern_close_table(table_to_free);
       thd->status_var.table_open_cache_overflows++;
@@ -339,7 +311,6 @@ void Table_cache::free_unused_tables_if_necessary(THD *thd)
     mysql_mutex_unlock(&LOCK_open);
   }
 }
-
 
 /**
    Add newly created TABLE object which is going to be used right away
@@ -365,7 +336,7 @@ bool Table_cache::add_used_table(THD *thd, TABLE *table)
     Try to get Table_cache_element representing this table in the cache
     from array in the TABLE_SHARE.
   */
-  el= table->s->cache_element[table_cache_manager.cache_index(this)];
+  el = table->s->cache_element[table_cache_manager.cache_index(this)];
 
   if (!el)
   {
@@ -377,20 +348,18 @@ bool Table_cache::add_used_table(THD *thd, TABLE *table)
       Allocate new Table_cache_element object and add it to the cache
       and array in TABLE_SHARE.
     */
-    assert(! my_hash_search(&m_cache,
-                            (uchar*)table->s->table_cache_key.str,
-                            table->s->table_cache_key.length));
+    assert(!my_hash_search(&m_cache, (uchar *)table->s->table_cache_key.str, table->s->table_cache_key.length));
 
-    if (!(el= new Table_cache_element(table->s)))
+    if (!(el = new Table_cache_element(table->s)))
       return true;
 
-    if (my_hash_insert(&m_cache, (uchar*)el))
+    if (my_hash_insert(&m_cache, (uchar *)el))
     {
       delete el;
       return true;
     }
 
-    table->s->cache_element[table_cache_manager.cache_index(this)]= el;
+    table->s->cache_element[table_cache_manager.cache_index(this)] = el;
   }
 
   /* Add table to the used tables list */
@@ -403,7 +372,6 @@ bool Table_cache::add_used_table(THD *thd, TABLE *table)
   return false;
 }
 
-
 /**
    Prepare used or unused TABLE instance for destruction by removing
    it from the table cache.
@@ -413,8 +381,7 @@ bool Table_cache::add_used_table(THD *thd, TABLE *table)
 
 void Table_cache::remove_table(TABLE *table)
 {
-  Table_cache_element *el=
-    table->s->cache_element[table_cache_manager.cache_index(this)];
+  Table_cache_element *el = table->s->cache_element[table_cache_manager.cache_index(this)];
 
   assert_owner();
 
@@ -436,15 +403,14 @@ void Table_cache::remove_table(TABLE *table)
 
   if (el->used_tables.is_empty() && el->free_tables.is_empty())
   {
-    (void) my_hash_delete(&m_cache, (uchar*) el);
+    (void)my_hash_delete(&m_cache, (uchar *)el);
     /*
       Remove reference to deleted cache element from array
       in the TABLE_SHARE.
     */
-    table->s->cache_element[table_cache_manager.cache_index(this)]= NULL;
+    table->s->cache_element[table_cache_manager.cache_index(this)] = NULL;
   }
 }
-
 
 /**
   Get an unused TABLE instance from the table cache.
@@ -468,8 +434,7 @@ void Table_cache::remove_table(TABLE *table)
                      are used TABLE objects in cache and NULL otherwise.
 */
 
-TABLE* Table_cache::get_table(THD *thd, my_hash_value_type hash_value,
-                              const char *key, size_t key_length,
+TABLE *Table_cache::get_table(THD *thd, my_hash_value_type hash_value, const char *key, size_t key_length,
                               TABLE_SHARE **share)
 {
   Table_cache_element *el;
@@ -477,15 +442,14 @@ TABLE* Table_cache::get_table(THD *thd, my_hash_value_type hash_value,
 
   assert_owner();
 
-  *share= NULL;
+  *share = NULL;
 
-  if (!(el= (Table_cache_element*) my_hash_search_using_hash_value(&m_cache,
-                                     hash_value, (uchar*) key, key_length)))
+  if (!(el = (Table_cache_element *)my_hash_search_using_hash_value(&m_cache, hash_value, (uchar *)key, key_length)))
     return NULL;
 
-  *share= el->share;
+  *share = el->share;
 
-  if ((table= el->free_tables.front()))
+  if ((table = el->free_tables.front()))
   {
     assert(!table->in_use);
 
@@ -504,16 +468,15 @@ TABLE* Table_cache::get_table(THD *thd, my_hash_value_type hash_value,
     */
     el->used_tables.push_front(table);
 
-    table->in_use= thd;
+    table->in_use = thd;
     /* The ex-unused table must be fully functional. */
     assert(table->db_stat && table->file);
     /* The children must be detached from the table. */
-    assert(! table->file->extra(HA_EXTRA_IS_ATTACHED_CHILDREN));
+    assert(!table->file->extra(HA_EXTRA_IS_ATTACHED_CHILDREN));
   }
 
   return table;
 }
-
 
 /**
   Put used TABLE instance back to the table cache and mark
@@ -525,8 +488,7 @@ TABLE* Table_cache::get_table(THD *thd, my_hash_value_type hash_value,
 
 void Table_cache::release_table(THD *thd, TABLE *table)
 {
-  Table_cache_element *el=
-    table->s->cache_element[table_cache_manager.cache_index(this)];
+  Table_cache_element *el = table->s->cache_element[table_cache_manager.cache_index(this)];
 
   assert_owner();
 
@@ -534,9 +496,9 @@ void Table_cache::release_table(THD *thd, TABLE *table)
   assert(table->file);
 
   /* We shouldn't put the table to 'unused' list if the share is old. */
-  assert(! table->s->has_old_version());
+  assert(!table->s->has_old_version());
 
-  table->in_use= NULL;
+  table->in_use = NULL;
 
   /* Remove TABLE from the list of used objects for the table in this cache. */
   el->used_tables.remove(table);
@@ -552,19 +514,17 @@ void Table_cache::release_table(THD *thd, TABLE *table)
   free_unused_tables_if_necessary(thd);
 }
 
-
 /**
   Construct iterator over all used TABLE objects for the table share.
 
   @note Assumes that caller owns locks on all table caches.
 */
 Table_cache_iterator::Table_cache_iterator(const TABLE_SHARE *share_arg)
-  : share(share_arg), current_cache_index(0), current_table(NULL)
+    : share(share_arg), current_cache_index(0), current_table(NULL)
 {
   table_cache_manager.assert_owner_all();
   move_to_next_table();
 }
-
 
 /** Helper that moves iterator to the next used TABLE for the table share. */
 
@@ -574,14 +534,13 @@ void Table_cache_iterator::move_to_next_table()
   {
     Table_cache_element *el;
 
-    if ((el= share->cache_element[current_cache_index]))
+    if ((el = share->cache_element[current_cache_index]))
     {
-      if ((current_table= el->used_tables.front()))
+      if ((current_table = el->used_tables.front()))
         break;
     }
   }
 }
-
 
 /**
   Get current used TABLE instance and move iterator to the next one.
@@ -589,18 +548,17 @@ void Table_cache_iterator::move_to_next_table()
   @note Assumes that caller owns locks on all table caches.
 */
 
-TABLE* Table_cache_iterator::operator ++(int)
+TABLE *Table_cache_iterator::operator++(int)
 {
   table_cache_manager.assert_owner_all();
 
-  TABLE *result= current_table;
+  TABLE *result = current_table;
 
   if (current_table)
   {
-    Table_cache_element::TABLE_list::Iterator
-      it(share->cache_element[current_cache_index]->used_tables, current_table);
+    Table_cache_element::TABLE_list::Iterator it(share->cache_element[current_cache_index]->used_tables, current_table);
 
-    current_table= ++it;
+    current_table = ++it;
 
     if (!current_table)
     {
@@ -612,11 +570,10 @@ TABLE* Table_cache_iterator::operator ++(int)
   return result;
 }
 
-
 void Table_cache_iterator::rewind()
 {
-  current_cache_index= 0;
-  current_table= NULL;
+  current_cache_index = 0;
+  current_table = NULL;
   move_to_next_table();
 }
 

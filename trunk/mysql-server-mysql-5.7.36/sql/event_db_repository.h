@@ -26,9 +26,9 @@
 */
 
 #include "my_global.h"
-#include "my_time.h"                            // my_time_t
-#include "thr_lock.h"                           // thr_lock_type
-#include "mysql/mysql_lex_string.h"             // LEX_STRING
+#include "my_time.h"                 // my_time_t
+#include "thr_lock.h"                // thr_lock_type
+#include "mysql/mysql_lex_string.h"  // LEX_STRING
 
 struct TABLE;
 struct TABLE_LIST;
@@ -49,7 +49,7 @@ typedef struct st_mysql_lex_string LEX_STRING;
 
 enum enum_events_table_field
 {
-  ET_FIELD_DB = 0, 
+  ET_FIELD_DB = 0,
   ET_FIELD_NAME,
   ET_FIELD_BODY,
   ET_FIELD_DEFINER,
@@ -74,67 +74,46 @@ enum enum_events_table_field
   ET_FIELD_COUNT /* a cool trick to count the number of fields :) */
 };
 
+int events_table_index_read_for_db(THD *thd, TABLE *schema_table, TABLE *event_table);
 
-int
-events_table_index_read_for_db(THD *thd, TABLE *schema_table,
-                               TABLE *event_table);
-
-int
-events_table_scan_all(THD *thd, TABLE *schema_table, TABLE *event_table);
-
+int events_table_scan_all(THD *thd, TABLE *schema_table, TABLE *event_table);
 
 class Event_basic;
 class Event_parse_data;
 
 class Event_db_repository
 {
-public:
-  Event_db_repository(){}
+ public:
+  Event_db_repository() {}
 
-  bool
-  create_event(THD *thd, Event_parse_data *parse_data, bool create_if_not,
-               bool *event_already_exists);
+  bool create_event(THD *thd, Event_parse_data *parse_data, bool create_if_not, bool *event_already_exists);
 
-  bool
-  update_event(THD *thd, Event_parse_data *parse_data, LEX_STRING *new_dbname,
-               LEX_STRING *new_name);
+  bool update_event(THD *thd, Event_parse_data *parse_data, LEX_STRING *new_dbname, LEX_STRING *new_name);
 
-  bool
-  drop_event(THD *thd, LEX_STRING db, LEX_STRING name, bool drop_if_exists);
+  bool drop_event(THD *thd, LEX_STRING db, LEX_STRING name, bool drop_if_exists);
 
-  void
-  drop_schema_events(THD *thd, LEX_STRING schema);
+  void drop_schema_events(THD *thd, LEX_STRING schema);
 
-  bool
-  find_named_event(LEX_STRING db, LEX_STRING name, TABLE *table);
+  bool find_named_event(LEX_STRING db, LEX_STRING name, TABLE *table);
 
-  bool
-  load_named_event(THD *thd, LEX_STRING dbname, LEX_STRING name, Event_basic *et);
+  bool load_named_event(THD *thd, LEX_STRING dbname, LEX_STRING name, Event_basic *et);
 
-  static bool
-  open_event_table(THD *thd, enum thr_lock_type lock_type, TABLE **table);
+  static bool open_event_table(THD *thd, enum thr_lock_type lock_type, TABLE **table);
 
-  bool
-  fill_schema_events(THD *thd, TABLE_LIST *tables, const char *db);
+  bool fill_schema_events(THD *thd, TABLE_LIST *tables, const char *db);
 
-  bool
-  update_timing_fields_for_event(THD *thd,
-                                 LEX_STRING event_db_name,
-                                 LEX_STRING event_name,
-                                 my_time_t last_executed,
-                                 ulonglong status);
-public:
-  static bool
-  check_system_tables(THD *thd);
-private:
-  bool
-  index_read_for_db_for_i_s(THD *thd, TABLE *schema_table, TABLE *event_table,
-                            const char *db);
+  bool update_timing_fields_for_event(THD *thd, LEX_STRING event_db_name, LEX_STRING event_name,
+                                      my_time_t last_executed, ulonglong status);
 
-  bool
-  table_scan_all_for_i_s(THD *thd, TABLE *schema_table, TABLE *event_table);
+ public:
+  static bool check_system_tables(THD *thd);
 
-private:
+ private:
+  bool index_read_for_db_for_i_s(THD *thd, TABLE *schema_table, TABLE *event_table, const char *db);
+
+  bool table_scan_all_for_i_s(THD *thd, TABLE *schema_table, TABLE *event_table);
+
+ private:
   /* Prevent use of these */
   Event_db_repository(const Event_db_repository &);
   void operator=(Event_db_repository &);

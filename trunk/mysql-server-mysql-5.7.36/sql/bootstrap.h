@@ -36,6 +36,6 @@ int bootstrap(MYSQL_FILE *file);
 /**
   Execute a single SQL command.
 */
-int bootstrap_single_query(const char* query);
+int bootstrap_single_query(const char *query);
 
-#endif // BOOTSTRAP_H
+#endif  // BOOTSTRAP_H

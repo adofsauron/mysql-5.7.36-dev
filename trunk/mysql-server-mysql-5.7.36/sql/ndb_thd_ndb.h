@@ -26,13 +26,13 @@
 #define NDB_THD_NDB_H
 
 #include <my_global.h>
-#include <my_base.h>          // ha_rows
-#include <sql_list.h>         // List<>
-#include <hash.h>             // HASH
+#include <my_base.h>   // ha_rows
+#include <sql_list.h>  // List<>
+#include <hash.h>      // HASH
 
 #include "ndb_share.h"
 
-#include <kernel/ndb_limits.h> // MAX_NDB_NODES
+#include <kernel/ndb_limits.h>  // MAX_NDB_NODES
 
 /*
   Place holder for ha_ndbcluster thread specific data
@@ -40,35 +40,35 @@
 
 enum THD_NDB_OPTIONS
 {
-  TNO_NO_LOG_SCHEMA_OP=  1 << 0,
+  TNO_NO_LOG_SCHEMA_OP = 1 << 0,
   /*
     In participating mysqld, do not try to acquire global schema
     lock, as one other mysqld already has the lock.
   */
-  TNO_NO_LOCK_SCHEMA_OP= 1 << 1
+  TNO_NO_LOCK_SCHEMA_OP = 1 << 1
 };
 
 enum THD_NDB_TRANS_OPTIONS
 {
-  TNTO_INJECTED_APPLY_STATUS= 1 << 0
-  ,TNTO_NO_LOGGING=           1 << 1
-  ,TNTO_TRANSACTIONS_OFF=     1 << 2
+  TNTO_INJECTED_APPLY_STATUS = 1 << 0,
+  TNTO_NO_LOGGING = 1 << 1,
+  TNTO_TRANSACTIONS_OFF = 1 << 2
 };
 
-class Thd_ndb 
+class Thd_ndb
 {
-  THD* m_thd;
+  THD *m_thd;
 
-  Thd_ndb(THD*);
+  Thd_ndb(THD *);
   ~Thd_ndb();
-  const bool m_slave_thread; // cached value of thd->slave_thread
+  const bool m_slave_thread;  // cached value of thd->slave_thread
 
   /* Skip binlog setup in ndbcluster_find_files() */
   bool m_skip_binlog_setup_in_find_files;
 
-public:
-  static Thd_ndb* seize(THD*);
-  static void release(Thd_ndb* thd_ndb);
+ public:
+  static Thd_ndb *seize(THD *);
+  static void release(Thd_ndb *thd_ndb);
 
   void init_open_tables();
 
@@ -112,9 +112,9 @@ public:
 
   /** This is the number of NdbQueryDef objects that the handler has created.*/
   uint m_pushed_queries_defined;
-  /** 
-    This is the number of cases where the handler decided not to use an 
-    NdbQuery object that it previously created for executing a particular 
+  /**
+    This is the number of cases where the handler decided not to use an
+    NdbQuery object that it previously created for executing a particular
     instance of a query fragment. This may happen if for examle the optimizer
     decides to use another type of access operation than originally assumed.
   */
@@ -127,7 +127,7 @@ public:
   uint m_pushed_queries_executed;
   /**
     This is the number of lookup operations (via unique index or primary key)
-    that were eliminated by pushing linked operations (NdbQuery) to the data 
+    that were eliminated by pushing linked operations (NdbQuery) to the data
     nodes.
    */
   uint m_pushed_reads;
@@ -138,8 +138,8 @@ public:
   NdbTransaction *global_schema_lock_trans;
   uint global_schema_lock_count;
   uint global_schema_lock_error;
-  uint schema_locks_count; // Number of global schema locks taken by thread
-  bool has_required_global_schema_lock(const char* func);
+  uint schema_locks_count;  // Number of global schema locks taken by thread
+  bool has_required_global_schema_lock(const char *func);
 
   /**
      Epoch of last committed transaction in this session, 0 if none so far
@@ -160,10 +160,7 @@ public:
     m_skip_binlog_setup_in_find_files = value;
   }
 
-  bool skip_binlog_setup_in_find_files(void) const
-  {
-    return m_skip_binlog_setup_in_find_files;
-  }
+  bool skip_binlog_setup_in_find_files(void) const { return m_skip_binlog_setup_in_find_files; }
 };
 
 #endif

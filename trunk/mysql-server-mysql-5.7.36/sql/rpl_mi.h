@@ -26,11 +26,11 @@
 #ifdef HAVE_REPLICATION
 
 #include "my_global.h"
-#include "binlog_event.h"            // enum_binlog_checksum_alg
-#include "log_event.h"               // Format_description_log_event
-#include "rpl_gtid.h"                // Gtid
-#include "rpl_info.h"                // Rpl_info
-#include "rpl_trx_boundary_parser.h" // Transaction_boundary_parser
+#include "binlog_event.h"             // enum_binlog_checksum_alg
+#include "log_event.h"                // Format_description_log_event
+#include "rpl_gtid.h"                 // Gtid
+#include "rpl_info.h"                 // Rpl_info
+#include "rpl_trx_boundary_parser.h"  // Transaction_boundary_parser
 
 typedef struct st_mysql MYSQL;
 class Rpl_info_factory;
@@ -71,15 +71,15 @@ class Rpl_info_factory;
 
 class Master_info : public Rpl_info
 {
-friend class Rpl_info_factory;
+  friend class Rpl_info_factory;
 
-public:
+ public:
   /**
     Host name or ip address stored in the master.info.
   */
   char host[HOSTNAME_LENGTH + 1];
 
-private:
+ private:
   /**
     If true, USER/PASSWORD was specified when running START SLAVE.
   */
@@ -91,7 +91,7 @@ private:
   /**
     User's password stored in the master.info.
   */
-  char password[MAX_PASSWORD_LENGTH + 1]; 
+  char password[MAX_PASSWORD_LENGTH + 1];
   /**
     User specified when running START SLAVE.
   */
@@ -99,7 +99,7 @@ private:
   /**
     Password specified when running START SLAVE.
   */
-  char start_password[MAX_PASSWORD_LENGTH + 1]; 
+  char start_password[MAX_PASSWORD_LENGTH + 1];
   /**
     Stores the autentication plugin specified when running START SLAVE.
   */
@@ -110,45 +110,33 @@ private:
   */
   char start_plugin_dir[FN_REFLEN + 1];
 
-public:
+ public:
   /**
     Returns if USER/PASSWORD was specified when running
     START SLAVE.
 
     @return true or false.
   */
-  bool is_start_user_configured() const
-  {
-    return start_user_configured;
-  }
+  bool is_start_user_configured() const { return start_user_configured; }
   /**
     Returns if DEFAULT_AUTH was specified when running START SLAVE.
 
     @return true or false.
   */
-  bool is_start_plugin_auth_configured() const
-  {
-    return (start_plugin_auth[0] != 0);
-  }
+  bool is_start_plugin_auth_configured() const { return (start_plugin_auth[0] != 0); }
   /**
     Returns if PLUGIN_DIR was specified when running START SLAVE.
 
     @return true or false.
   */
-  bool is_start_plugin_dir_configured() const
-  {
-    return (start_plugin_dir[0] != 0);
-  }
+  bool is_start_plugin_dir_configured() const { return (start_plugin_dir[0] != 0); }
   /**
     Defines that USER/PASSWORD was specified or not when running
     START SLAVE.
 
     @param config is true or false.
   */
-  void set_start_user_configured(bool config)
-  {
-    start_user_configured= config;
-  }
+  void set_start_user_configured(bool config) { start_user_configured = config; }
   /**
     Sets either user's name in the master.info repository when CHANGE
     MASTER is executed or user's name used in START SLAVE if USER is
@@ -156,7 +144,7 @@ public:
 
     @param user_arg is user's name.
   */
-  void set_user(const char* user_arg)
+  void set_user(const char *user_arg)
   {
     if (user_arg && start_user_configured)
     {
@@ -172,20 +160,14 @@ public:
 
     @return user's size name.
   */
-  size_t get_user_size() const
-  {
-    return (start_user_configured ? sizeof(start_user) : sizeof(user));
-  }
+  size_t get_user_size() const { return (start_user_configured ? sizeof(start_user) : sizeof(user)); }
   /**
     If an user was specified when running START SLAVE, this function returns
     such user. Otherwise, it returns the user stored in master.info.
 
     @return user's name.
   */
-  const char *get_user() const
-  {
-    return start_user_configured ? start_user : user;
-  } 
+  const char *get_user() const { return start_user_configured ? start_user : user; }
   /**
     Stores either user's password in the master.info repository when CHANGE
     MASTER is executed or user's password used in START SLAVE if PASSWORD
@@ -194,7 +176,7 @@ public:
     @param password_arg is user's password.
 
   */
-  void set_password(const char* password_arg);
+  void set_password(const char *password_arg);
   /**
     Returns either user's password in the master.info repository or
     user's password used in START SLAVE.
@@ -213,25 +195,19 @@ public:
 
     @return DEFAULT_AUTH.
   */
-  const char *get_start_plugin_auth()
-  {
-    return start_plugin_auth;
-  }
+  const char *get_start_plugin_auth() { return start_plugin_auth; }
   /**
     Returns the PLUGIN_DIR defined by START SLAVE.
 
     @return PLUGIN_DIR.
   */
-  const char *get_start_plugin_dir()
-  {
-    return start_plugin_dir;
-  }
+  const char *get_start_plugin_dir() { return start_plugin_dir; }
   /**
     Stores the DEFAULT_AUTH defined by START SLAVE.
 
     @param DEFAULT_AUTH.
   */
-  void set_plugin_auth(const char* src)
+  void set_plugin_auth(const char *src)
   {
     if (src)
       strmake(start_plugin_auth, src, sizeof(start_plugin_auth) - 1);
@@ -241,20 +217,20 @@ public:
 
     @param DEFAULT_AUTH.
   */
-  void set_plugin_dir(const char* src)
+  void set_plugin_dir(const char *src)
   {
     if (src)
       strmake(start_plugin_dir, src, sizeof(start_plugin_dir) - 1);
   }
 
-  my_bool ssl; // enables use of SSL connection if true
+  my_bool ssl;  // enables use of SSL connection if true
   char ssl_ca[FN_REFLEN], ssl_capath[FN_REFLEN], ssl_cert[FN_REFLEN];
   char ssl_cipher[FN_REFLEN], ssl_key[FN_REFLEN], tls_version[FN_REFLEN];
   char ssl_crl[FN_REFLEN], ssl_crlpath[FN_REFLEN];
   my_bool ssl_verify_server_cert;
 
-  MYSQL* mysql;
-  uint32 file_id;				/* for 3.23 load data infile */
+  MYSQL *mysql;
+  uint32 file_id; /* for 3.23 load data infile */
   Relay_log_info *rli;
   uint port;
   uint connect_retry;
@@ -283,12 +259,12 @@ public:
   */
   binary_log::enum_binlog_checksum_alg checksum_alg_before_fd;
   ulong retry_count;
-  char master_uuid[UUID_LENGTH+1];
-  char bind_addr[HOSTNAME_LENGTH+1];
+  char master_uuid[UUID_LENGTH + 1];
+  char bind_addr[HOSTNAME_LENGTH + 1];
 
   int mi_init_info();
   void end_info();
-  int flush_info(bool force= FALSE);
+  int flush_info(bool force = FALSE);
   void set_relay_log_info(Relay_log_info *info);
 
   bool shall_ignore_server_id(ulong s_id);
@@ -297,30 +273,24 @@ public:
      A buffer to hold " for channel <channel_name>
      used in error messages per channel
    */
-  char for_channel_str[CHANNEL_NAME_LENGTH+15];
-  char for_channel_uppercase_str[CHANNEL_NAME_LENGTH+15];
+  char for_channel_str[CHANNEL_NAME_LENGTH + 15];
+  char for_channel_uppercase_str[CHANNEL_NAME_LENGTH + 15];
 
   virtual ~Master_info();
 
-protected:
+ protected:
   char master_log_name[FN_REFLEN];
   my_off_t master_log_pos;
 
-public:
-  inline const char* get_master_log_name() { return master_log_name; }
+ public:
+  inline const char *get_master_log_name() { return master_log_name; }
   inline ulonglong get_master_log_pos() { return master_log_pos; }
   inline void set_master_log_name(const char *log_file_name)
   {
-     strmake(master_log_name, log_file_name, sizeof(master_log_name) - 1);
+    strmake(master_log_name, log_file_name, sizeof(master_log_name) - 1);
   }
-  inline void set_master_log_pos(ulonglong log_pos)
-  {
-    master_log_pos= log_pos;
-  }
-  inline const char* get_io_rpl_log_name()
-  {
-    return (master_log_name[0] ? master_log_name : "FIRST");
-  }
+  inline void set_master_log_pos(ulonglong log_pos) { master_log_pos = log_pos; }
+  inline const char *get_io_rpl_log_name() { return (master_log_name[0] ? master_log_name : "FIRST"); }
   static size_t get_number_info_mi_fields();
 
   /**
@@ -342,17 +312,11 @@ public:
   */
   static const uint *get_table_pk_field_indexes();
 
-  bool is_auto_position()
-  {
-    return auto_position;
-  }
+  bool is_auto_position() { return auto_position; }
 
-  void set_auto_position(bool auto_position_param)
-  {
-    auto_position= auto_position_param;
-  }
+  void set_auto_position(bool auto_position_param) { auto_position = auto_position_param; }
 
-private:
+ private:
   /**
     Format_description_log_event for events received from the master
     by the IO thread and written to the tail of the relay log.
@@ -372,7 +336,8 @@ private:
     All access is protected by Master_info::data_lock.
   */
   Format_description_log_event *mi_description_event;
-public:
+
+ public:
   Format_description_log_event *get_mi_description_event()
   {
     mysql_mutex_assert_owner(&data_lock);
@@ -382,21 +347,19 @@ public:
   {
     mysql_mutex_assert_owner(&data_lock);
     delete mi_description_event;
-    mi_description_event= fdle;
+    mi_description_event = fdle;
   }
 
   bool set_info_search_keys(Rpl_info_handler *to);
 
-  virtual const char* get_for_channel_str(bool upper_case= false) const
+  virtual const char *get_for_channel_str(bool upper_case = false) const
   {
-    return reinterpret_cast<const char *>(upper_case ?
-                                          for_channel_uppercase_str
-                                          : for_channel_str);
+    return reinterpret_cast<const char *>(upper_case ? for_channel_uppercase_str : for_channel_str);
   }
 
   void init_master_log_pos();
-private:
 
+ private:
   bool read_info(Rpl_info_handler *from);
   bool write_info(Rpl_info_handler *to);
 
@@ -404,20 +367,15 @@ private:
 
   Master_info(
 #ifdef HAVE_PSI_INTERFACE
-              PSI_mutex_key *param_key_info_run_lock,
-              PSI_mutex_key *param_key_info_data_lock,
-              PSI_mutex_key *param_key_info_sleep_lock,
-              PSI_mutex_key *param_key_info_thd_lock,
-              PSI_mutex_key *param_key_info_data_cond,
-              PSI_mutex_key *param_key_info_start_cond,
-              PSI_mutex_key *param_key_info_stop_cond,
-              PSI_mutex_key *param_key_info_sleep_cond,
+      PSI_mutex_key *param_key_info_run_lock, PSI_mutex_key *param_key_info_data_lock,
+      PSI_mutex_key *param_key_info_sleep_lock, PSI_mutex_key *param_key_info_thd_lock,
+      PSI_mutex_key *param_key_info_data_cond, PSI_mutex_key *param_key_info_start_cond,
+      PSI_mutex_key *param_key_info_stop_cond, PSI_mutex_key *param_key_info_sleep_cond,
 #endif
-              uint param_id, const char* param_channel
-             );
+      uint param_id, const char *param_channel);
 
-  Master_info(const Master_info& info);
-  Master_info& operator=(const Master_info& info);
+  Master_info(const Master_info &info);
+  Master_info &operator=(const Master_info &info);
 
   /*
     Last GTID queued by IO thread. This may contain a GTID of non-fully
@@ -425,13 +383,11 @@ private:
     transaction be queued to add the GTID to the Retrieved_Gtid_Set.
   */
   Gtid last_gtid_queued;
-public:
+
+ public:
   Gtid *get_last_gtid_queued() { return &last_gtid_queued; }
-  void set_last_gtid_queued(Gtid &gtid) { last_gtid_queued= gtid; }
-  void set_last_gtid_queued(rpl_sidno sno, rpl_gno gtidno)
-  {
-    last_gtid_queued.set(sno, gtidno);
-  }
+  void set_last_gtid_queued(Gtid &gtid) { last_gtid_queued = gtid; }
+  void set_last_gtid_queued(rpl_sidno sno, rpl_gno gtidno) { last_gtid_queued.set(sno, gtidno); }
   void clear_last_gtid_queued() { last_gtid_queued.clear(); }
 
   /*
@@ -443,7 +399,7 @@ public:
   */
   Transaction_boundary_parser transaction_parser;
 
-private:
+ private:
   /*
     This is the channel lock. It is a rwlock used to serialize all replication
     administrative commands that cannot be performed concurrently for a given
@@ -459,7 +415,8 @@ private:
 
   /* References of the channel, the channel can only be deleted when it is 0. */
   Atomic_int32 references;
-public:
+
+ public:
   /**
     Acquire the channel read lock.
   */
@@ -473,20 +430,17 @@ public:
   /**
     Release the channel lock (whether it is a write or read lock).
   */
-  inline void channel_unlock()
-  { m_channel_lock->unlock(); }
+  inline void channel_unlock() { m_channel_lock->unlock(); }
 
   /**
     Assert that some thread holds either the read or the write lock.
   */
-  inline void channel_assert_some_lock() const
-  { m_channel_lock->assert_some_lock(); }
+  inline void channel_assert_some_lock() const { m_channel_lock->assert_some_lock(); }
 
   /**
     Assert that some thread holds the write lock.
   */
-  inline void channel_assert_some_wrlock() const
-  { m_channel_lock->assert_some_wrlock(); }
+  inline void channel_assert_some_wrlock() const { m_channel_lock->assert_some_wrlock(); }
 
   /**
     Increase the references to prohibit deleting a channel. This function

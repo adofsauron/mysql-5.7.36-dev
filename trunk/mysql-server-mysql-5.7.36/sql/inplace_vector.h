@@ -23,7 +23,6 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-
 /* This file defines the Inplace_vector class template. */
 
 #include "my_config.h"
@@ -31,7 +30,6 @@
 #include "my_dbug.h"
 #include "my_sys.h"
 #include "mysql/psi/psi_memory.h"
-
 
 /**
   Utility container class to store elements stably and scalably.
@@ -56,10 +54,10 @@
   @tparam objtype The type of the elements to store.
   @tparam array_size The NO. of element slots in each array.
  */
-template <typename objtype, size_t array_size= 16>
+template <typename objtype, size_t array_size = 16>
 class Inplace_vector
 {
-private:
+ private:
   std::vector<objtype *> m_obj_arrays;
   PSI_memory_key m_psi_key;
   size_t m_obj_count;
@@ -78,9 +76,9 @@ private:
   objtype *get_space(size_t index)
   {
     assert(index <= m_obj_count);
-    size_t arr_id= index / array_size;
-    size_t slot_id= index % array_size;
-    objtype *ptr= NULL;
+    size_t arr_id = index / array_size;
+    size_t slot_id = index % array_size;
+    objtype *ptr = NULL;
 
     assert(arr_id <= m_obj_arrays.size());
 
@@ -95,8 +93,8 @@ private:
         return NULL;
     }
 
-    ptr= m_obj_arrays[arr_id];
-    ptr+= slot_id;
+    ptr = m_obj_arrays[arr_id];
+    ptr += slot_id;
     return ptr;
   }
 
@@ -105,7 +103,7 @@ private:
     if (m_outof_mem)
       return;
 
-    void *p= my_malloc(m_psi_key, sizeof(objtype) * array_size, MYF(MY_FAE));
+    void *p = my_malloc(m_psi_key, sizeof(objtype) * array_size, MYF(MY_FAE));
 
     try
     {
@@ -113,29 +111,25 @@ private:
     }
     catch (...)
     {
-      m_outof_mem= true;
+      m_outof_mem = true;
       my_free(p);
     }
   }
 
   Inplace_vector(const Inplace_vector &);
   Inplace_vector &operator=(const Inplace_vector &rhs);
-public:
 
-  explicit Inplace_vector(PSI_memory_key psi_key)
-    :m_psi_key(psi_key), m_outof_mem(false)
+ public:
+  explicit Inplace_vector(PSI_memory_key psi_key) : m_psi_key(psi_key), m_outof_mem(false)
   {
-    m_obj_count= 0;
+    m_obj_count = 0;
     append_new_array();
   }
 
   /**
     Release memory space and destroy all contained objects.
     */
-  ~Inplace_vector()
-  {
-    delete_all_objects();
-  }
+  ~Inplace_vector() { delete_all_objects(); }
 
   /**
     Get an existing element's pointer, index must be in [0, m_obj_count).
@@ -191,11 +185,11 @@ public:
                we do use alignement specification.
     @return true if out of memory; false if successful.
     */
-  bool resize(size_t new_size, const objtype &val= objtype())
+  bool resize(size_t new_size, const objtype &val = objtype())
   {
     if (new_size > size())
     {
-      for (size_t i= size(); i < new_size; i++)
+      for (size_t i = size(); i < new_size; i++)
       {
         if (push_back(val) == NULL)
           return true;
@@ -204,15 +198,12 @@ public:
     else if (new_size < size())
     {
       // Destroy objects at tail.
-      for (size_t i= new_size; i < size(); i++)
-        get_object(i)->~objtype();
+      for (size_t i = new_size; i < size(); i++) get_object(i)->~objtype();
 
       // Free useless array space.
-      for (size_t j= new_size / array_size + 1;
-           j < m_obj_arrays.size(); j++)
-        my_free(m_obj_arrays[j]);
+      for (size_t j = new_size / array_size + 1; j < m_obj_arrays.size(); j++) my_free(m_obj_arrays[j]);
 
-      m_obj_count= new_size;
+      m_obj_count = new_size;
       m_obj_arrays.resize(new_size / array_size + 1);
     }
 
@@ -223,39 +214,27 @@ public:
     STL std::vector::size interface.
     @return the number of elements effectively stored in the vector.
     */
-  size_t size() const
-  {
-    return m_obj_count;
-  }
+  size_t size() const { return m_obj_count; }
 
   /**
     STL std::vector::capacity interface.
     @return the max number of element that can be stored into this vector
             without growing its size.
    */
-  size_t capacity() const
-  {
-    return m_obj_arrays.size() * array_size;
-  }
+  size_t capacity() const { return m_obj_arrays.size() * array_size; }
 
   /**
     STL std::vector::empty interface.
     @return whether size() == 0.
     */
-  bool empty() const
-  {
-    return m_obj_count == 0;
-  }
+  bool empty() const { return m_obj_count == 0; }
 
   /**
     STL std::vector::clear interface.
     Destroy all elements (by calling each element's destructor) stored in
     the vector, and then release all memory held by it.
     */
-  void clear()
-  {
-    delete_all_objects();
-  }
+  void clear() { delete_all_objects(); }
 
   /**
     STL std::vector::back interface.
@@ -264,7 +243,7 @@ public:
   const objtype &back() const
   {
     assert(size() > 0);
-    objtype *p= get_object(size() - 1);
+    objtype *p = get_object(size() - 1);
     return *p;
   }
 
@@ -275,7 +254,7 @@ public:
   objtype &back()
   {
     assert(size() > 0);
-    objtype *p= get_object(size() - 1);
+    objtype *p = get_object(size() - 1);
     return *p;
   }
 
@@ -288,7 +267,7 @@ public:
   const objtype &operator[](size_t i) const
   {
     assert(i < size());
-    objtype *p= get_object(i);
+    objtype *p = get_object(i);
     return *p;
   }
 
@@ -301,7 +280,7 @@ public:
   objtype &operator[](size_t i)
   {
     assert(i < size());
-    objtype *p= get_object(i);
+    objtype *p = get_object(i);
     return *p;
   }
 
@@ -312,18 +291,16 @@ public:
   void delete_all_objects()
   {
     // Call each element's destructor.
-    for (size_t i= 0; i < size(); i++)
+    for (size_t i = 0; i < size(); i++)
     {
-      objtype *p= get_object(i);
+      objtype *p = get_object(i);
       p->~objtype();
     }
-    for (size_t i= 0; i < m_obj_arrays.size(); ++i)
-      my_free(m_obj_arrays[i]);
- 
-    m_obj_arrays.clear();
-    m_obj_count= 0;
-  }
+    for (size_t i = 0; i < m_obj_arrays.size(); ++i) my_free(m_obj_arrays[i]);
 
+    m_obj_arrays.clear();
+    m_obj_count = 0;
+  }
 };
 
-#endif // !INPLACE_VECTOR_INCLUDED
+#endif  // !INPLACE_VECTOR_INCLUDED

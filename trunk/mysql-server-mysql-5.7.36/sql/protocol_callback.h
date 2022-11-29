@@ -29,22 +29,21 @@
   service as proxy protocol.
 */
 
-
 #include "protocol.h"
 #include "mysql/service_command.h"
 
 class Protocol_callback : public Protocol
 {
-public:
-  Protocol_callback(const struct st_command_service_cbs *cbs,
-                    enum cs_text_or_binary t_or_b, void *cbs_ctx) :
-    callbacks_ctx(cbs_ctx),
-    callbacks(*cbs),
-    client_capabilities(0),
-    client_capabilities_set(false),
-    text_or_binary(t_or_b),
-    in_meta_sending(false)
-    {}
+ public:
+  Protocol_callback(const struct st_command_service_cbs *cbs, enum cs_text_or_binary t_or_b, void *cbs_ctx)
+      : callbacks_ctx(cbs_ctx),
+        callbacks(*cbs),
+        client_capabilities(0),
+        client_capabilities_set(false),
+        text_or_binary(t_or_b),
+        in_meta_sending(false)
+  {
+  }
 
   /**
     Forces read of packet from the connection
@@ -72,7 +71,6 @@ public:
       true   failure
   */
   virtual enum enum_protocol_type type() { return PROTOCOL_PLUGIN; }
-
 
   /**
     Returns the type of the connection
@@ -147,7 +145,7 @@ public:
       false  success
       true   failure
   */
-  virtual bool store_decimal(const my_decimal * d, uint, uint);
+  virtual bool store_decimal(const my_decimal *d, uint, uint);
 
   /**
     Sends string (CHAR/VARCHAR/TEXT/BLOB) value
@@ -158,8 +156,7 @@ public:
       false  success
       true   failure
   */
-  virtual bool store(const char *from, size_t length,
-                     const CHARSET_INFO *fromcs);
+  virtual bool store(const char *from, size_t length, const CHARSET_INFO *fromcs);
 
   /**
     Sends FLOAT value
@@ -282,7 +279,7 @@ public:
     0   success
     !0  failure
   */
-  virtual int shutdown(bool server_shutdown= false);
+  virtual int shutdown(bool server_shutdown = false);
 
   /**
     This function always returns true as in many places in the server this
@@ -321,8 +318,7 @@ public:
       true  failure
      false success
   */
-  virtual bool start_result_metadata(uint num_cols, uint flags,
-                                     const CHARSET_INFO *resultcs);
+  virtual bool start_result_metadata(uint num_cols, uint flags, const CHARSET_INFO *resultcs);
 
   /**
     Sends metadata of one field. Called for every column in the result set.
@@ -359,8 +355,7 @@ public:
       true  failure
       false success
   */
-  virtual bool send_ok(uint server_status, uint warn_count,
-                       ulonglong affected_rows, ulonglong last_insert_id,
+  virtual bool send_ok(uint server_status, uint warn_count, ulonglong affected_rows, ulonglong last_insert_id,
                        const char *message);
 
   /**
@@ -390,10 +385,9 @@ public:
       true  failure
       false success
   */
-  virtual bool send_error(uint sql_errno, const char *err_msg,
-                          const char *sql_state);
+  virtual bool send_error(uint sql_errno, const char *err_msg, const char *sql_state);
 
-private:
+ private:
   void *callbacks_ctx;
   struct st_command_service_cbs callbacks;
   unsigned long client_capabilities;

@@ -38,8 +38,7 @@ union NdbValue
   void *ptr;
 };
 
-char *ndb_pack_varchar(const NdbDictionary::Column *col,
-                       char *buf, const char *str, int sz);
+char *ndb_pack_varchar(const NdbDictionary::Column *col, char *buf, const char *str, int sz);
 
 /**
   Check that frm-file blob in pack_data is equal
@@ -49,7 +48,6 @@ char *ndb_pack_varchar(const NdbDictionary::Column *col,
     0    ok
 */
 
-int cmp_frm(const NdbDictionary::Table* ndbtab, const void* pack_data,
-            size_t pack_length);
+int cmp_frm(const NdbDictionary::Table *ndbtab, const void *pack_data, size_t pack_length);
 
 #endif

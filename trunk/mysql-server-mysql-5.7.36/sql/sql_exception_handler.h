@@ -62,4 +62,4 @@
 */
 void handle_std_exception(const char *funcname);
 
-#endif // SQL_EXCEPTION_HANDLER_H_INCLUDED
+#endif  // SQL_EXCEPTION_HANDLER_H_INCLUDED

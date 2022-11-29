@@ -28,30 +28,24 @@
 */
 class Column_privilege_tracker
 {
-public:
-  Column_privilege_tracker(THD *thd, ulong privilege)
-  : thd(thd), saved_privilege(thd->want_privilege)
+ public:
+  Column_privilege_tracker(THD *thd, ulong privilege) : thd(thd), saved_privilege(thd->want_privilege)
   {
-    thd->want_privilege= privilege;
+    thd->want_privilege = privilege;
   }
-  ~Column_privilege_tracker()
-  {
-    thd->want_privilege= saved_privilege;
-  }
-private:
+  ~Column_privilege_tracker() { thd->want_privilege = saved_privilege; }
+
+ private:
   THD *const thd;
   const ulong saved_privilege;
 };
 
-
 /** @file Name resolution functions */
 
-bool setup_order(THD *thd, Ref_ptr_array ref_pointer_array, TABLE_LIST *tables,
-                 List<Item> &fields, List <Item> &all_fields, ORDER *order);
-bool subquery_allows_materialization(Item_in_subselect *predicate,
-                                     THD *thd, SELECT_LEX *select_lex,
+bool setup_order(THD *thd, Ref_ptr_array ref_pointer_array, TABLE_LIST *tables, List<Item> &fields,
+                 List<Item> &all_fields, ORDER *order);
+bool subquery_allows_materialization(Item_in_subselect *predicate, THD *thd, SELECT_LEX *select_lex,
                                      const SELECT_LEX *outer);
-bool validate_gc_assignment(THD * thd, List<Item> *fields,
-                            List<Item> *values, TABLE *tab);
+bool validate_gc_assignment(THD *thd, List<Item> *fields, List<Item> *values, TABLE *tab);
 
 #endif /* SQL_RESOLVER_INCLUDED */

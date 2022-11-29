@@ -42,7 +42,8 @@ class Ndb_index_stat_thread : public Ndb_component
   bool client_waiting;
   native_mutex_t LOCK;
   native_cond_t COND;
-public:
+
+ public:
   Ndb_index_stat_thread();
   virtual ~Ndb_index_stat_thread();
 
@@ -58,24 +59,21 @@ public:
 
   /* are we setup */
   bool is_setup_complete();
-private:
-  virtual int do_init() { return 0;}
+
+ private:
+  virtual int do_init() { return 0; }
   virtual void do_run();
-  virtual int do_deinit() { return 0;}
+  virtual int do_deinit() { return 0; }
   // Wakeup for stop
   virtual void do_wakeup();
-
 };
 
 /* free entries from share or at end */
-void ndb_index_stat_free(NDB_SHARE*, int iudex_id, int index_version);
-void ndb_index_stat_free(NDB_SHARE*);
+void ndb_index_stat_free(NDB_SHARE *, int iudex_id, int index_version);
+void ndb_index_stat_free(NDB_SHARE *);
 void ndb_index_stat_end();
 
-void
-compute_index_bounds(NdbIndexScanOperation::IndexBound & bound,
-                     const KEY *key_info,
-                     const key_range *start_key, const key_range *end_key,
-                     int from);
+void compute_index_bounds(NdbIndexScanOperation::IndexBound &bound, const KEY *key_info, const key_range *start_key,
+                          const key_range *end_key, int from);
 
 #endif

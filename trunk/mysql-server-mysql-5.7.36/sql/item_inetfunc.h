@@ -33,26 +33,22 @@
 
 class Item_func_inet_aton : public Item_int_func
 {
-public:
-  inline Item_func_inet_aton(const POS &pos, Item *arg)
-    : Item_int_func(pos, arg)
-  {}
+ public:
+  inline Item_func_inet_aton(const POS &pos, Item *arg) : Item_int_func(pos, arg) {}
 
-public:
+ public:
   virtual longlong val_int();
 
-  virtual const char *func_name() const
-  { return "inet_aton"; }
+  virtual const char *func_name() const { return "inet_aton"; }
 
   virtual void fix_length_and_dec()
   {
-    decimals= 0;
-    max_length= 21;
-    maybe_null= 1;
-    unsigned_flag= 1;
+    decimals = 0;
+    max_length = 21;
+    maybe_null = 1;
+    unsigned_flag = 1;
   }
 };
-
 
 /*************************************************************************
   Item_func_inet_ntoa implements INET_NTOA() SQL-function.
@@ -60,25 +56,21 @@ public:
 
 class Item_func_inet_ntoa : public Item_str_func
 {
-public:
-  inline Item_func_inet_ntoa(const POS &pos, Item *arg)
-    : Item_str_func(pos, arg)
-  { }
+ public:
+  inline Item_func_inet_ntoa(const POS &pos, Item *arg) : Item_str_func(pos, arg) {}
 
-public:
-  virtual String* val_str(String* str);
+ public:
+  virtual String *val_str(String *str);
 
-  virtual const char *func_name() const
-  { return "inet_ntoa"; }
+  virtual const char *func_name() const { return "inet_ntoa"; }
 
   virtual void fix_length_and_dec()
   {
-    decimals= 0;
+    decimals = 0;
     fix_length_and_charset(3 * 8 + 7, default_charset());
-    maybe_null= 1;
+    maybe_null = 1;
   }
 };
-
 
 /*************************************************************************
   Item_func_inet_bool_base implements common code for INET6/IP-related
@@ -87,20 +79,15 @@ public:
 
 class Item_func_inet_bool_base : public Item_bool_func
 {
-public:
-  Item_func_inet_bool_base(const POS &pos, Item *ip_addr)
-    : Item_bool_func(pos, ip_addr)
-  {
-    null_value= false;
-  }
+ public:
+  Item_func_inet_bool_base(const POS &pos, Item *ip_addr) : Item_bool_func(pos, ip_addr) { null_value = false; }
 
-public:
+ public:
   virtual longlong val_int();
 
-protected:
+ protected:
   virtual bool calc_value(const String *arg) = 0;
 };
-
 
 /*************************************************************************
   Item_func_inet_str_base implements common code for INET6/IP-related
@@ -109,18 +96,15 @@ protected:
 
 class Item_func_inet_str_base : public Item_str_ascii_func
 {
-public:
-  Item_func_inet_str_base(const POS &pos, Item *arg)
-    : Item_str_ascii_func(pos, arg)
-  { }
+ public:
+  Item_func_inet_str_base(const POS &pos, Item *arg) : Item_str_ascii_func(pos, arg) {}
 
-public:
+ public:
   virtual String *val_str_ascii(String *buffer);
 
-protected:
+ protected:
   virtual bool calc_value(String *arg, String *buffer) = 0;
 };
-
 
 /*************************************************************************
   Item_func_inet6_aton implements INET6_ATON() SQL-function.
@@ -128,26 +112,22 @@ protected:
 
 class Item_func_inet6_aton : public Item_func_inet_str_base
 {
-public:
-  Item_func_inet6_aton(const POS &pos, Item *ip_addr)
-    : Item_func_inet_str_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_inet6_aton(const POS &pos, Item *ip_addr) : Item_func_inet_str_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "inet6_aton"; }
+ public:
+  virtual const char *func_name() const { return "inet6_aton"; }
 
   virtual void fix_length_and_dec()
   {
-    decimals= 0;
+    decimals = 0;
     fix_length_and_charset(16, &my_charset_bin);
-    maybe_null= 1;
+    maybe_null = 1;
   }
 
-protected:
+ protected:
   virtual bool calc_value(String *arg, String *buffer);
 };
-
 
 /*************************************************************************
   Item_func_inet6_ntoa implements INET6_NTOA() SQL-function.
@@ -155,31 +135,27 @@ protected:
 
 class Item_func_inet6_ntoa : public Item_func_inet_str_base
 {
-public:
-  Item_func_inet6_ntoa(const POS &pos, Item *ip_addr)
-    : Item_func_inet_str_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_inet6_ntoa(const POS &pos, Item *ip_addr) : Item_func_inet_str_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "inet6_ntoa"; }
+ public:
+  virtual const char *func_name() const { return "inet6_ntoa"; }
 
   virtual void fix_length_and_dec()
   {
-    decimals= 0;
+    decimals = 0;
 
     // max length: IPv6-address -- 16 bytes
     // 16 bytes / 2 bytes per group == 8 groups => 7 delimiter
     // 4 symbols per group
     fix_length_and_charset(8 * 4 + 7, default_charset());
 
-    maybe_null= 1;
+    maybe_null = 1;
   }
 
-protected:
+ protected:
   virtual bool calc_value(String *arg, String *buffer);
 };
-
 
 /*************************************************************************
   Item_func_is_ipv4 implements IS_IPV4() SQL-function.
@@ -187,19 +163,15 @@ protected:
 
 class Item_func_is_ipv4 : public Item_func_inet_bool_base
 {
-public:
-  Item_func_is_ipv4(const POS &pos, Item *ip_addr)
-    : Item_func_inet_bool_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_is_ipv4(const POS &pos, Item *ip_addr) : Item_func_inet_bool_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "is_ipv4"; }
+ public:
+  virtual const char *func_name() const { return "is_ipv4"; }
 
-protected:
+ protected:
   virtual bool calc_value(const String *arg);
 };
-
 
 /*************************************************************************
   Item_func_is_ipv6 implements IS_IPV6() SQL-function.
@@ -207,19 +179,15 @@ protected:
 
 class Item_func_is_ipv6 : public Item_func_inet_bool_base
 {
-public:
-  Item_func_is_ipv6(const POS &pos, Item *ip_addr)
-    : Item_func_inet_bool_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_is_ipv6(const POS &pos, Item *ip_addr) : Item_func_inet_bool_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "is_ipv6"; }
+ public:
+  virtual const char *func_name() const { return "is_ipv6"; }
 
-protected:
+ protected:
   virtual bool calc_value(const String *arg);
 };
-
 
 /*************************************************************************
   Item_func_is_ipv4_compat implements IS_IPV4_COMPAT() SQL-function.
@@ -227,19 +195,15 @@ protected:
 
 class Item_func_is_ipv4_compat : public Item_func_inet_bool_base
 {
-public:
-  Item_func_is_ipv4_compat(const POS &pos, Item *ip_addr)
-    : Item_func_inet_bool_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_is_ipv4_compat(const POS &pos, Item *ip_addr) : Item_func_inet_bool_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "is_ipv4_compat"; }
+ public:
+  virtual const char *func_name() const { return "is_ipv4_compat"; }
 
-protected:
+ protected:
   virtual bool calc_value(const String *arg);
 };
-
 
 /*************************************************************************
   Item_func_is_ipv4_mapped implements IS_IPV4_MAPPED() SQL-function.
@@ -247,17 +211,14 @@ protected:
 
 class Item_func_is_ipv4_mapped : public Item_func_inet_bool_base
 {
-public:
-  Item_func_is_ipv4_mapped(const POS &pos, Item *ip_addr)
-    : Item_func_inet_bool_base(pos, ip_addr)
-  { }
+ public:
+  Item_func_is_ipv4_mapped(const POS &pos, Item *ip_addr) : Item_func_inet_bool_base(pos, ip_addr) {}
 
-public:
-  virtual const char *func_name() const
-  { return "is_ipv4_mapped"; }
+ public:
+  virtual const char *func_name() const { return "is_ipv4_mapped"; }
 
-protected:
+ protected:
   virtual bool calc_value(const String *arg);
 };
 
-#endif // ITEM_INETFUNC_INCLUDED
+#endif  // ITEM_INETFUNC_INCLUDED

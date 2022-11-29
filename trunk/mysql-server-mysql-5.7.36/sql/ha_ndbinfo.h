@@ -25,27 +25,22 @@
 
 #include <handler.h>
 
-class ha_ndbinfo: public handler
+class ha_ndbinfo : public handler
 {
-public:
+ public:
   ha_ndbinfo(handlerton *hton, TABLE_SHARE *table_arg);
   ~ha_ndbinfo();
 
   const char *table_type() const { return "NDBINFO"; }
-  const char **bas_ext() const {
-    static const char *null[] = { NullS };
+  const char **bas_ext() const
+  {
+    static const char *null[] = {NullS};
     return null;
   }
-  ulonglong table_flags() const {
-    return HA_REC_NOT_IN_SEQ | HA_NO_TRANSACTIONS |
-           HA_NO_BLOBS | HA_NO_AUTO_INCREMENT;
-  }
-  ulong index_flags(uint inx, uint part, bool all_parts) const {
-    return 0;
-  }
+  ulonglong table_flags() const { return HA_REC_NOT_IN_SEQ | HA_NO_TRANSACTIONS | HA_NO_BLOBS | HA_NO_AUTO_INCREMENT; }
+  ulong index_flags(uint inx, uint part, bool all_parts) const { return 0; }
 
-  int create(const char *name, TABLE *form,
-             HA_CREATE_INFO *create_info);
+  int create(const char *name, TABLE *form, HA_CREATE_INFO *create_info);
 
   int open(const char *name, int mode, uint test_if_locked);
   int close(void);
@@ -57,12 +52,10 @@ public:
   void position(const uchar *record);
   int info(uint);
 
-  THR_LOCK_DATA **store_lock(THD *thd, THR_LOCK_DATA **to,
-                             enum thr_lock_type lock_type) {
-    return to;
-  }
+  THR_LOCK_DATA **store_lock(THD *thd, THR_LOCK_DATA **to, enum thr_lock_type lock_type) { return to; }
 
-  bool low_byte_first() const {
+  bool low_byte_first() const
+  {
     // Data will be returned in machine format
 #ifdef WORDS_BIGENDIAN
     return false;
@@ -73,12 +66,14 @@ public:
 
   bool get_error_message(int error, String *buf);
 
-  uint8 table_cache_type() {
+  uint8 table_cache_type()
+  {
     // Don't put ndbinfo results in query cache
     return HA_CACHE_TBL_NOCACHE;
   }
 
-  virtual ha_rows estimate_rows_upper_bound() {
+  virtual ha_rows estimate_rows_upper_bound()
+  {
     // Estimate "many" rows to be returned so that filesort
     // allocates buffers properly.
     // Default impl. for this function is otherwise 10 rows
@@ -86,16 +81,15 @@ public:
     return HA_POS_ERROR;
   }
 
-private:
+ private:
   void unpack_record(uchar *dst_row);
 
   bool is_open(void) const;
-  bool is_closed(void) const { return ! is_open(); };
+  bool is_closed(void) const { return !is_open(); };
 
   bool is_offline(void) const;
 
-  struct ha_ndbinfo_impl& m_impl;
-
+  struct ha_ndbinfo_impl &m_impl;
 };
 
 #endif

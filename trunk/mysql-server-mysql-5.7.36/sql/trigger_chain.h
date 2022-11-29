@@ -30,30 +30,23 @@ class Trigger;
 
 class Trigger_chain : public Sql_alloc
 {
-public:
-  Trigger_chain()
-  { }
+ public:
+  Trigger_chain() {}
 
   /**
     @return a reference to the list of triggers with the same
     EVENT/ACTION_TIME assigned to the table.
   */
-  List<Trigger> &get_trigger_list()
-  { return m_triggers; }
+  List<Trigger> &get_trigger_list() { return m_triggers; }
 
-  bool add_trigger(MEM_ROOT *mem_root,
-                   Trigger *new_trigger,
-                   enum_trigger_order_type ordering_clause,
+  bool add_trigger(MEM_ROOT *mem_root, Trigger *new_trigger, enum_trigger_order_type ordering_clause,
                    const LEX_STRING &referenced_trigger_name);
 
-  bool add_trigger(MEM_ROOT *mem_root,
-                   Trigger *new_trigger);
+  bool add_trigger(MEM_ROOT *mem_root, Trigger *new_trigger);
 
   bool execute_triggers(THD *thd);
 
-  void add_tables_and_routines(THD *thd,
-                               Query_tables_list *prelocking_ctx,
-                               TABLE_LIST *table_list);
+  void add_tables_and_routines(THD *thd, Query_tables_list *prelocking_ctx, TABLE_LIST *table_list);
 
   void mark_fields(TABLE *subject_table);
 
@@ -61,7 +54,7 @@ public:
 
   void renumerate_triggers();
 
-private:
+ private:
   /// List of triggers of this chain.
   List<Trigger> m_triggers;
 };

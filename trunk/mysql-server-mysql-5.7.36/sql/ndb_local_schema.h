@@ -31,30 +31,30 @@ class Ndb_local_schema
     Base functionality for working with local schema
     objects like tables, triggers and databases
   */
-  class Base {
+  class Base
+  {
     bool m_have_mdl_lock;
     bool m_push_warnings;
 
     bool mdl_try_lock(void) const;
     void mdl_unlock(void);
 
-  protected:
-    class THD* m_thd;
-    const char* m_db;
-    const char* m_name;
+   protected:
+    class THD *m_thd;
+    const char *m_db;
+    const char *m_name;
 
-    void log_warning(const char* fmt, ...) const;
+    void log_warning(const char *fmt, ...) const;
 
-    Base(); // Not implemented
-    Base(const Base&); // Not implemented
-    Base(class THD* thd, const char* db, const char* name);
+    Base();              // Not implemented
+    Base(const Base &);  // Not implemented
+    Base(class THD *thd, const char *db, const char *name);
     ~Base();
 
     bool have_mdl_lock(void) const { return m_have_mdl_lock; }
   };
 
-public:
-
+ public:
   /*
     Class used for working with a table in the
     local MySQL Servers "dictionary"
@@ -66,22 +66,21 @@ public:
     bool m_ndb_file_exist;
     bool m_has_triggers;
 
-    bool file_exists(const char* ext) const;
-    bool remove_file(const char* ext) const;
-    bool rename_file(const char* new_db, const char* new_name,
-                     const char* ext) const;
+    bool file_exists(const char *ext) const;
+    bool remove_file(const char *ext) const;
+    bool rename_file(const char *new_db, const char *new_name, const char *ext) const;
 
     // Read the engine type from .frm and return true if it says NDB
     bool frm_engine_is_ndb(void) const;
 
-  public:
-    Table(); // Not implemented
-    Table(const Table&); // Not implemented
-    Table(class THD* thd, const char* db, const char* name);
+   public:
+    Table();               // Not implemented
+    Table(const Table &);  // Not implemented
+    Table(class THD *thd, const char *db, const char *name);
 
     bool is_local_table(void) const;
     void remove_table(void) const;
-    void rename_table(const char* new_db, const char* new_name) const;
+    void rename_table(const char *new_db, const char *new_name) const;
   };
 };
 

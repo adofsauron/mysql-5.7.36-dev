@@ -29,12 +29,9 @@
 
 class Ndb_table_guard
 {
-public:
-  Ndb_table_guard(NdbDictionary::Dictionary *dict)
-    : m_dict(dict), m_ndbtab(NULL), m_invalidate(0)
-  {}
-  Ndb_table_guard(NdbDictionary::Dictionary *dict, const char *tabname)
-    : m_dict(dict), m_ndbtab(NULL), m_invalidate(0)
+ public:
+  Ndb_table_guard(NdbDictionary::Dictionary *dict) : m_dict(dict), m_ndbtab(NULL), m_invalidate(0) {}
+  Ndb_table_guard(NdbDictionary::Dictionary *dict, const char *tabname) : m_dict(dict), m_ndbtab(NULL), m_invalidate(0)
   {
     DBUG_ENTER("Ndb_table_guard");
     init(tabname);
@@ -51,21 +48,20 @@ public:
     DBUG_ENTER("Ndb_table_guard::init");
     /* must call reinit() if already initialized */
     assert(m_ndbtab == NULL);
-    m_ndbtab= m_dict->getTableGlobal(tabname);
-    m_invalidate= 0;
+    m_ndbtab = m_dict->getTableGlobal(tabname);
+    m_invalidate = 0;
     DBUG_PRINT("info", ("m_ndbtab: %p", m_ndbtab));
     DBUG_VOID_RETURN;
   }
-  void reinit(const char *tabname= 0)
+  void reinit(const char *tabname = 0)
   {
     DBUG_ENTER("Ndb_table_guard::reinit");
     if (m_ndbtab)
     {
-      DBUG_PRINT("info", ("m_ndbtab: %p  m_invalidate: %d",
-                          m_ndbtab, m_invalidate));
+      DBUG_PRINT("info", ("m_ndbtab: %p  m_invalidate: %d", m_ndbtab, m_invalidate));
       m_dict->removeTableGlobal(*m_ndbtab, m_invalidate);
-      m_ndbtab= NULL;
-      m_invalidate= 0;
+      m_ndbtab = NULL;
+      m_invalidate = 0;
     }
     if (tabname)
       init(tabname);
@@ -73,16 +69,17 @@ public:
     DBUG_VOID_RETURN;
   }
   const NdbDictionary::Table *get_table() { return m_ndbtab; }
-  void invalidate() { m_invalidate= 1; }
+  void invalidate() { m_invalidate = 1; }
   const NdbDictionary::Table *release()
   {
     DBUG_ENTER("Ndb_table_guard::release");
-    const NdbDictionary::Table *tmp= m_ndbtab;
+    const NdbDictionary::Table *tmp = m_ndbtab;
     DBUG_PRINT("info", ("m_ndbtab: %p", m_ndbtab));
     m_ndbtab = 0;
     DBUG_RETURN(tmp);
   }
-private:
+
+ private:
   NdbDictionary::Dictionary *m_dict;
   const NdbDictionary::Table *m_ndbtab;
   int m_invalidate;

@@ -23,7 +23,6 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 
-
 /**
   Session_sysvar_resource_manager
   -------------------------------
@@ -59,9 +58,9 @@
 
 */
 
-class Session_sysvar_resource_manager {
-
-private:
+class Session_sysvar_resource_manager
+{
+ private:
   struct sys_var_ptr
   {
     void *data;
@@ -77,11 +76,10 @@ private:
   */
   uchar *find(void *key, size_t length);
 
-public:
-
+ public:
   Session_sysvar_resource_manager()
   {
-    (void) memset(&m_sysvar_string_alloc_hash, 0, sizeof(m_sysvar_string_alloc_hash));
+    (void)memset(&m_sysvar_string_alloc_hash, 0, sizeof(m_sysvar_string_alloc_hash));
   }
 
   /**
@@ -96,8 +94,7 @@ public:
   */
   bool update(char **var, char *val, size_t val_len);
 
-  static uchar *sysvars_mgr_get_key(const char *entry, size_t *length,
-                                    my_bool not_used MY_ATTRIBUTE((unused)));
+  static uchar *sysvars_mgr_get_key(const char *entry, size_t *length, my_bool not_used MY_ATTRIBUTE((unused)));
 
   void claim_memory_ownership();
 
@@ -108,5 +105,3 @@ public:
 };
 
 #endif /* SYS_VARS_RESOURCE_MGR_INCLUDED */
-
-

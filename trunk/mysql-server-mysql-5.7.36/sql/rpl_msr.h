@@ -26,20 +26,19 @@
 #ifdef HAVE_REPLICATION
 
 #include "my_global.h"
-#include "rpl_channel_service_interface.h" // enum_channel_type
-#include "rpl_mi.h"                        // Master_info
+#include "rpl_channel_service_interface.h"  // enum_channel_type
+#include "rpl_mi.h"                         // Master_info
 
 #include <map>
 #include <string>
-
 
 /**
    Maps a channel name to it's Master_info.
 */
 
-//Maps a master info object to a channel name
-typedef std::map<std::string, Master_info*> mi_map;
-//Maps a channel type to a map of channels of that type.
+// Maps a master info object to a channel name
+typedef std::map<std::string, Master_info *> mi_map;
+// Maps a channel type to a map of channels of that type.
 typedef std::map<int, mi_map> replication_channel_map;
 
 /**
@@ -98,10 +97,9 @@ typedef std::map<int, mi_map> replication_channel_map;
 */
 class Multisource_info
 {
-
-private:
- /* Maximum number of channels per slave */
-  static const unsigned int MAX_CHANNELS= 256;
+ private:
+  /* Maximum number of channels per slave */
+  static const unsigned int MAX_CHANNELS = 256;
 
   /* A Map that maps, a channel name to a Master_info grouped by channel type */
   replication_channel_map rep_channel_map;
@@ -113,9 +111,9 @@ private:
     Default_channel for this instance, currently is predefined
     and cannot be modified.
   */
-  static const char* default_channel;
+  static const char *default_channel;
   Master_info *default_channel_mi;
-  static const char* group_replication_channel_names[];
+  static const char *group_replication_channel_names[];
 
   /**
     This lock was designed to protect the channel_map from adding or removing
@@ -130,7 +128,7 @@ private:
   /* Array for  replication performance schema related tables */
   Master_info *rpl_pfs_mi[MAX_CHANNELS];
 
-#endif  /* WITH_PERFSCHEMA_STORAGE_ENGINE */
+#endif /* WITH_PERFSCHEMA_STORAGE_ENGINE */
 
   /*
     A empty mi_map to allow Multisource_info::end() to return a
@@ -138,8 +136,7 @@ private:
   */
   mi_map empty_mi_map;
 
-public:
-
+ public:
   /* Constructor for this class.*/
   Multisource_info()
   {
@@ -148,28 +145,25 @@ public:
       The assert below is to prevent it to be instantiated more than once.
     */
 #ifndef NDEBUG
-    static int instance_count= 0;
+    static int instance_count = 0;
     instance_count++;
     assert(instance_count == 1);
 #endif
-    current_mi_count= 0;
-    default_channel_mi= NULL;
+    current_mi_count = 0;
+    default_channel_mi = NULL;
 #ifdef WITH_PERFSCHEMA_STORAGE_ENGINE
     init_rpl_pfs_mi();
-#endif  /* WITH_PERFSCHEMA_STORAGE_ENGINE */
+#endif /* WITH_PERFSCHEMA_STORAGE_ENGINE */
 
-    m_channel_map_lock= new Checkable_rwlock(
+    m_channel_map_lock = new Checkable_rwlock(
 #ifdef HAVE_PSI_INTERFACE
-                                             key_rwlock_channel_map_lock
+        key_rwlock_channel_map_lock
 #endif
-                                            );
+    );
   }
 
   /* Destructor for this class.*/
-  ~Multisource_info()
-  {
-    delete m_channel_map_lock;
-  }
+  ~Multisource_info() { delete m_channel_map_lock; }
 
   /**
     Adds the Master_info object to both replication_channel_map and rpl_pfs_mi
@@ -181,7 +175,7 @@ public:
       @retval      false       succesfully added
       @retval      true        couldn't add channel
   */
-  bool add_mi(const char* channel_name, Master_info* mi);
+  bool add_mi(const char *channel_name, Master_info *mi);
 
   /**
     Find the master_info object corresponding to a channel explicitly
@@ -193,14 +187,14 @@ public:
     @retval                   pointer to the master info object if exists
                               in the map. Otherwise, NULL;
   */
-  Master_info* get_mi(const char* channel_name);
+  Master_info *get_mi(const char *channel_name);
 
   /**
     Return the master_info object corresponding to the default channel.
     @retval                   pointer to the master info object if exists.
                               Otherwise, NULL;
   */
-  Master_info* get_default_channel_mi()
+  Master_info *get_default_channel_mi()
   {
     m_channel_map_lock->assert_some_lock();
     return default_channel_mi;
@@ -214,15 +208,12 @@ public:
     @param[in]    channel_name     Name of the channel for a Master_info
                                    object which must exist.
   */
-  void delete_mi(const char* channel_name);
+  void delete_mi(const char *channel_name);
 
   /**
     Get the default channel for this multisourced_slave;
   */
-  inline const char* get_default_channel()
-  {
-    return default_channel;
-  }
+  inline const char *get_default_channel() { return default_channel; }
 
   /**
     Get the number of instances of Master_info in the map.
@@ -232,7 +223,7 @@ public:
 
     @return The number of channels or 0 if empty.
   */
-  inline uint get_num_instances(bool all=false)
+  inline uint get_num_instances(bool all = false)
   {
     DBUG_ENTER("Multisource_info::get_num_instances");
 
@@ -244,16 +235,15 @@ public:
     {
       int count = 0;
 
-      for (map_it= rep_channel_map.begin();
-           map_it != rep_channel_map.end(); map_it++)
+      for (map_it = rep_channel_map.begin(); map_it != rep_channel_map.end(); map_it++)
       {
         count += map_it->second.size();
       }
       DBUG_RETURN(count);
     }
-    else //Return only the slave channels
+    else  // Return only the slave channels
     {
-      map_it= rep_channel_map.find(SLAVE_REPLICATION_CHANNEL);
+      map_it = rep_channel_map.find(SLAVE_REPLICATION_CHANNEL);
 
       if (map_it == rep_channel_map.end())
         DBUG_RETURN(0);
@@ -265,10 +255,7 @@ public:
   /**
     Get max channels allowed for this map.
   */
-  inline uint get_max_channels()
-  {
-    return MAX_CHANNELS;
-  }
+  inline uint get_max_channels() { return MAX_CHANNELS; }
 
   /**
     Returns true if the current number of channels in this slave
@@ -277,9 +264,8 @@ public:
   inline bool is_valid_channel_count()
   {
     m_channel_map_lock->assert_some_lock();
-    bool is_valid= current_mi_count < MAX_CHANNELS;
-    DBUG_EXECUTE_IF("max_replication_channels_exceeded",
-                    is_valid= false;);
+    bool is_valid = current_mi_count < MAX_CHANNELS;
+    DBUG_EXECUTE_IF("max_replication_channels_exceeded", is_valid = false;);
     return (is_valid);
   }
 
@@ -293,8 +279,7 @@ public:
       @retval      true   the name is a reserved name
       @retval      false  non reserved name
   */
-  bool is_group_replication_channel_name(const char* channel,
-                                         bool is_applier= false);
+  bool is_group_replication_channel_name(const char *channel, bool is_applier = false);
 
   /**
      Forward iterators to initiate traversing of a map.
@@ -303,11 +288,10 @@ public:
             only Master_infos or create generators when
             c++11 is introduced.
   */
-  mi_map::iterator begin(enum_channel_type channel_type=
-                             SLAVE_REPLICATION_CHANNEL)
+  mi_map::iterator begin(enum_channel_type channel_type = SLAVE_REPLICATION_CHANNEL)
   {
     replication_channel_map::iterator map_it;
-    map_it= rep_channel_map.find(channel_type);
+    map_it = rep_channel_map.find(channel_type);
 
     if (map_it != rep_channel_map.end())
     {
@@ -317,11 +301,10 @@ public:
     return end(channel_type);
   }
 
-  mi_map::iterator end(enum_channel_type channel_type=
-                           SLAVE_REPLICATION_CHANNEL)
+  mi_map::iterator end(enum_channel_type channel_type = SLAVE_REPLICATION_CHANNEL)
   {
     replication_channel_map::iterator map_it;
-    map_it= rep_channel_map.find(channel_type);
+    map_it = rep_channel_map.find(channel_type);
 
     if (map_it != rep_channel_map.end())
     {
@@ -331,15 +314,13 @@ public:
     return empty_mi_map.end();
   }
 
-private:
-
+ private:
 #ifdef WITH_PERFSCHEMA_STORAGE_ENGINE
 
   /* Initialize the rpl_pfs_mi array to NULLs */
   inline void init_rpl_pfs_mi()
   {
-    for (uint i= 0; i< MAX_CHANNELS; i++)
-      rpl_pfs_mi[i]= 0;
+    for (uint i = 0; i < MAX_CHANNELS; i++) rpl_pfs_mi[i] = 0;
   }
 
   /**
@@ -359,10 +340,9 @@ private:
 
      @return         index of mi for the channel_name. Else -1;
   */
-  int get_index_from_rpl_pfs_mi(const char* channel_name);
+  int get_index_from_rpl_pfs_mi(const char *channel_name);
 
-public:
-
+ public:
   /**
     Used only by replication performance schema indices to get the master_info
     at the position 'pos' from the rpl_pfs_mi array.
@@ -371,38 +351,33 @@ public:
 
     @retval            pointer to the master info object at pos 'pos';
   */
-  Master_info* get_mi_at_pos(uint pos);
+  Master_info *get_mi_at_pos(uint pos);
 #endif /*WITH_PERFSCHEMA_STORAGE_ENGINE */
 
   /**
     Acquire the read lock.
   */
-  inline void rdlock()
-  { m_channel_map_lock->rdlock(); }
+  inline void rdlock() { m_channel_map_lock->rdlock(); }
 
   /**
     Acquire the write lock.
   */
-  inline void wrlock()
-  { m_channel_map_lock->wrlock(); }
+  inline void wrlock() { m_channel_map_lock->wrlock(); }
 
   /**
     Release the lock (whether it is a write or read lock).
   */
-  inline void unlock()
-  { m_channel_map_lock->unlock(); }
+  inline void unlock() { m_channel_map_lock->unlock(); }
 
   /**
     Assert that some thread holds either the read or the write lock.
   */
-  inline void assert_some_lock() const
-  { m_channel_map_lock->assert_some_lock(); }
+  inline void assert_some_lock() const { m_channel_map_lock->assert_some_lock(); }
 
   /**
     Assert that some thread holds the write lock.
   */
-  inline void assert_some_wrlock() const
-  { m_channel_map_lock->assert_some_wrlock(); }
+  inline void assert_some_wrlock() const { m_channel_map_lock->assert_some_wrlock(); }
 };
 
 /* Global object for multisourced slave. */
@@ -422,5 +397,5 @@ static bool inline is_slave_configured()
   return (channel_map.get_default_channel_mi() != NULL);
 }
 
-#endif   /* HAVE_REPLICATION */
-#endif  /*RPL_MSR_H*/
+#endif /* HAVE_REPLICATION */
+#endif /*RPL_MSR_H*/

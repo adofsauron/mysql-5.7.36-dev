@@ -20,13 +20,12 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-
 #ifndef OPT_EXPLAIN_INCLUDED
 #define OPT_EXPLAIN_INCLUDED
 
-/** @file "EXPLAIN <command>" 
+/** @file "EXPLAIN <command>"
 
-Single table UPDATE/DELETE commands are explained by the 
+Single table UPDATE/DELETE commands are explained by the
 explain_single_table_modification() function.
 
 A query expression (complete SELECT query possibly including
@@ -49,7 +48,7 @@ UNION); each JOIN explain (JOIN::exec()) calls explain_query_specification()
 Is for a single SELECT_LEX (fake or not). It needs a prepared and
 optimized JOIN, for which it builds the EXPLAIN rows. But it also
 launches the EXPLAIN process for "inner units" (==subqueries of this
-SELECT_LEX), by calling explain_unit() for each of them. 
+SELECT_LEX), by calling explain_unit() for each of them.
 */
 
 #include <my_base.h>
@@ -68,38 +67,32 @@ extern const char *join_type_str[];
 /** Table modification plan for JOIN-less statements (update/delete) */
 class Modification_plan
 {
-public:
-  THD *const thd;           ///< Owning thread
-  const enum_mod_type mod_type;///< Modification type - MT_INSERT/MT_UPDATE/etc
-  TABLE *table;             ///< Table to modify
+ public:
+  THD *const thd;                ///< Owning thread
+  const enum_mod_type mod_type;  ///< Modification type - MT_INSERT/MT_UPDATE/etc
+  TABLE *table;                  ///< Table to modify
 
-  QEP_TAB *tab;             ///< QUICK access method + WHERE clause
-  uint key;                 ///< Key to use
-  ha_rows limit;            ///< Limit
-  bool need_tmp_table;      ///< Whether tmp table needs to be used
-  bool need_sort;           ///< Whether to use filesort
-  bool used_key_is_modified;///< Whether the key used to scan is modified
-  const char *message;      ///< Arbitrary message
-  bool zero_result;         ///< TRUE <=> plan will not be executed
-  ha_rows examined_rows;    ///< # of rows expected to be examined in the table
+  QEP_TAB *tab;               ///< QUICK access method + WHERE clause
+  uint key;                   ///< Key to use
+  ha_rows limit;              ///< Limit
+  bool need_tmp_table;        ///< Whether tmp table needs to be used
+  bool need_sort;             ///< Whether to use filesort
+  bool used_key_is_modified;  ///< Whether the key used to scan is modified
+  const char *message;        ///< Arbitrary message
+  bool zero_result;           ///< TRUE <=> plan will not be executed
+  ha_rows examined_rows;      ///< # of rows expected to be examined in the table
 
-  Modification_plan(THD *thd_arg,
-                    enum_mod_type mt, QEP_TAB *qep_tab,
-                    uint key_arg, ha_rows limit_arg, bool need_tmp_table_arg,
-                    bool need_sort_arg, bool used_key_is_modified_arg,
-                    ha_rows rows);
+  Modification_plan(THD *thd_arg, enum_mod_type mt, QEP_TAB *qep_tab, uint key_arg, ha_rows limit_arg,
+                    bool need_tmp_table_arg, bool need_sort_arg, bool used_key_is_modified_arg, ha_rows rows);
 
-  Modification_plan(THD *thd_arg,
-                    enum_mod_type mt, TABLE *table_arg,
-                    const char *message_arg, bool zero_result_arg,
+  Modification_plan(THD *thd_arg, enum_mod_type mt, TABLE *table_arg, const char *message_arg, bool zero_result_arg,
                     ha_rows rows);
 
   ~Modification_plan();
 
-private:
+ private:
   void register_in_thd();
 };
-
 
 /**
   EXPLAIN functionality for Query_result_insert, Query_result_update and
@@ -121,8 +114,9 @@ private:
 
 */
 
-class Query_result_explain : public Query_result_send {
-protected:
+class Query_result_explain : public Query_result_send
+{
+ protected:
   /*
     As far as we use Query_result_explain object in a place of Query_result_send,
     Query_result_explain have to pass multiple invocation of its prepare(),
@@ -133,9 +127,9 @@ protected:
     "prepared2" and "initialized" flags guard data interceptor object from
     function re-invocation.
   */
-  bool prepared;    ///< prepare() is done
-  bool prepared2;   ///< prepare2() is done
-  bool initialized; ///< initialize_tables() is done
+  bool prepared;     ///< prepare() is done
+  bool prepared2;    ///< prepare2() is done
+  bool initialized;  ///< initialize_tables() is done
 
   /**
     Pointer to underlying Query_result_insert, Query_result_update or
@@ -143,18 +137,19 @@ protected:
   */
   Query_result *interceptor;
 
-public:
+ public:
   Query_result_explain(st_select_lex_unit *unit_arg, Query_result *interceptor_arg)
-  : prepared(false), prepared2(false), initialized(false),
-    interceptor(interceptor_arg)
-  { unit= unit_arg; }
+      : prepared(false), prepared2(false), initialized(false), interceptor(interceptor_arg)
+  {
+    unit = unit_arg;
+  }
 
-protected:
+ protected:
   virtual int prepare(List<Item> &list, SELECT_LEX_UNIT *u)
   {
     if (prepared)
       return false;
-    prepared= true;
+    prepared = true;
     return Query_result_send::prepare(list, u) || interceptor->prepare(list, u);
   }
 
@@ -162,7 +157,7 @@ protected:
   {
     if (prepared2)
       return false;
-    prepared2= true;
+    prepared2 = true;
     return Query_result_send::prepare2() || interceptor->prepare2();
   }
 
@@ -170,9 +165,8 @@ protected:
   {
     if (initialized)
       return false;
-    initialized= true;
-    return Query_result_send::initialize_tables(join) ||
-           interceptor->initialize_tables(join);
+    initialized = true;
+    return Query_result_send::initialize_tables(join) || interceptor->initialize_tables(join);
   }
 
   virtual void cleanup()
@@ -182,15 +176,10 @@ protected:
   }
 };
 
-
-bool explain_no_table(THD *thd, SELECT_LEX *select_lex, const char *message,
-                      enum_parsing_context ctx);
-bool explain_single_table_modification(THD *ethd,
-                                       const Modification_plan *plan,
-                                       SELECT_LEX *select);
+bool explain_no_table(THD *thd, SELECT_LEX *select_lex, const char *message, enum_parsing_context ctx);
+bool explain_single_table_modification(THD *ethd, const Modification_plan *plan, SELECT_LEX *select);
 bool explain_query(THD *thd, SELECT_LEX_UNIT *unit);
-bool explain_query_specification(THD *ethd, SELECT_LEX *select_lex,
-                                 enum_parsing_context ctx);
+bool explain_query_specification(THD *ethd, SELECT_LEX *select_lex, enum_parsing_context ctx);
 void mysql_explain_other(THD *thd);
 
 #endif /* OPT_EXPLAIN_INCLUDED */

@@ -23,9 +23,9 @@
 #ifndef SQL_UPDATE_INCLUDED
 #define SQL_UPDATE_INCLUDED
 
-#include "sql_class.h"       // Query_result_interceptor
-#include "sql_cmd_dml.h"     // Sql_cmd_dml
-#include "sql_data_change.h" // enum_duplicates
+#include "sql_class.h"        // Query_result_interceptor
+#include "sql_cmd_dml.h"      // Sql_cmd_dml
+#include "sql_data_change.h"  // enum_duplicates
 
 class Item;
 class Query_result_update;
@@ -34,22 +34,16 @@ struct TABLE_LIST;
 typedef class st_select_lex SELECT_LEX;
 
 bool mysql_update_prepare_table(THD *thd, SELECT_LEX *select);
-bool mysql_prepare_update(THD *thd, const TABLE_LIST *update_table_ref,
-                          key_map *covering_keys_for_cond,
+bool mysql_prepare_update(THD *thd, const TABLE_LIST *update_table_ref, key_map *covering_keys_for_cond,
                           List<Item> &update_value_list);
-bool mysql_update(THD *thd, List<Item> &fields,
-                  List<Item> &values, ha_rows limit,
-                  enum enum_duplicates handle_duplicates,
-                  ha_rows *found_return, ha_rows *updated_return);
-bool mysql_multi_update(THD *thd,
-                        List<Item> *fields, List<Item> *values,
-                        enum enum_duplicates handle_duplicates,
-                        SELECT_LEX *select_lex,
-                        Query_result_update **result);
+bool mysql_update(THD *thd, List<Item> &fields, List<Item> &values, ha_rows limit,
+                  enum enum_duplicates handle_duplicates, ha_rows *found_return, ha_rows *updated_return);
+bool mysql_multi_update(THD *thd, List<Item> *fields, List<Item> *values, enum enum_duplicates handle_duplicates,
+                        SELECT_LEX *select_lex, Query_result_update **result);
 bool records_are_comparable(const TABLE *table);
 bool compare_records(const TABLE *table);
 
-class Query_result_update :public Query_result_interceptor
+class Query_result_update : public Query_result_interceptor
 {
   TABLE_LIST *all_tables; /* query/update command tables */
   TABLE_LIST *leaves;     /* list of leves of join table tree */
@@ -57,20 +51,20 @@ class Query_result_update :public Query_result_interceptor
   TABLE **tmp_tables, *main_table, *table_to_update;
   Temp_table_param *tmp_table_param;
   ha_rows updated, found;
-  List <Item> *fields, *values;
-  List <Item> **fields_for_table, **values_for_table;
+  List<Item> *fields, *values;
+  List<Item> **fields_for_table, **values_for_table;
   uint table_count;
   /*
    List of tables referenced in the CHECK OPTION condition of
-   the updated view excluding the updated table. 
+   the updated view excluding the updated table.
   */
-  List <TABLE> unupdated_check_opt_tables;
+  List<TABLE> unupdated_check_opt_tables;
   Copy_field *copy_field;
   enum enum_duplicates handle_duplicates;
   bool do_update, trans_safe;
   /* True if the update operation has made a change in a transactional table */
   bool transactional_tables;
-  /* 
+  /*
      error handling (rollback and binlogging) can happen in send_eof()
      so that afterward send_error() needs to find out that.
   */
@@ -92,32 +86,25 @@ class Query_result_update :public Query_result_interceptor
   */
   COPY_INFO **update_operations;
 
-public:
-  Query_result_update(TABLE_LIST *ut, TABLE_LIST *leaves_list,
-                      List<Item> *fields, List<Item> *values,
+ public:
+  Query_result_update(TABLE_LIST *ut, TABLE_LIST *leaves_list, List<Item> *fields, List<Item> *values,
                       enum_duplicates handle_duplicates);
   ~Query_result_update();
   virtual bool need_explain_interceptor() const { return true; }
   int prepare(List<Item> &list, SELECT_LEX_UNIT *u);
   bool send_data(List<Item> &items);
-  bool initialize_tables (JOIN *join);
-  void send_error(uint errcode,const char *err);
-  int  do_updates();
+  bool initialize_tables(JOIN *join);
+  void send_error(uint errcode, const char *err);
+  int do_updates();
   bool send_eof();
-  inline ha_rows num_found()
-  {
-    return found;
-  }
-  inline ha_rows num_updated()
-  {
-    return updated;
-  }
+  inline ha_rows num_found() { return found; }
+  inline ha_rows num_updated() { return updated; }
   virtual void abort_result_set();
 };
 
 class Sql_cmd_update : public Sql_cmd_dml
 {
-public:
+ public:
   enum_sql_command sql_command;
   List<Item> update_value_list;
 
@@ -129,7 +116,7 @@ public:
   virtual bool prepare(THD *thd) { return mysql_multi_update_prepare(thd); }
   virtual bool prepared_statement_test(THD *thd);
 
-private:
+ private:
   bool try_single_table_update(THD *thd, bool *switch_to_multitable);
   bool execute_multi_table_update(THD *thd);
   int mysql_multi_update_prepare(THD *thd);

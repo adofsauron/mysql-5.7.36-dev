@@ -24,26 +24,25 @@
 #define TRANSACTION_INFO_INCLUDED
 
 #include "my_global.h"
-#include "my_dbug.h"                   // DBUG_ENTER
-#include "my_sys.h"                    // strmake_root
-#include "xa.h"                        // XID_STATE
-#include "my_alloc.h"                  // MEM_ROOT
-#include "thr_malloc.h"                // init_sql_alloc
-#include "sql_cache.h"                 // query_cache
-#include "mdl.h"                       // MDL_savepoint
-#include "handler.h"                   // handlerton
-#include "rpl_transaction_ctx.h"       // Rpl_transaction_ctx
-#include "rpl_transaction_write_set_ctx.h" // Transaction_write_set_ctx
+#include "my_dbug.h"                        // DBUG_ENTER
+#include "my_sys.h"                         // strmake_root
+#include "xa.h"                             // XID_STATE
+#include "my_alloc.h"                       // MEM_ROOT
+#include "thr_malloc.h"                     // init_sql_alloc
+#include "sql_cache.h"                      // query_cache
+#include "mdl.h"                            // MDL_savepoint
+#include "handler.h"                        // handlerton
+#include "rpl_transaction_ctx.h"            // Rpl_transaction_ctx
+#include "rpl_transaction_write_set_ctx.h"  // Transaction_write_set_ctx
 
 class THD;
 
 typedef struct st_changed_table_list
 {
-  struct	st_changed_table_list *next;
-  char		*key;
-  uint32        key_length;
+  struct st_changed_table_list *next;
+  char *key;
+  uint32 key_length;
 } CHANGED_TABLE_LIST;
-
 
 /**
   Either statement transaction or normal transaction - related
@@ -64,8 +63,7 @@ typedef struct st_changed_table_list
 
 class Ha_trx_info
 {
-public:
-
+ public:
   /**
     Register this storage engine in the given transaction context.
   */
@@ -73,17 +71,15 @@ public:
   void register_ha(Ha_trx_info *ha_info, handlerton *ht_arg)
   {
     DBUG_ENTER("Ha_trx_info::register_ha");
-    DBUG_PRINT("enter", ("ht: 0x%llx (%s)",
-                         (ulonglong) ht_arg,
-                         ha_legacy_type_name(ht_arg->db_type)));
+    DBUG_PRINT("enter", ("ht: 0x%llx (%s)", (ulonglong)ht_arg, ha_legacy_type_name(ht_arg->db_type)));
     assert(m_flags == 0);
     assert(m_ht == NULL);
     assert(m_next == NULL);
 
-    m_ht= ht_arg;
-    m_flags= (int) TRX_READ_ONLY; /* Assume read-only at start. */
+    m_ht = ht_arg;
+    m_flags = (int)TRX_READ_ONLY; /* Assume read-only at start. */
 
-    m_next= ha_info;
+    m_next = ha_info;
 
     DBUG_VOID_RETURN;
   }
@@ -95,27 +91,24 @@ public:
   void reset()
   {
     DBUG_ENTER("Ha_trx_info::reset");
-    m_next= NULL;
-    m_ht= NULL;
-    m_flags= 0;
+    m_next = NULL;
+    m_ht = NULL;
+    m_flags = 0;
     DBUG_VOID_RETURN;
   }
 
-  Ha_trx_info()
-  {
-    reset();
-  }
+  Ha_trx_info() { reset(); }
 
   void set_trx_read_write()
   {
     assert(is_started());
-    m_flags|= (int) TRX_READ_WRITE;
+    m_flags |= (int)TRX_READ_WRITE;
   }
 
   bool is_trx_read_write() const
   {
     assert(is_started());
-    return m_flags & (int) TRX_READ_WRITE;
+    return m_flags & (int)TRX_READ_WRITE;
   }
 
   /**
@@ -125,7 +118,7 @@ public:
   void set_trx_noop_read_write()
   {
     assert(is_started());
-    m_flags|= (int) TRX_NOOP_READ_WRITE;
+    m_flags |= (int)TRX_NOOP_READ_WRITE;
   }
 
   /**
@@ -134,14 +127,10 @@ public:
   bool is_trx_noop_read_write() const
   {
     assert(is_started());
-    return m_flags & (int) TRX_NOOP_READ_WRITE;
+    return m_flags & (int)TRX_NOOP_READ_WRITE;
   }
 
-  bool is_started() const
-  {
-    return m_ht != NULL;
-  }
-
+  bool is_started() const { return m_ht != NULL; }
 
   /**
     Mark this transaction read-write if the argument is read-write.
@@ -173,8 +162,13 @@ public:
     return m_ht;
   }
 
-private:
-  enum { TRX_READ_ONLY= 0, TRX_READ_WRITE= 1, TRX_NOOP_READ_WRITE= 2 };
+ private:
+  enum
+  {
+    TRX_READ_ONLY = 0,
+    TRX_READ_WRITE = 1,
+    TRX_NOOP_READ_WRITE = 2
+  };
   /**
     Auxiliary, used for ha_list management
   */
@@ -192,36 +186,40 @@ private:
     Not-null only if this instance is a part of transaction.
     May assume a combination of enum values above.
   */
-  uchar       m_flags;
+  uchar m_flags;
 };
 
 struct st_savepoint
 {
   struct st_savepoint *prev;
-  char                *name;
-  size_t              length;
-  Ha_trx_info         *ha_list;
+  char *name;
+  size_t length;
+  Ha_trx_info *ha_list;
   /** State of metadata locks before this savepoint was set. */
-  MDL_savepoint        mdl_savepoint;
+  MDL_savepoint mdl_savepoint;
 };
 
 class Transaction_ctx
 {
-public:
-  enum enum_trx_scope { STMT= 0, SESSION };
+ public:
+  enum enum_trx_scope
+  {
+    STMT = 0,
+    SESSION
+  };
 
   SAVEPOINT *m_savepoints;
 
-private:
+ private:
   struct THD_TRANS
   {
     /* true is not all entries in the ht[] support 2pc */
-    bool        m_no_2pc;
-    int         m_rw_ha_count;
+    bool m_no_2pc;
+    int m_rw_ha_count;
     /* storage engines that registered in this transaction */
     Ha_trx_info *m_ha_list;
 
-  private:
+   private:
     /*
       The purpose of this member variable (i.e. flag) is to keep track of
       statements which cannot be rolled back safely(completely).
@@ -270,66 +268,51 @@ private:
       Define the type of statements which cannot be rolled back safely.
       Each type occupies one bit in m_unsafe_rollback_flags.
     */
-    static unsigned int const MODIFIED_NON_TRANS_TABLE= 0x01;
-    static unsigned int const CREATED_TEMP_TABLE= 0x02;
-    static unsigned int const DROPPED_TEMP_TABLE= 0x04;
+    static unsigned int const MODIFIED_NON_TRANS_TABLE = 0x01;
+    static unsigned int const CREATED_TEMP_TABLE = 0x02;
+    static unsigned int const DROPPED_TEMP_TABLE = 0x04;
 
-  public:
-    bool cannot_safely_rollback() const
-    {
-      return m_unsafe_rollback_flags > 0;
-    }
-    unsigned int get_unsafe_rollback_flags() const
-    {
-      return m_unsafe_rollback_flags;
-    }
+   public:
+    bool cannot_safely_rollback() const { return m_unsafe_rollback_flags > 0; }
+    unsigned int get_unsafe_rollback_flags() const { return m_unsafe_rollback_flags; }
     void set_unsafe_rollback_flags(unsigned int flags)
     {
       DBUG_PRINT("debug", ("set_unsafe_rollback_flags: %d", flags));
-      m_unsafe_rollback_flags= flags;
+      m_unsafe_rollback_flags = flags;
     }
     void add_unsafe_rollback_flags(unsigned int flags)
     {
       DBUG_PRINT("debug", ("add_unsafe_rollback_flags: %d", flags));
-      m_unsafe_rollback_flags|= flags;
+      m_unsafe_rollback_flags |= flags;
     }
     void reset_unsafe_rollback_flags()
     {
       DBUG_PRINT("debug", ("reset_unsafe_rollback_flags"));
-      m_unsafe_rollback_flags= 0;
+      m_unsafe_rollback_flags = 0;
     }
     void mark_modified_non_trans_table()
     {
       DBUG_PRINT("debug", ("mark_modified_non_trans_table"));
-      m_unsafe_rollback_flags|= MODIFIED_NON_TRANS_TABLE;
+      m_unsafe_rollback_flags |= MODIFIED_NON_TRANS_TABLE;
     }
-    bool has_modified_non_trans_table() const
-    {
-      return m_unsafe_rollback_flags & MODIFIED_NON_TRANS_TABLE;
-    }
+    bool has_modified_non_trans_table() const { return m_unsafe_rollback_flags & MODIFIED_NON_TRANS_TABLE; }
     void mark_created_temp_table()
     {
       DBUG_PRINT("debug", ("mark_created_temp_table"));
-      m_unsafe_rollback_flags|= CREATED_TEMP_TABLE;
+      m_unsafe_rollback_flags |= CREATED_TEMP_TABLE;
     }
-    bool has_created_temp_table() const
-    {
-      return m_unsafe_rollback_flags & CREATED_TEMP_TABLE;
-    }
+    bool has_created_temp_table() const { return m_unsafe_rollback_flags & CREATED_TEMP_TABLE; }
     void mark_dropped_temp_table()
     {
       DBUG_PRINT("debug", ("mark_dropped_temp_table"));
-      m_unsafe_rollback_flags|= DROPPED_TEMP_TABLE;
+      m_unsafe_rollback_flags |= DROPPED_TEMP_TABLE;
     }
-    bool has_dropped_temp_table() const
-    {
-      return m_unsafe_rollback_flags & DROPPED_TEMP_TABLE;
-    }
+    bool has_dropped_temp_table() const { return m_unsafe_rollback_flags & DROPPED_TEMP_TABLE; }
 
     void reset()
     {
-      m_no_2pc= false;
-      m_rw_ha_count= 0;
+      m_no_2pc = false;
+      m_rw_ha_count = 0;
       reset_unsafe_rollback_flags();
     }
     bool is_empty() const { return m_ha_list == NULL; }
@@ -344,10 +327,10 @@ private:
     List contain only transactional tables, that not invalidated in query
     cache (instead of full list of changed in transaction tables).
   */
-  CHANGED_TABLE_LIST* m_changed_tables;
-  MEM_ROOT m_mem_root; // Transaction-life memory allocation pool
+  CHANGED_TABLE_LIST *m_changed_tables;
+  MEM_ROOT m_mem_root;  // Transaction-life memory allocation pool
 
-public:
+ public:
   /*
     (Mostly) binlog-specific fields use while flushing the caches
     and committing transactions.
@@ -359,14 +342,14 @@ public:
   */
   struct
   {
-    bool enabled;                   // see ha_enable_transaction()
-    bool pending;                   // Is the transaction commit pending?
-    bool xid_written;               // The session wrote an XID
-    bool real_commit;               // Is this a "real" commit?
-    bool commit_low;                // see MYSQL_BIN_LOG::ordered_commit
-    bool run_hooks;                 // Call the after_commit hook
+    bool enabled;      // see ha_enable_transaction()
+    bool pending;      // Is the transaction commit pending?
+    bool xid_written;  // The session wrote an XID
+    bool real_commit;  // Is this a "real" commit?
+    bool commit_low;   // see MYSQL_BIN_LOG::ordered_commit
+    bool run_hooks;    // Call the after_commit hook
 #ifndef NDEBUG
-    bool ready_preempt;             // internal in MYSQL_BIN_LOG::ordered_commit
+    bool ready_preempt;  // internal in MYSQL_BIN_LOG::ordered_commit
 #endif
   } m_flags;
   /* Binlog-specific logical timestamps. */
@@ -393,33 +376,24 @@ public:
   */
   int64 sequence_number;
 
-  void store_commit_parent(int64 last_arg)
-  {
-    last_committed= last_arg;
-  }
+  void store_commit_parent(int64 last_arg) { last_committed = last_arg; }
 
   Transaction_ctx();
-  virtual ~Transaction_ctx()
-  {
-    free_root(&m_mem_root, MYF(0));
-  }
+  virtual ~Transaction_ctx() { free_root(&m_mem_root, MYF(0)); }
 
   void cleanup()
   {
     DBUG_ENTER("Transaction_ctx::cleanup");
-    m_changed_tables= NULL;
-    m_savepoints= NULL;
+    m_changed_tables = NULL;
+    m_savepoints = NULL;
     m_xid_state.cleanup();
     m_rpl_transaction_ctx.cleanup();
     m_transaction_write_set_ctx.reset_state();
-    free_root(&m_mem_root,MYF(MY_KEEP_PREALLOC));
+    free_root(&m_mem_root, MYF(MY_KEEP_PREALLOC));
     DBUG_VOID_RETURN;
   }
 
-  bool is_active(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].m_ha_list != NULL;
-  }
+  bool is_active(enum_trx_scope scope) const { return m_scope_info[scope].m_ha_list != NULL; }
 
   void push_unsafe_rollback_warnings(THD *thd);
 
@@ -431,42 +405,23 @@ public:
       cannot be rolled back safely, the transaction including
       this statement definitely cannot rolled back safely.
     */
-    m_scope_info[SESSION].add_unsafe_rollback_flags(
-      m_scope_info[STMT].get_unsafe_rollback_flags());
+    m_scope_info[SESSION].add_unsafe_rollback_flags(m_scope_info[STMT].get_unsafe_rollback_flags());
   }
 
-  void init_mem_root_defaults(ulong trans_alloc_block_size,
-                              ulong trans_prealloc_size)
+  void init_mem_root_defaults(ulong trans_alloc_block_size, ulong trans_prealloc_size)
   {
-    reset_root_defaults(&m_mem_root,
-                        trans_alloc_block_size,
-                        trans_prealloc_size);
+    reset_root_defaults(&m_mem_root, trans_alloc_block_size, trans_prealloc_size);
   }
 
-  MEM_ROOT* transaction_memroot()
-  {
-    return &m_mem_root;
-  }
+  MEM_ROOT *transaction_memroot() { return &m_mem_root; }
 
-  void* allocate_memory(unsigned int size)
-  {
-    return alloc_root(&m_mem_root, size);
-  }
+  void *allocate_memory(unsigned int size) { return alloc_root(&m_mem_root, size); }
 
-  void claim_memory_ownership()
-  {
-    claim_root(&m_mem_root);
-  }
+  void claim_memory_ownership() { claim_root(&m_mem_root); }
 
-  void free_memory(myf root_alloc_flags)
-  {
-    free_root(&m_mem_root, root_alloc_flags);
-  }
+  void free_memory(myf root_alloc_flags) { free_root(&m_mem_root, root_alloc_flags); }
 
-  char* strmake(const char *str, size_t len)
-  {
-    return strmake_root(&m_mem_root, str, len);
-  }
+  char *strmake(const char *str, size_t len) { return strmake_root(&m_mem_root, str, len); }
 
   void invalidate_changed_tables_in_cache()
   {
@@ -476,35 +431,17 @@ public:
 
   bool add_changed_table(const char *key, long key_length);
 
-  Ha_trx_info* ha_trx_info(enum_trx_scope scope)
-  {
-    return m_scope_info[scope].m_ha_list;
-  }
+  Ha_trx_info *ha_trx_info(enum_trx_scope scope) { return m_scope_info[scope].m_ha_list; }
 
-  const Ha_trx_info* ha_trx_info(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].m_ha_list;
-  }
+  const Ha_trx_info *ha_trx_info(enum_trx_scope scope) const { return m_scope_info[scope].m_ha_list; }
 
-  void set_ha_trx_info(enum_trx_scope scope, Ha_trx_info *trx_info)
-  {
-    m_scope_info[scope].m_ha_list= trx_info;
-  }
+  void set_ha_trx_info(enum_trx_scope scope, Ha_trx_info *trx_info) { m_scope_info[scope].m_ha_list = trx_info; }
 
-  XID_STATE *xid_state()
-  {
-    return &m_xid_state;
-  }
+  XID_STATE *xid_state() { return &m_xid_state; }
 
-  const XID_STATE *xid_state() const
-  {
-    return &m_xid_state;
-  }
+  const XID_STATE *xid_state() const { return &m_xid_state; }
 
-  bool cannot_safely_rollback(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].cannot_safely_rollback();
-  }
+  bool cannot_safely_rollback(enum_trx_scope scope) const { return m_scope_info[scope].cannot_safely_rollback(); }
 
   unsigned int get_unsafe_rollback_flags(enum_trx_scope scope) const
   {
@@ -521,118 +458,68 @@ public:
     m_scope_info[scope].add_unsafe_rollback_flags(flags);
   }
 
-  void reset_unsafe_rollback_flags(enum_trx_scope scope)
-  {
-    m_scope_info[scope].reset_unsafe_rollback_flags();
-  }
+  void reset_unsafe_rollback_flags(enum_trx_scope scope) { m_scope_info[scope].reset_unsafe_rollback_flags(); }
 
-  void mark_modified_non_trans_table(enum_trx_scope scope)
-  {
-    m_scope_info[scope].mark_modified_non_trans_table();
-  }
+  void mark_modified_non_trans_table(enum_trx_scope scope) { m_scope_info[scope].mark_modified_non_trans_table(); }
 
   bool has_modified_non_trans_table(enum_trx_scope scope) const
   {
     return m_scope_info[scope].has_modified_non_trans_table();
   }
 
-  void mark_created_temp_table(enum_trx_scope scope)
-  {
-    m_scope_info[scope].mark_created_temp_table();
-  }
+  void mark_created_temp_table(enum_trx_scope scope) { m_scope_info[scope].mark_created_temp_table(); }
 
-  bool has_created_temp_table(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].has_created_temp_table();
-  }
+  bool has_created_temp_table(enum_trx_scope scope) const { return m_scope_info[scope].has_created_temp_table(); }
 
-  void mark_dropped_temp_table(enum_trx_scope scope)
-  {
-    m_scope_info[scope].mark_dropped_temp_table();
-  }
+  void mark_dropped_temp_table(enum_trx_scope scope) { m_scope_info[scope].mark_dropped_temp_table(); }
 
-  bool has_dropped_temp_table(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].has_dropped_temp_table();
-  }
+  bool has_dropped_temp_table(enum_trx_scope scope) const { return m_scope_info[scope].has_dropped_temp_table(); }
 
-  void reset(enum_trx_scope scope)
-  {
-    m_scope_info[scope].reset();
-  }
+  void reset(enum_trx_scope scope) { m_scope_info[scope].reset(); }
 
-  bool is_empty(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].is_empty();
-  }
+  bool is_empty(enum_trx_scope scope) const { return m_scope_info[scope].is_empty(); }
 
-  void set_no_2pc(enum_trx_scope scope, bool value)
-  {
-    m_scope_info[scope].m_no_2pc= value;
-  }
+  void set_no_2pc(enum_trx_scope scope, bool value) { m_scope_info[scope].m_no_2pc = value; }
 
-  bool no_2pc(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].m_no_2pc;
-  }
+  bool no_2pc(enum_trx_scope scope) const { return m_scope_info[scope].m_no_2pc; }
 
-  int rw_ha_count(enum_trx_scope scope) const
-  {
-    return m_scope_info[scope].m_rw_ha_count;
-  }
+  int rw_ha_count(enum_trx_scope scope) const { return m_scope_info[scope].m_rw_ha_count; }
 
-  void set_rw_ha_count(enum_trx_scope scope, int value)
-  {
-    m_scope_info[scope].m_rw_ha_count= value;
-  }
+  void set_rw_ha_count(enum_trx_scope scope, int value) { m_scope_info[scope].m_rw_ha_count = value; }
 
   void reset_scope(enum_trx_scope scope)
   {
-    m_scope_info[scope].m_ha_list= 0;
-    m_scope_info[scope].m_no_2pc=0;
-    m_scope_info[scope].m_rw_ha_count= 0;
+    m_scope_info[scope].m_ha_list = 0;
+    m_scope_info[scope].m_no_2pc = 0;
+    m_scope_info[scope].m_rw_ha_count = 0;
   }
 
-private:
-  CHANGED_TABLE_LIST* changed_table_dup(const char *key, long key_length);
+ private:
+  CHANGED_TABLE_LIST *changed_table_dup(const char *key, long key_length);
 
   /* routings to adding tables to list of changed in transaction tables */
-  bool list_include(CHANGED_TABLE_LIST** prev,
-                    CHANGED_TABLE_LIST* curr,
-                    CHANGED_TABLE_LIST* new_table)
+  bool list_include(CHANGED_TABLE_LIST **prev, CHANGED_TABLE_LIST *curr, CHANGED_TABLE_LIST *new_table)
   {
     if (new_table)
     {
-      *prev= new_table;
-      (*prev)->next= curr;
+      *prev = new_table;
+      (*prev)->next = curr;
       return false;
     }
     else
       return true;
   }
 
-public:
-  Rpl_transaction_ctx *get_rpl_transaction_ctx()
-  {
-    return &m_rpl_transaction_ctx;
-  }
+ public:
+  Rpl_transaction_ctx *get_rpl_transaction_ctx() { return &m_rpl_transaction_ctx; }
 
-  const Rpl_transaction_ctx *get_rpl_transaction_ctx() const
-  {
-    return &m_rpl_transaction_ctx;
-  }
+  const Rpl_transaction_ctx *get_rpl_transaction_ctx() const { return &m_rpl_transaction_ctx; }
 
-  Rpl_transaction_write_set_ctx *get_transaction_write_set_ctx()
-  {
-    return &m_transaction_write_set_ctx;
-  }
+  Rpl_transaction_write_set_ctx *get_transaction_write_set_ctx() { return &m_transaction_write_set_ctx; }
 
-  const Rpl_transaction_write_set_ctx *get_transaction_write_set_ctx() const
-  {
-    return &m_transaction_write_set_ctx;
-  }
+  const Rpl_transaction_write_set_ctx *get_transaction_write_set_ctx() const { return &m_transaction_write_set_ctx; }
 
-private:
+ private:
   Rpl_transaction_ctx m_rpl_transaction_ctx;
   Rpl_transaction_write_set_ctx m_transaction_write_set_ctx;
 };

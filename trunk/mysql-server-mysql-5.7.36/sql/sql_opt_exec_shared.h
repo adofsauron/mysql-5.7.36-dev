@@ -26,9 +26,9 @@
 #define SQL_OPT_EXEC_SHARED_INCLUDED
 
 #include "my_base.h"
-#include "item.h"        // Item
-#include "sql_alloc.h"   // Sql_alloc
-#include "sql_class.h"   // Temp_table_param
+#include "item.h"       // Item
+#include "sql_alloc.h"  // Sql_alloc
+#include "sql_class.h"  // Temp_table_param
 
 class JOIN;
 class Item_func_match;
@@ -49,80 +49,79 @@ class QUICK_SELECT_I;
    FirstMatch" (firstmatch_return==NO_PLAN_IDX).
 */
 typedef int8 plan_idx;
-#define NO_PLAN_IDX (-2)          ///< undefined index
-#define PRE_FIRST_PLAN_IDX (-1) ///< right before the first (first's index is 0)
-
+#define NO_PLAN_IDX (-2)         ///< undefined index
+#define PRE_FIRST_PLAN_IDX (-1)  ///< right before the first (first's index is 0)
 
 typedef struct st_table_ref : public Sql_alloc
 {
-  bool		key_err;
+  bool key_err;
   /** True if something was read into buffer in join_read_key.  */
-  bool          has_record;
-  uint          key_parts;                ///< num of ...
-  uint          key_length;               ///< length of key_buff
-  int           key;                      ///< key no
-  uchar         *key_buff;                ///< value to look for with key
-  uchar         *key_buff2;               ///< key_buff+key_length
+  bool has_record;
+  uint key_parts;    ///< num of ...
+  uint key_length;   ///< length of key_buff
+  int key;           ///< key no
+  uchar *key_buff;   ///< value to look for with key
+  uchar *key_buff2;  ///< key_buff+key_length
   /**
      Used to store the value from each keypart field. These values are
      used for ref access. If key_copy[key_part] == NULL it means that
      the value is constant and does not need to be reevaluated
   */
-  store_key     **key_copy;
-  Item          **items;                  ///< val()'s for each keypart
-  /*  
+  store_key **key_copy;
+  Item **items;  ///< val()'s for each keypart
+  /*
     Array of pointers to trigger variables. Some/all of the pointers may be
     NULL.  The ref access can be used iff
-    
-      for each used key part i, (!cond_guards[i] || *cond_guards[i]) 
+
+      for each used key part i, (!cond_guards[i] || *cond_guards[i])
 
     This array is used by subquery code. The subquery code may inject
-    triggered conditions, i.e. conditions that can be 'switched off'. A ref 
-    access created from such condition is not valid when at least one of the 
+    triggered conditions, i.e. conditions that can be 'switched off'. A ref
+    access created from such condition is not valid when at least one of the
     underlying conditions is switched off (see subquery code for more details).
-    If a table in a subquery has this it means that the table access 
-    will switch from ref access to table scan when the outer query 
+    If a table in a subquery has this it means that the table access
+    will switch from ref access to table scan when the outer query
     produces a NULL value to be checked for in the subquery. This will
-    be used by NOT IN subqueries and IN subqueries for which 
+    be used by NOT IN subqueries and IN subqueries for which
     is_top_level_item() returns false.
   */
-  bool          **cond_guards;
+  bool **cond_guards;
   /**
     (null_rejecting & (1<<i)) means the condition is '=' and no matching
     rows will be produced if items[i] IS NULL (see add_not_null_conds())
   */
-  key_part_map  null_rejecting;
-  table_map	depend_map;		  ///< Table depends on these tables.
+  key_part_map null_rejecting;
+  table_map depend_map;  ///< Table depends on these tables.
   /* null byte position in the key_buf. Used for REF_OR_NULL optimization */
-  uchar          *null_ref_key;
+  uchar *null_ref_key;
   /*
     The number of times the record associated with this key was used
     in the join.
   */
-  ha_rows       use_count;
+  ha_rows use_count;
 
   /*
     TRUE <=> disable the "cache" as doing lookup with the same key value may
     produce different results (because of Index Condition Pushdown)
   */
-  bool          disable_cache;
+  bool disable_cache;
 
   st_table_ref()
-    : key_err(TRUE),
-      has_record(FALSE),
-      key_parts(0),
-      key_length(0),
-      key(-1),
-      key_buff(NULL),
-      key_buff2(NULL),
-      key_copy(NULL),
-      items(NULL),
-      cond_guards(NULL),
-      null_rejecting(0),
-      depend_map(0),
-      null_ref_key(NULL),
-      use_count(0),
-      disable_cache(FALSE)
+      : key_err(TRUE),
+        has_record(FALSE),
+        key_parts(0),
+        key_length(0),
+        key(-1),
+        key_buff(NULL),
+        key_buff2(NULL),
+        key_copy(NULL),
+        items(NULL),
+        cond_guards(NULL),
+        null_rejecting(0),
+        depend_map(0),
+        null_ref_key(NULL),
+        use_count(0),
+        disable_cache(FALSE)
   {
   }
 
@@ -134,7 +133,7 @@ typedef struct st_table_ref : public Sql_alloc
   {
     if (null_rejecting != 0)
     {
-      for (uint i= 0 ; i < key_parts ; i++)
+      for (uint i = 0; i < key_parts; i++)
       {
         if ((null_rejecting & 1 << i) && items[i]->is_null())
           return TRUE;
@@ -142,7 +141,6 @@ typedef struct st_table_ref : public Sql_alloc
     }
     return FALSE;
   }
-
 
   /**
     Check if there are triggered/guarded conditions that might be
@@ -165,7 +163,6 @@ typedef struct st_table_ref : public Sql_alloc
   }
 } TABLE_REF;
 
-
 struct st_cache_field;
 class QEP_operation;
 class Filesort;
@@ -175,92 +172,94 @@ class Semijoin_mat_exec;
 /*
   The structs which holds the join connections and join states
 */
-enum join_type { /*
-                   Initial state. Access type has not yet been decided
-                   for the table
-                 */
-                 JT_UNKNOWN,
-                 /* Table has exactly one row */
-                 JT_SYSTEM,
-                 /*
-                   Table has at most one matching row. Values read
-                   from this row can be treated as constants. Example:
-                   "WHERE table.pk = 3"
-                  */
-                 JT_CONST,
-                 /*
-                   '=' operator is used on unique index. At most one
-                   row is read for each combination of rows from
-                   preceding tables
-                 */
-                 JT_EQ_REF,
-                 /*
-                   '=' operator is used on non-unique index
-                 */
-                 JT_REF,
-                 /*
-                   Full table scan.
-                 */
-                 JT_ALL,
-                 /*
-                   Range scan.
-                 */
-                 JT_RANGE,
-                 /*
-                   Like table scan, but scans index leaves instead of
-                   the table
-                 */
-                 JT_INDEX_SCAN,
-                 /* Fulltext index is used */
-                 JT_FT,
-                 /*
-                   Like ref, but with extra search for NULL values.
-                   E.g. used for "WHERE col = ... OR col IS NULL"
-                  */
-                 JT_REF_OR_NULL,
-                 /*
-                   Like eq_ref for subqueries: Replaces subquery with
-                   index lookup in unique index
-                  */
-                 JT_UNIQUE_SUBQUERY,
-                 /*
-                   Like unique_subquery but for non-unique index
-                 */
-                 JT_INDEX_SUBQUERY,
-                 /*
-                   Do multiple range scans over one table and combine
-                   the results into one. The merge can be used to
-                   produce unions and intersections
-                 */
-                 JT_INDEX_MERGE};
-
+enum join_type
+{ /*
+    Initial state. Access type has not yet been decided
+    for the table
+  */
+  JT_UNKNOWN,
+  /* Table has exactly one row */
+  JT_SYSTEM,
+  /*
+    Table has at most one matching row. Values read
+    from this row can be treated as constants. Example:
+    "WHERE table.pk = 3"
+   */
+  JT_CONST,
+  /*
+    '=' operator is used on unique index. At most one
+    row is read for each combination of rows from
+    preceding tables
+  */
+  JT_EQ_REF,
+  /*
+    '=' operator is used on non-unique index
+  */
+  JT_REF,
+  /*
+    Full table scan.
+  */
+  JT_ALL,
+  /*
+    Range scan.
+  */
+  JT_RANGE,
+  /*
+    Like table scan, but scans index leaves instead of
+    the table
+  */
+  JT_INDEX_SCAN,
+  /* Fulltext index is used */
+  JT_FT,
+  /*
+    Like ref, but with extra search for NULL values.
+    E.g. used for "WHERE col = ... OR col IS NULL"
+   */
+  JT_REF_OR_NULL,
+  /*
+    Like eq_ref for subqueries: Replaces subquery with
+    index lookup in unique index
+   */
+  JT_UNIQUE_SUBQUERY,
+  /*
+    Like unique_subquery but for non-unique index
+  */
+  JT_INDEX_SUBQUERY,
+  /*
+    Do multiple range scans over one table and combine
+    the results into one. The merge can be used to
+    produce unions and intersections
+  */
+  JT_INDEX_MERGE
+};
 
 /// Holds members common to JOIN_TAB and QEP_TAB.
 class QEP_shared : public Sql_alloc
 {
-public:
-  QEP_shared() :
-    m_join(NULL),
-    m_idx(NO_PLAN_IDX),
-    m_table(NULL),
-    m_position(NULL),
-    m_sj_mat_exec(NULL),
-    m_first_sj_inner(NO_PLAN_IDX),
-    m_last_sj_inner(NO_PLAN_IDX),
-    m_first_inner(NO_PLAN_IDX),
-    m_last_inner(NO_PLAN_IDX),
-    m_first_upper(NO_PLAN_IDX),
-    m_ref(),
-    m_index(0),
-    m_type(JT_UNKNOWN),
-    m_condition(NULL),
-    m_keys(),
-    m_records(0),
-    m_quick(NULL),
-    prefix_tables_map(0),
-    added_tables_map(0),
-    m_ft_func(NULL)
-    {}
+ public:
+  QEP_shared()
+      : m_join(NULL),
+        m_idx(NO_PLAN_IDX),
+        m_table(NULL),
+        m_position(NULL),
+        m_sj_mat_exec(NULL),
+        m_first_sj_inner(NO_PLAN_IDX),
+        m_last_sj_inner(NO_PLAN_IDX),
+        m_first_inner(NO_PLAN_IDX),
+        m_last_inner(NO_PLAN_IDX),
+        m_first_upper(NO_PLAN_IDX),
+        m_ref(),
+        m_index(0),
+        m_type(JT_UNKNOWN),
+        m_condition(NULL),
+        m_keys(),
+        m_records(0),
+        m_quick(NULL),
+        prefix_tables_map(0),
+        added_tables_map(0),
+        m_ft_func(NULL)
+  {
+  }
 
   /*
     Simple getters and setters. They are public. However, this object is
@@ -269,49 +268,49 @@ public:
   */
 
   JOIN *join() const { return m_join; }
-  void set_join(JOIN *j) { m_join= j; }
+  void set_join(JOIN *j) { m_join = j; }
   plan_idx idx() const
   {
-    assert(m_idx >= 0);                    // Index must be valid
+    assert(m_idx >= 0);  // Index must be valid
     return m_idx;
   }
   void set_idx(plan_idx i)
   {
-    assert(m_idx == NO_PLAN_IDX);      // Index should not change in lifetime
-    m_idx= i;
+    assert(m_idx == NO_PLAN_IDX);  // Index should not change in lifetime
+    m_idx = i;
   }
   TABLE *table() const { return m_table; }
-  void set_table(TABLE *t) { m_table= t; }
+  void set_table(TABLE *t) { m_table = t; }
   POSITION *position() const { return m_position; }
-  void set_position(POSITION *p) { m_position= p; }
+  void set_position(POSITION *p) { m_position = p; }
   Semijoin_mat_exec *sj_mat_exec() const { return m_sj_mat_exec; }
-  void set_sj_mat_exec(Semijoin_mat_exec *s) { m_sj_mat_exec= s; }
+  void set_sj_mat_exec(Semijoin_mat_exec *s) { m_sj_mat_exec = s; }
   plan_idx first_sj_inner() { return m_first_sj_inner; }
   plan_idx last_sj_inner() { return m_last_sj_inner; }
   plan_idx first_inner() { return m_first_inner; }
-  void set_first_inner(plan_idx i) { m_first_inner= i; }
-  void set_last_inner(plan_idx i) { m_last_inner= i; }
-  void set_first_sj_inner(plan_idx i) { m_first_sj_inner= i; }
-  void set_last_sj_inner(plan_idx i) { m_last_sj_inner= i; }
-  void set_first_upper(plan_idx i) { m_first_upper= i; }
+  void set_first_inner(plan_idx i) { m_first_inner = i; }
+  void set_last_inner(plan_idx i) { m_last_inner = i; }
+  void set_first_sj_inner(plan_idx i) { m_first_sj_inner = i; }
+  void set_last_sj_inner(plan_idx i) { m_last_sj_inner = i; }
+  void set_first_upper(plan_idx i) { m_first_upper = i; }
   plan_idx last_inner() { return m_last_inner; }
   plan_idx first_upper() { return m_first_upper; }
   TABLE_REF &ref() { return m_ref; }
   uint index() const { return m_index; }
-  void set_index(uint i) { m_index= i; }
+  void set_index(uint i) { m_index = i; }
   enum join_type type() const { return m_type; }
-  void set_type(enum join_type t) { m_type= t; }
+  void set_type(enum join_type t) { m_type = t; }
   Item *condition() const { return m_condition; }
-  void set_condition(Item *c) { m_condition= c; }
+  void set_condition(Item *c) { m_condition = c; }
   key_map &keys() { return m_keys; }
   ha_rows records() const { return m_records; }
-  void set_records(ha_rows r) { m_records= r; }
+  void set_records(ha_rows r) { m_records = r; }
   QUICK_SELECT_I *quick() const { return m_quick; }
-  void set_quick(QUICK_SELECT_I *q) { m_quick= q; }
+  void set_quick(QUICK_SELECT_I *q) { m_quick = q; }
   table_map prefix_tables() const { return prefix_tables_map; }
   table_map added_tables() const { return added_tables_map; }
   Item_func_match *ft_func() const { return m_ft_func; }
-  void set_ft_func(Item_func_match *f) { m_ft_func= f; }
+  void set_ft_func(Item_func_match *f) { m_ft_func = f; }
 
   // More elaborate functions:
 
@@ -324,8 +323,8 @@ public:
   */
   void set_prefix_tables(table_map prefix_tables_arg, table_map prev_tables_arg)
   {
-    prefix_tables_map= prefix_tables_arg;
-    added_tables_map= prefix_tables_arg & ~prev_tables_arg;
+    prefix_tables_map = prefix_tables_arg;
+    added_tables_map = prefix_tables_arg & ~prev_tables_arg;
   }
 
   /**
@@ -334,29 +333,19 @@ public:
     @param tables: Set of tables added for this table in plan.
   */
   void add_prefix_tables(table_map tables)
-  { prefix_tables_map|= tables; added_tables_map|= tables; }
-
-  bool is_first_inner_for_outer_join() const
   {
-    return m_first_inner == m_idx;
+    prefix_tables_map |= tables;
+    added_tables_map |= tables;
   }
 
-  bool is_inner_table_of_outer_join() const
-  {
-    return m_first_inner != NO_PLAN_IDX;
-  }
-  bool is_single_inner_of_semi_join() const
-  {
-    return m_first_sj_inner == m_idx && m_last_sj_inner == m_idx;
-  }
-  bool is_single_inner_of_outer_join() const
-  {
-    return m_first_inner == m_idx && m_last_inner == m_idx;
-  }
+  bool is_first_inner_for_outer_join() const { return m_first_inner == m_idx; }
 
-private:
+  bool is_inner_table_of_outer_join() const { return m_first_inner != NO_PLAN_IDX; }
+  bool is_single_inner_of_semi_join() const { return m_first_sj_inner == m_idx && m_last_sj_inner == m_idx; }
+  bool is_single_inner_of_outer_join() const { return m_first_inner == m_idx && m_last_inner == m_idx; }
 
-  JOIN	*m_join;
+ private:
+  JOIN *m_join;
 
   /**
      Index of structure in array:
@@ -364,13 +353,13 @@ private:
      - index of pointer to this JOIN_TAB, in JOIN::best_ref array
      - index of this QEP_TAB, in JOIN::qep array.
   */
-  plan_idx  m_idx;
+  plan_idx m_idx;
 
   /// Corresponding table. Might be an internal temporary one.
   TABLE *m_table;
 
   /// Points into best_positions array. Includes cost info.
-  POSITION      *m_position;
+  POSITION *m_position;
 
   /*
     semijoin-related members.
@@ -394,19 +383,19 @@ private:
   /*
     outer-join-related members.
   */
-  plan_idx m_first_inner;   ///< first inner table for including outer join
-  plan_idx m_last_inner;    ///< last table table for embedding outer join
-  plan_idx m_first_upper;   ///< first inner table for embedding outer join
+  plan_idx m_first_inner;  ///< first inner table for including outer join
+  plan_idx m_last_inner;   ///< last table table for embedding outer join
+  plan_idx m_first_upper;  ///< first inner table for embedding outer join
 
   /**
      Used to do index-based look up based on a key value.
      Used when we read constant tables, in misc optimization (like
      remove_const()), and in execution.
   */
-  TABLE_REF	m_ref;
+  TABLE_REF m_ref;
 
   /// ID of index used for index scan or semijoin LooseScan
-  uint		m_index;
+  uint m_index;
 
   /// Type of chosen access method (scan, etc).
   enum join_type m_type;
@@ -416,20 +405,20 @@ private:
     Notice that the condition may refer to rows from previous tables in the
     join prefix, as well as outer tables.
   */
-  Item          *m_condition;
+  Item *m_condition;
 
   /**
      All keys with can be used.
      Used by add_key_field() (optimization time) and execution of dynamic
      range (join_init_quick_record()), and EXPLAIN.
   */
-  key_map       m_keys;
+  key_map m_keys;
 
   /**
      Either #rows in the table or 1 for const table.
      Used in optimization, and also in execution for FOUND_ROWS().
   */
-  ha_rows	m_records;
+  ha_rows m_records;
 
   /**
      Non-NULL if quick-select used.
@@ -446,27 +435,30 @@ private:
     The set of all tables available in the join prefix for this table,
     including the table handled by this JOIN_TAB.
   */
-  table_map     prefix_tables_map;
+  table_map prefix_tables_map;
   /**
     The set of tables added for this table, compared to the previous table
     in the join prefix.
   */
-  table_map     added_tables_map;
+  table_map added_tables_map;
 
   /** FT function */
   Item_func_match *m_ft_func;
 };
 
-
 /// Owner of a QEP_shared; parent of JOIN_TAB and QEP_TAB.
 class QEP_shared_owner
 {
-public:
+ public:
   QEP_shared_owner() : m_qs(NULL) {}
 
   /// Instructs to share the QEP_shared with another owner
   void share_qs(QEP_shared_owner *other) { other->set_qs(m_qs); }
-  void set_qs(QEP_shared *q) { assert(!m_qs); m_qs= q; }
+  void set_qs(QEP_shared *q)
+  {
+    assert(!m_qs);
+    m_qs = q;
+  }
 
   // Getters/setters forwarding to QEP_shared:
 
@@ -506,26 +498,22 @@ public:
   Item_func_match *ft_func() const { return m_qs->ft_func(); }
   void set_ft_func(Item_func_match *f) { return m_qs->set_ft_func(f); }
   void set_prefix_tables(table_map prefix_tables, table_map prev_tables)
-  { return m_qs->set_prefix_tables(prefix_tables, prev_tables); }
-  void add_prefix_tables(table_map tables)
-  { return m_qs->add_prefix_tables(tables); }
-  bool is_single_inner_of_semi_join() const
-  { return m_qs->is_single_inner_of_semi_join(); }
-  bool is_inner_table_of_outer_join() const
-  { return m_qs->is_inner_table_of_outer_join(); }
-  bool is_first_inner_for_outer_join() const
-  { return m_qs->is_first_inner_for_outer_join(); }
-  bool is_single_inner_for_outer_join() const
-  { return m_qs->is_single_inner_of_outer_join(); }
+  {
+    return m_qs->set_prefix_tables(prefix_tables, prev_tables);
+  }
+  void add_prefix_tables(table_map tables) { return m_qs->add_prefix_tables(tables); }
+  bool is_single_inner_of_semi_join() const { return m_qs->is_single_inner_of_semi_join(); }
+  bool is_inner_table_of_outer_join() const { return m_qs->is_inner_table_of_outer_join(); }
+  bool is_first_inner_for_outer_join() const { return m_qs->is_first_inner_for_outer_join(); }
+  bool is_single_inner_for_outer_join() const { return m_qs->is_single_inner_of_outer_join(); }
 
-  bool has_guarded_conds() const
-  { return ref().has_guarded_conds(); }
+  bool has_guarded_conds() const { return ref().has_guarded_conds(); }
   bool and_with_condition(Item *tmp_cond);
 
   void qs_cleanup();
 
-protected:
-  QEP_shared *m_qs; // qs stands for Qep_Shared
+ protected:
+  QEP_shared *m_qs;  // qs stands for Qep_Shared
 };
 
-#endif // SQL_OPT_EXEC_SHARED_INCLUDED
+#endif  // SQL_OPT_EXEC_SHARED_INCLUDED

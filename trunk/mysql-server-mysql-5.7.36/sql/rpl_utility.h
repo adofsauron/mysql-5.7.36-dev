@@ -28,9 +28,9 @@
 #endif
 
 #include "my_global.h"
-#include "prealloced_array.h"   // Prealloced_array
+#include "prealloced_array.h"  // Prealloced_array
 #ifdef MYSQL_SERVER
-#include "table.h"              // TABLE_LIST
+#include "table.h"  // TABLE_LIST
 #endif
 
 class Relay_log_info;
@@ -44,7 +44,7 @@ class Log_event;
 
 typedef struct hash_row_pos_st
 {
-  /** 
+  /**
       Points at the position where the row starts in the
       event buffer (ie, area in memory before unpacking takes
       place).
@@ -54,12 +54,11 @@ typedef struct hash_row_pos_st
 
 } HASH_ROW_POS;
 
-
 /**
    Internal structure that acts as a preamble for HASH_ROW_POS
-   in memory structure. 
-   
-   Allocation is done in Hash_slave_rows::make_entry as part of 
+   in memory structure.
+
+   Allocation is done in Hash_slave_rows::make_entry as part of
    the entry allocation.
  */
 typedef struct hash_row_preamble_st
@@ -69,18 +68,18 @@ typedef struct hash_row_preamble_st
    */
   my_hash_value_type hash_value;
 
-  /**  
+  /**
     Length of the key.
    */
   uint length;
 
-  /**  
+  /**
     The search state used to iterate over multiple entries for a
     given key.
    */
   HASH_SEARCH_STATE search_state;
 
-  /**  
+  /**
     Wether this search_state is usable or not.
    */
   bool is_search_state_inited;
@@ -93,33 +92,31 @@ typedef struct hash_row_entry_st
   HASH_ROW_POS *positions;
 } HASH_ROW_ENTRY;
 
-class Hash_slave_rows 
+class Hash_slave_rows
 {
-public:
-
+ public:
   /**
      Allocates an empty entry to be added to the hash table.
      It should be called before calling member function @c put.
 
      @returns NULL if a problem occured, a valid pointer otherwise.
   */
-  HASH_ROW_ENTRY* make_entry();
+  HASH_ROW_ENTRY *make_entry();
 
   /**
      Allocates an entry to be added to the hash table. It should be
      called before calling member function @c put.
-     
+
      @param bi_start the position to where in the rows buffer the
                      before image begins.
      @param bi_ends  the position to where in the rows buffer the
                      before image ends.
      @returns NULL if a problem occured, a valid pointer otherwise.
    */
-  HASH_ROW_ENTRY* make_entry(const uchar *bi_start, const uchar *bi_ends);
-
+  HASH_ROW_ENTRY *make_entry(const uchar *bi_start, const uchar *bi_ends);
 
   /**
-     Puts data into the hash table. It calculates the key taking 
+     Puts data into the hash table. It calculates the key taking
      the data on @c TABLE::record as the input for hash computation.
 
      @param table   The table holding the buffer used to calculate the
@@ -129,12 +126,12 @@ public:
 
      @returns true if something went wrong, false otherwise.
    */
-  bool put(TABLE* table, MY_BITMAP *cols, HASH_ROW_ENTRY* entry);
+  bool put(TABLE *table, MY_BITMAP *cols, HASH_ROW_ENTRY *entry);
 
   /**
      Gets the entry, from the hash table, that matches the data in
      table->record[0] and signaled using cols.
-     
+
      @param table   The table holding the buffer containing data used to
                     make the entry lookup.
      @param cols    Bitmap signaling which columns, from
@@ -144,7 +141,7 @@ public:
               found. If the entry is not found then NULL shall be
               returned.
    */
-  HASH_ROW_ENTRY* get(TABLE *table, MY_BITMAP *cols);
+  HASH_ROW_ENTRY *get(TABLE *table, MY_BITMAP *cols);
 
   /**
      Gets the entry that stands next to the one pointed to by
@@ -162,18 +159,18 @@ public:
               operation this member function returns true and does not
               update the pointer.
    */
-  bool next(HASH_ROW_ENTRY** entry);
+  bool next(HASH_ROW_ENTRY **entry);
 
   /**
      Deletes the entry pointed by entry. It also frees memory used
-     holding entry contents. This is the way to release memeory 
+     holding entry contents. This is the way to release memeory
      used for entry, freeing it explicitly with my_free will cause
      undefined behavior.
 
      @param entry  Pointer to the entry to be deleted.
      @returns true if something went wrong, false otherwise.
    */
-  bool del(HASH_ROW_ENTRY* entry);
+  bool del(HASH_ROW_ENTRY *entry);
 
   /**
      Initializes the hash table.
@@ -202,9 +199,8 @@ public:
      @returns the number of entries in the hash table.
    */
   int size();
-  
-private:
 
+ private:
   /**
      The hashtable itself.
    */
@@ -219,7 +215,7 @@ private:
 
      @retuns the hash key created.
    */
-  my_hash_value_type make_hash_key(TABLE *table, MY_BITMAP* cols);
+  my_hash_value_type make_hash_key(TABLE *table, MY_BITMAP *cols);
 };
 
 #endif
@@ -235,7 +231,7 @@ private:
 
 class table_def
 {
-public:
+ public:
   /**
     Constructor.
 
@@ -245,8 +241,8 @@ public:
     @param metadata_size Size of the field_metadata array
     @param null_bitmap The bitmap of fields that can be null
    */
-  table_def(unsigned char *types, ulong size, uchar *field_metadata,
-            int metadata_size, uchar *null_bitmap, uint16 flags);
+  table_def(unsigned char *types, ulong size, uchar *field_metadata, int metadata_size, uchar *null_bitmap,
+            uint16 flags);
 
   ~table_def();
 
@@ -257,15 +253,11 @@ public:
    */
   ulong size() const { return m_size; }
 
-
   /*
     Returns internal binlog type code for one field,
     without translation to real types.
   */
-  enum_field_types binlog_type(ulong index) const
-  {
-    return static_cast<enum_field_types>(m_type[index]);
-  }
+  enum_field_types binlog_type(ulong index) const { return static_cast<enum_field_types>(m_type[index]); }
   /*
     Return a representation of the type data for one field.
 
@@ -283,45 +275,44 @@ public:
       either MYSQL_TYPE_STRING, MYSQL_TYPE_ENUM, or MYSQL_TYPE_SET, so
       we might need to modify the type to get the real type.
     */
-    enum_field_types source_type= binlog_type(index);
-    uint16 source_metadata= m_field_metadata[index];
+    enum_field_types source_type = binlog_type(index);
+    uint16 source_metadata = m_field_metadata[index];
     switch (source_type)
     {
-    case MYSQL_TYPE_STRING:
-    {
-      int real_type= source_metadata >> 8;
-      if (real_type == MYSQL_TYPE_ENUM || real_type == MYSQL_TYPE_SET)
-        source_type= static_cast<enum_field_types>(real_type);
-      break;
-    }
+      case MYSQL_TYPE_STRING:
+      {
+        int real_type = source_metadata >> 8;
+        if (real_type == MYSQL_TYPE_ENUM || real_type == MYSQL_TYPE_SET)
+          source_type = static_cast<enum_field_types>(real_type);
+        break;
+      }
 
-    /*
-      This type has not been used since before row-based replication,
-      so we can safely assume that it really is MYSQL_TYPE_NEWDATE.
-    */
-    case MYSQL_TYPE_DATE:
-      source_type= MYSQL_TYPE_NEWDATE;
-      break;
+      /*
+        This type has not been used since before row-based replication,
+        so we can safely assume that it really is MYSQL_TYPE_NEWDATE.
+      */
+      case MYSQL_TYPE_DATE:
+        source_type = MYSQL_TYPE_NEWDATE;
+        break;
 
-    default:
-      /* Do nothing */
-      break;
+      default:
+        /* Do nothing */
+        break;
     }
 
     return source_type;
   }
-
 
   /*
     This function allows callers to get the extra field data from the
     table map for a given field. If there is no metadata for that field
     or there is no extra metadata at all, the function returns 0.
 
-    The function returns the value for the field metadata for column at 
-    position indicated by index. As mentioned, if the field was a type 
-    that stores field metadata, that value is returned else zero (0) is 
-    returned. This method is used in the unpack() methods of the 
-    corresponding fields to properly extract the data from the binary log 
+    The function returns the value for the field metadata for column at
+    position indicated by index. As mentioned, if the field was a type
+    that stores field metadata, that value is returned else zero (0) is
+    returned. This method is used in the unpack() methods of the
+    corresponding fields to properly extract the data from the binary log
     in the event that the master's field is smaller than the slave.
   */
   uint16 field_metadata(uint index) const
@@ -340,15 +331,14 @@ public:
   my_bool maybe_null(uint index) const
   {
     assert(index < m_size);
-    return ((m_null_bits[(index / 8)] & 
-            (1 << (index % 8))) == (1 << (index %8)));
+    return ((m_null_bits[(index / 8)] & (1 << (index % 8))) == (1 << (index % 8)));
   }
 
   /*
     This function returns the field size in raw bytes based on the type
-    and the encoded field data from the master's raw data. This method can 
-    be used for situations where the slave needs to skip a column (e.g., 
-    WL#3915) or needs to advance the pointer for the fields in the raw 
+    and the encoded field data from the master's raw data. This method can
+    be used for situations where the slave needs to skip a column (e.g.,
+    WL#3915) or needs to advance the pointer for the fields in the raw
     data from the master to a specific column.
   */
   uint32 calc_field_size(uint col, uchar *master_data) const;
@@ -380,8 +370,7 @@ public:
     @retval 0  if the table definition is compatible with @c table
   */
 #ifndef MYSQL_CLIENT
-  bool compatible_with(THD *thd, Relay_log_info *rli, TABLE *table,
-                      TABLE **conv_table_var) const;
+  bool compatible_with(THD *thd, Relay_log_info *rli, TABLE *table, TABLE **conv_table_var) const;
 
   /**
    Create a virtual in-memory temporary table structure.
@@ -408,38 +397,34 @@ public:
   TABLE *create_conversion_table(THD *thd, Relay_log_info *rli, TABLE *target_table) const;
 #endif
 
-
-private:
+ private:
   ulong m_size;           // Number of elements in the types array
   unsigned char *m_type;  // Array of type descriptors
   uint m_field_metadata_size;
   uint16 *m_field_metadata;
   uchar *m_null_bits;
-  uint16 m_flags;         // Table flags
+  uint16 m_flags;  // Table flags
   uchar *m_memory;
 };
-
 
 #ifndef MYSQL_CLIENT
 /**
    Extend the normal table list with a few new fields needed by the
    slave thread, but nowhere else.
  */
-struct RPL_TABLE_LIST
-  : public TABLE_LIST
+struct RPL_TABLE_LIST : public TABLE_LIST
 {
   bool m_tabledef_valid;
   table_def m_tabledef;
   TABLE *m_conv_table;
 };
 
-
 class Deferred_log_events
 {
-private:
-  Prealloced_array<Log_event*, 32, true> m_array;
+ private:
+  Prealloced_array<Log_event *, 32, true> m_array;
 
-public:
+ public:
   Deferred_log_events(Relay_log_info *rli);
   ~Deferred_log_events();
   /* queue for exection at Query-log-event time prior the Query */
@@ -452,15 +437,14 @@ public:
 #endif
 
 // NB. number of printed bit values is limited to sizeof(buf) - 1
-#define DBUG_PRINT_BITSET(N,FRM,BS)                \
-  do {                                             \
-    char buf[256];                                 \
-    uint i;                                        \
-    for (i = 0 ; i < MY_MIN(sizeof(buf) - 1, (BS)->n_bits) ; i++) \
-      buf[i] = bitmap_is_set((BS), i) ? '1' : '0'; \
-    buf[i] = '\0';                                 \
-    DBUG_PRINT((N), ((FRM), buf));                 \
+#define DBUG_PRINT_BITSET(N, FRM, BS)                                                                        \
+  do                                                                                                         \
+  {                                                                                                          \
+    char buf[256];                                                                                           \
+    uint i;                                                                                                  \
+    for (i = 0; i < MY_MIN(sizeof(buf) - 1, (BS)->n_bits); i++) buf[i] = bitmap_is_set((BS), i) ? '1' : '0'; \
+    buf[i] = '\0';                                                                                           \
+    DBUG_PRINT((N), ((FRM), buf));                                                                           \
   } while (0)
 
 #endif /* RPL_UTILITY_H */
-

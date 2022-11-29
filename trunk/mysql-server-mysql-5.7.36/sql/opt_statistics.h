@@ -24,7 +24,7 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-#include "my_global.h"                          // uint
+#include "my_global.h"  // uint
 
 struct TABLE;
 typedef float rec_per_key_t;
@@ -41,7 +41,6 @@ typedef struct st_key KEY;
   @return estimated records per key value
 */
 
-rec_per_key_t guess_rec_per_key(const TABLE *const table, const KEY *const key,
-                                uint used_keyparts);
+rec_per_key_t guess_rec_per_key(const TABLE *const table, const KEY *const key, uint used_keyparts);
 
 #endif /* OPT_STATISTICS_INCLUDED */

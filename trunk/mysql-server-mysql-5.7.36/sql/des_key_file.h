@@ -26,7 +26,7 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/des.h>
 
-#include "violite.h"                /* DES_cblock, DES_key_schedule */
+#include "violite.h" /* DES_cblock, DES_key_schedule */
 
 struct st_des_keyblock
 {

@@ -24,7 +24,6 @@
   Parse tree node classes for optimizer hint syntax
 */
 
-
 #ifndef PARSE_TREE_HINTS_INCLUDED
 #define PARSE_TREE_HINTS_INCLUDED
 
@@ -39,17 +38,14 @@
 
 struct LEX;
 
-
 struct Hint_param_table
 {
   LEX_CSTRING table;
   LEX_CSTRING opt_query_block;
 };
 
-
 typedef Mem_root_array_YY<LEX_CSTRING, true> Hint_param_index_list;
 typedef Mem_root_array_YY<Hint_param_table, true> Hint_param_table_list;
-
 
 /**
   The class is a base class for representation of the
@@ -58,12 +54,10 @@ typedef Mem_root_array_YY<Hint_param_table, true> Hint_param_table_list;
 */
 class PT_hint : public Parse_tree_node
 {
-  opt_hints_enum hint_type; // Hint type
-  bool state;                    // true if hints is on, false otherwise
-public:
-  PT_hint(opt_hints_enum hint_type_arg, bool switch_state_arg)
-    : hint_type(hint_type_arg), state(switch_state_arg)
-  {}
+  opt_hints_enum hint_type;  // Hint type
+  bool state;                // true if hints is on, false otherwise
+ public:
+  PT_hint(opt_hints_enum hint_type_arg, bool switch_state_arg) : hint_type(hint_type_arg), state(switch_state_arg) {}
 
   opt_hints_enum type() const { return hint_type; }
   bool switch_on() const { return state; }
@@ -77,11 +71,8 @@ public:
     @param key_name_arg    key name
     @param hint            Pointer to hint object
   */
-  virtual void print_warn(THD *thd, uint err_code,
-                          const LEX_CSTRING *qb_name_arg,
-                          LEX_CSTRING *table_name_arg,
-                          LEX_CSTRING *key_name_arg,
-                          PT_hint *hint) const;
+  virtual void print_warn(THD *thd, uint err_code, const LEX_CSTRING *qb_name_arg, LEX_CSTRING *table_name_arg,
+                          LEX_CSTRING *key_name_arg, PT_hint *hint) const;
   /**
     Append additional hint arguments.
 
@@ -91,14 +82,13 @@ public:
   virtual void append_args(THD *thd, String *str) const {}
 };
 
-
 class PT_hint_list : public Parse_tree_node
 {
   typedef Parse_tree_node super;
 
   Mem_root_array<PT_hint *, true> hints;
 
-public:
+ public:
   explicit PT_hint_list(MEM_ROOT *mem_root) : hints(mem_root) {}
 
   /**
@@ -116,7 +106,6 @@ public:
   bool push_back(PT_hint *hint) { return hints.push_back(hint); }
 };
 
-
 /**
   Parse tree hint object for query block level hints.
 */
@@ -126,12 +115,12 @@ class PT_qb_level_hint : public PT_hint
   uint args;                  //< Bit mask of arguments to hint
 
   typedef PT_hint super;
-public:
-  PT_qb_level_hint(const LEX_CSTRING qb_name_arg, bool switch_state_arg,
-                   enum opt_hints_enum hint_type_arg, uint arg)
-    : PT_hint(hint_type_arg, switch_state_arg),
-      qb_name(qb_name_arg), args(arg)
-  {}
+
+ public:
+  PT_qb_level_hint(const LEX_CSTRING qb_name_arg, bool switch_state_arg, enum opt_hints_enum hint_type_arg, uint arg)
+      : PT_hint(hint_type_arg, switch_state_arg), qb_name(qb_name_arg), args(arg)
+  {
+  }
 
   uint get_args() const { return args; }
 
@@ -155,7 +144,6 @@ public:
   virtual void append_args(THD *thd, String *str) const;
 };
 
-
 /**
   Parse tree hint object for table level hints.
 */
@@ -166,14 +154,13 @@ class PT_table_level_hint : public PT_hint
   Hint_param_table_list table_list;
 
   typedef PT_hint super;
-public:
-  PT_table_level_hint(const LEX_CSTRING qb_name_arg,
-                      const Hint_param_table_list &table_list_arg,
-                      bool switch_state_arg,
+
+ public:
+  PT_table_level_hint(const LEX_CSTRING qb_name_arg, const Hint_param_table_list &table_list_arg, bool switch_state_arg,
                       opt_hints_enum hint_type_arg)
-    : PT_hint(hint_type_arg, switch_state_arg),
-      qb_name(qb_name_arg), table_list(table_list_arg)
-  {}
+      : PT_hint(hint_type_arg, switch_state_arg), qb_name(qb_name_arg), table_list(table_list_arg)
+  {
+  }
 
   /**
     Function handles table level hint. It also creates
@@ -188,7 +175,6 @@ public:
   virtual bool contextualize(Parse_context *pc);
 };
 
-
 /**
   Parse tree hint object for key level hints.
 */
@@ -199,14 +185,13 @@ class PT_key_level_hint : public PT_hint
   Hint_param_index_list key_list;
 
   typedef PT_hint super;
-public:
-  PT_key_level_hint(Hint_param_table &table_name_arg,
-                    const Hint_param_index_list &key_list_arg,
-                    bool switch_state_arg,
+
+ public:
+  PT_key_level_hint(Hint_param_table &table_name_arg, const Hint_param_index_list &key_list_arg, bool switch_state_arg,
                     opt_hints_enum hint_type_arg)
-    : PT_hint(hint_type_arg, switch_state_arg),
-      table_name(table_name_arg), key_list(key_list_arg)
-  {}
+      : PT_hint(hint_type_arg, switch_state_arg), table_name(table_name_arg), key_list(key_list_arg)
+  {
+  }
 
   /**
     Function handles key level hint.
@@ -222,7 +207,6 @@ public:
   virtual bool contextualize(Parse_context *pc);
 };
 
-
 /**
   Parse tree hint object for QB_NAME hint.
 */
@@ -232,10 +216,9 @@ class PT_hint_qb_name : public PT_hint
   const LEX_CSTRING qb_name;
 
   typedef PT_hint super;
-public:
-  PT_hint_qb_name(const LEX_CSTRING qb_name_arg)
-    : PT_hint(QB_NAME_HINT_ENUM, true), qb_name(qb_name_arg)
-  {}
+
+ public:
+  PT_hint_qb_name(const LEX_CSTRING qb_name_arg) : PT_hint(QB_NAME_HINT_ENUM, true), qb_name(qb_name_arg) {}
 
   /**
     Function sets query block name.
@@ -246,13 +229,8 @@ public:
              false otherwise
   */
   virtual bool contextualize(Parse_context *pc);
-  virtual void append_args(THD *thd, String *str) const
-  {
-    append_identifier(thd, str, qb_name.str, qb_name.length);
-  }
-
+  virtual void append_args(THD *thd, String *str) const { append_identifier(thd, str, qb_name.str, qb_name.length); }
 };
-
 
 /**
   Parse tree hint object for MAX_EXECUTION_TIME hint.
@@ -261,12 +239,14 @@ public:
 class PT_hint_max_execution_time : public PT_hint
 {
   typedef PT_hint super;
-public:
+
+ public:
   ulong milliseconds;
 
   explicit PT_hint_max_execution_time(ulong milliseconds_arg)
-    : PT_hint(MAX_EXEC_TIME_HINT_ENUM, true), milliseconds(milliseconds_arg)
-  {}
+      : PT_hint(MAX_EXEC_TIME_HINT_ENUM, true), milliseconds(milliseconds_arg)
+  {
+  }
   /**
     Function initializes MAX_EXECUTION_TIME hint
 
@@ -276,11 +256,7 @@ public:
              false otherwise
   */
   virtual bool contextualize(Parse_context *pc);
-  virtual void append_args(THD *thd, String *str) const
-  {
-    str->append_ulonglong(milliseconds);
-  }
+  virtual void append_args(THD *thd, String *str) const { str->append_ulonglong(milliseconds); }
 };
-
 
 #endif /* PARSE_TREE_HINTS_INCLUDED */

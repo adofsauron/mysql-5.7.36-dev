@@ -36,10 +36,12 @@ class THD;
 #if defined(ENABLED_DEBUG_SYNC)
 
 /* Macro to be put in the code at synchronization points. */
-#define DEBUG_SYNC(_thd_, _sync_point_name_)                            \
-          do { if (unlikely(opt_debug_sync_timeout))                    \
-               debug_sync(_thd_, STRING_WITH_LEN(_sync_point_name_));   \
-             } while (0)
+#define DEBUG_SYNC(_thd_, _sync_point_name_)                 \
+  do                                                         \
+  {                                                          \
+    if (unlikely(opt_debug_sync_timeout))                    \
+      debug_sync(_thd_, STRING_WITH_LEN(_sync_point_name_)); \
+  } while (0)
 
 /* Command line option --debug-sync-timeout. See mysqld.cc. */
 extern MYSQL_PLUGIN_IMPORT uint opt_debug_sync_timeout;
@@ -48,7 +50,7 @@ extern MYSQL_PLUGIN_IMPORT uint opt_debug_sync_timeout;
 #define DEBUG_SYNC_DEFAULT_WAIT_TIMEOUT 300
 
 /* Debug Sync prototypes. See debug_sync.cc. */
-extern int  debug_sync_init(void);
+extern int debug_sync_init(void);
 extern void debug_sync_end(void);
 extern void debug_sync_init_thread(THD *thd);
 extern void debug_sync_claim_memory_ownership(THD *thd);
@@ -58,7 +60,7 @@ extern bool debug_sync_set_action(THD *thd, const char *action_str, size_t len);
 
 #else /* defined(ENABLED_DEBUG_SYNC) */
 
-#define DEBUG_SYNC(_thd_, _sync_point_name_)    /* disabled DEBUG_SYNC */
+#define DEBUG_SYNC(_thd_, _sync_point_name_) /* disabled DEBUG_SYNC */
 
 #endif /* defined(ENABLED_DEBUG_SYNC) */
 

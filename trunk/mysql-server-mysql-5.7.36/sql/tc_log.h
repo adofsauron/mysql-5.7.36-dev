@@ -30,7 +30,7 @@
 class THD;
 typedef ulonglong my_xid;
 
-#define TC_LOG_MIN_PAGES   6
+#define TC_LOG_MIN_PAGES 6
 
 /**
   Transaction Coordinator Log.
@@ -45,7 +45,7 @@ typedef ulonglong my_xid;
 */
 class TC_LOG
 {
-public:
+ public:
   /**
     Perform heuristic recovery, if --tc-heuristic-recover was used.
 
@@ -60,7 +60,8 @@ public:
   TC_LOG() {}
   virtual ~TC_LOG() {}
 
-  enum enum_result {
+  enum enum_result
+  {
     RESULT_SUCCESS,
     RESULT_ABORTED,
     RESULT_INCONSISTENT
@@ -75,13 +76,13 @@ public:
     @retval 0  sucess
     @retval 1  failed
   */
-  virtual int open(const char *opt_name)=0;
+  virtual int open(const char *opt_name) = 0;
 
   /**
     Close the transaction coordinator log and free any resources.
     Called during server shutdown.
   */
-  virtual void close()=0;
+  virtual void close() = 0;
 
   /**
      Log a commit record of the transaction to the transaction
@@ -127,41 +128,42 @@ public:
   virtual int prepare(THD *thd, bool all) = 0;
 };
 
-
-class TC_LOG_DUMMY: public TC_LOG // use it to disable the logging
+class TC_LOG_DUMMY : public TC_LOG  // use it to disable the logging
 {
-public:
+ public:
   TC_LOG_DUMMY() {}
-  int open(const char *opt_name)        { return 0; }
-  void close()                          { }
+  int open(const char *opt_name) { return 0; }
+  void close() {}
   enum_result commit(THD *thd, bool all);
   int rollback(THD *thd, bool all);
   int prepare(THD *thd, bool all);
 };
 
-class TC_LOG_MMAP: public TC_LOG
+class TC_LOG_MMAP : public TC_LOG
 {
-public:                // only to keep Sun Forte on sol9x86 happy
-  typedef enum {
-    PS_POOL,                 // page is in pool
-    PS_ERROR,                // last sync failed
-    PS_DIRTY                 // new xids added since last sync
+ public:  // only to keep Sun Forte on sol9x86 happy
+  typedef enum
+  {
+    PS_POOL,   // page is in pool
+    PS_ERROR,  // last sync failed
+    PS_DIRTY   // new xids added since last sync
   } PAGE_STATE;
 
-private:
-  typedef struct st_page {
-    struct st_page *next; // pages are linked in a fifo queue
-    my_xid *start, *end;  // usable area of a page
-    my_xid *ptr;          // next xid will be written here
-    int size, free;       // max and current number of free xid slots on the page
-    int waiters;          // number of waiters on condition
-    PAGE_STATE state;     // see above
+ private:
+  typedef struct st_page
+  {
+    struct st_page *next;  // pages are linked in a fifo queue
+    my_xid *start, *end;   // usable area of a page
+    my_xid *ptr;           // next xid will be written here
+    int size, free;        // max and current number of free xid slots on the page
+    int waiters;           // number of waiters on condition
+    PAGE_STATE state;      // see above
     /**
       Signalled when syncing of this page is done or when
       this page is in "active" slot and syncing slot just
       became free.
     */
-    mysql_cond_t  cond;
+    mysql_cond_t cond;
   } PAGE;
 
   char logname[FN_REFLEN];
@@ -186,8 +188,8 @@ private:
   */
   mysql_cond_t COND_pool;
 
-public:
-  TC_LOG_MMAP(): inited(0) {}
+ public:
+  TC_LOG_MMAP() : inited(0) {}
   int open(const char *opt_name);
   void close();
   enum_result commit(THD *thd, bool all);
@@ -196,21 +198,21 @@ public:
   int recover();
   uint size() const;
 
-private:
+ private:
   ulong log_xid(my_xid xid);
   void unlog(ulong cookie, my_xid xid);
-  PAGE* get_active_from_pool();
+  PAGE *get_active_from_pool();
   bool sync();
   void overflow();
 
-protected:
+ protected:
   // We want to mock away syncing to disk in unit tests.
   virtual int do_msync_and_fsync(int fd_arg, void *addr, size_t len, int flags)
   {
     return my_msync(fd_arg, addr, len, flags);
   }
 
-private:
+ private:
   /**
     Find empty slot in the page and write xid value there.
 
@@ -227,14 +229,14 @@ private:
     while (*p->ptr)
     {
       p->ptr++;
-      assert(p->ptr < p->end);               // because p->free > 0
+      assert(p->ptr < p->end);  // because p->free > 0
     }
 
     /* found! store xid there and mark the page dirty */
-    ulong cookie= (ulong)((uchar *)p->ptr - data_arg);      // can never be zero
-    *p->ptr++= xid;
+    ulong cookie = (ulong)((uchar *)p->ptr - data_arg);  // can never be zero
+    *p->ptr++ = xid;
     p->free--;
-    p->state= PS_DIRTY;
+    p->state = PS_DIRTY;
 
     return cookie;
   }
@@ -271,4 +273,4 @@ extern TC_LOG *tc_log;
 extern TC_LOG_MMAP tc_log_mmap;
 extern TC_LOG_DUMMY tc_log_dummy;
 
-#endif // TC_LOG_H
+#endif  // TC_LOG_H

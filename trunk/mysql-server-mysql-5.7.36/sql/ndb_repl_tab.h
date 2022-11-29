@@ -28,7 +28,7 @@
 #include <my_global.h>
 
 #ifdef HAVE_NDB_BINLOG
-#include <mysql_com.h>  /* NAME_CHAR_LEN */
+#include <mysql_com.h> /* NAME_CHAR_LEN */
 #include <ndbapi/NdbApi.hpp>
 
 /*
@@ -40,15 +40,15 @@
 */
 class Ndb_rep_tab_key
 {
-public:
-  static const uint DB_MAXLEN= NAME_CHAR_LEN - 1;
-  static const uint TABNAME_MAXLEN= NAME_CHAR_LEN - 1;
+ public:
+  static const uint DB_MAXLEN = NAME_CHAR_LEN - 1;
+  static const uint TABNAME_MAXLEN = NAME_CHAR_LEN - 1;
 
   /* Char arrays in varchar format with 1 length byte and
    * trailing 0
    */
-  char db[ DB_MAXLEN + 2 ];
-  char table_name[ TABNAME_MAXLEN + 2 ];
+  char db[DB_MAXLEN + 2];
+  char table_name[TABNAME_MAXLEN + 2];
   uint server_id;
 
   Ndb_rep_tab_key()
@@ -59,22 +59,14 @@ public:
   }
 
   /* Constructor from normal null terminated strings */
-  Ndb_rep_tab_key(const char* _db,
-                  const char* _table_name,
-                  uint _server_id);
+  Ndb_rep_tab_key(const char *_db, const char *_table_name, uint _server_id);
 
   /* Add null terminators to VARCHAR format string values */
   void null_terminate_strings();
 
-  const char* get_db() const
-  {
-    return &db[1];
-  };
+  const char *get_db() const { return &db[1]; };
 
-  const char* get_table_name() const
-  {
-    return &table_name[1];
-  };
+  const char *get_table_name() const { return &table_name[1]; };
 
   static const int MIN_MATCH_VAL = 1;
   static const int EXACT_MATCH_DB = 4;
@@ -82,10 +74,7 @@ public:
   static const int EXACT_MATCH_SERVER_ID = 1;
 
   static const int EXACT_MATCH_QUALITY =
-    MIN_MATCH_VAL +
-    EXACT_MATCH_DB +
-    EXACT_MATCH_TABLE_NAME +
-    EXACT_MATCH_SERVER_ID;
+      MIN_MATCH_VAL + EXACT_MATCH_DB + EXACT_MATCH_TABLE_NAME + EXACT_MATCH_SERVER_ID;
 
   /*
     This static method attempts an exact, then a wild
@@ -96,10 +85,7 @@ public:
      0  : Wild match
      -1 : No match
   */
-  static int attempt_match(const char* keyptr,
-                           const uint keylen,
-                           const char* candidateptr,
-                           const uint candidatelen,
+  static int attempt_match(const char *keyptr, const uint keylen, const char *candidateptr, const uint candidatelen,
                            const int exactmatchvalue);
 
   /* This static method compares a fixed key value with
@@ -109,8 +95,7 @@ public:
    * indicating a better match quality.
    * An exact match returns EXACT_MATCH_QUALITY
    */
-  static int get_match_quality(const Ndb_rep_tab_key* key,
-                               const Ndb_rep_tab_key* candidate_row);
+  static int get_match_quality(const Ndb_rep_tab_key *key, const Ndb_rep_tab_key *candidate_row);
 };
 
 /*
@@ -120,33 +105,29 @@ public:
 */
 class Ndb_rep_tab_row
 {
-public:
+ public:
   static const uint MAX_CONFLICT_FN_SPEC_LEN = 255;
-  static const uint CONFLICT_FN_SPEC_BUF_LEN =
-    MAX_CONFLICT_FN_SPEC_LEN + 1; /* Trailing '\0' */
+  static const uint CONFLICT_FN_SPEC_BUF_LEN = MAX_CONFLICT_FN_SPEC_LEN + 1; /* Trailing '\0' */
 
   Ndb_rep_tab_key key;
   uint binlog_type;
   bool cfs_is_null;
   /* Buffer has space for leading length byte */
-  char conflict_fn_spec[ CONFLICT_FN_SPEC_BUF_LEN + 1 ];
+  char conflict_fn_spec[CONFLICT_FN_SPEC_BUF_LEN + 1];
 
   Ndb_rep_tab_row();
 
   void null_terminate_strings()
   {
     key.null_terminate_strings();
-    uint speclen= 0;
+    uint speclen = 0;
     speclen = conflict_fn_spec[0];
 
     assert(speclen <= MAX_CONFLICT_FN_SPEC_LEN);
     conflict_fn_spec[1 + speclen] = '\0';
   }
 
-  const char* get_conflict_fn_spec()
-  {
-    return &conflict_fn_spec[1];
-  }
+  const char *get_conflict_fn_spec() { return &conflict_fn_spec[1]; }
 
   void set_conflict_fn_spec_null(bool null)
   {
@@ -171,7 +152,7 @@ public:
 */
 class Ndb_rep_tab_reader
 {
-private:
+ private:
   static const char *ndb_rep_db;
   static const char *ndb_replication_table;
   static const char *nrt_db;
@@ -181,11 +162,11 @@ private:
   static const char *nrt_conflict_fn;
 
   Uint32 binlog_flags;
-  char conflict_fn_buffer[ Ndb_rep_tab_row::CONFLICT_FN_SPEC_BUF_LEN ];
-  char warning_msg_buffer[ FN_REFLEN ];
+  char conflict_fn_buffer[Ndb_rep_tab_row::CONFLICT_FN_SPEC_BUF_LEN];
+  char warning_msg_buffer[FN_REFLEN];
 
-  const char* conflict_fn_spec;
-  const char* warning_msg;
+  const char *conflict_fn_spec;
+  const char *warning_msg;
 
   /**
      check_schema
@@ -198,10 +179,7 @@ private:
      -2 if there's a more general error.  Error description in
         error_str
   */
-  static
-  int check_schema(const NdbDictionary::Table* reptab,
-                   NdbDictionary::Dictionary* dict,
-                   const char** error_str);
+  static int check_schema(const NdbDictionary::Table *reptab, NdbDictionary::Dictionary *dict, const char **error_str);
 
   /**
      scan_candidates
@@ -217,15 +195,12 @@ private:
      if msg is set on return it contains a warning.
      Warnings may be produces in non error scenarios
   */
-  int scan_candidates(Ndb* ndb,
-                      const NdbDictionary::Table* reptab,
-                      const char* db,
-                      const char* table_name,
-                      uint server_id,
-                      Ndb_rep_tab_row& best_match);
-public:
+  int scan_candidates(Ndb *ndb, const NdbDictionary::Table *reptab, const char *db, const char *table_name,
+                      uint server_id, Ndb_rep_tab_row &best_match);
+
+ public:
   Ndb_rep_tab_reader();
-  ~Ndb_rep_tab_reader() {};
+  ~Ndb_rep_tab_reader(){};
 
   /**
      lookup
@@ -242,16 +217,14 @@ public:
        0  : Success.
        <0 : Error.
   */
-  int lookup(Ndb* ndb,
+  int lookup(Ndb *ndb,
              /* Keys */
-             const char* db,
-             const char* table_name,
-             uint server_id);
+             const char *db, const char *table_name, uint server_id);
 
   /* Following only valid after a call to lookup() */
   Uint32 get_binlog_flags() const;
-  const char* get_conflict_fn_spec() const;
-  const char* get_warning_message() const;
+  const char *get_conflict_fn_spec() const;
+  const char *get_warning_message() const;
 };
 
 /* #ifdef HAVE_NDB_BINLOG */

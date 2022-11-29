@@ -23,7 +23,6 @@
    along with this program; if not, write to the Free Software Foundation,
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
-
 /**
   @file
 
@@ -47,7 +46,6 @@
 // Boost.Range
 #include <boost/range.hpp>
 
-
 // GCC requires typename whenever needing to access a type inside a template,
 // but MSVC forbids this.
 #ifdef HAVE_IMPLICIT_DEPENDENT_NAME_TYPING
@@ -56,13 +54,11 @@
 #define TYPENAME typename
 #endif
 
-
 #define GIS_ZERO 0.00000000001
 
 extern bool simplify_multi_geometry(String *str, String *result_buffer);
 
 using std::auto_ptr;
-
 
 /**
   Handle a GIS exception of any type.
@@ -91,15 +87,14 @@ using std::auto_ptr;
  */
 void handle_gis_exception(const char *funcname);
 
-
 /// A wrapper and interface for all geometry types used here. Make these
 /// types as localized as possible. It's used as a type interface.
 /// @tparam CoordinateSystemType Coordinate system type, specified using
 //          those defined in boost::geometry::cs.
-template<typename CoordinateSystemType>
+template <typename CoordinateSystemType>
 class BG_models
 {
-public:
+ public:
   typedef Gis_point Point;
   // An counter-clockwise, closed Polygon type. It can hold open Polygon data,
   // but not clockwise ones, otherwise things can go wrong, e.g. intersection.
@@ -113,12 +108,10 @@ public:
   typedef CoordinateSystemType Coordinate_system;
 };
 
-
-template<>
-class BG_models<
-      boost::geometry::cs::spherical_equatorial<boost::geometry::degree> >
+template <>
+class BG_models<boost::geometry::cs::spherical_equatorial<boost::geometry::degree>>
 {
-public:
+ public:
   typedef Gis_point_spherical Point;
   // An counter-clockwise, closed Polygon type. It can hold open Polygon data,
   // but not clockwise ones, otherwise things can go wrong, e.g. intersection.
@@ -129,24 +122,21 @@ public:
   typedef Gis_multi_polygon_spherical Multipolygon;
 
   typedef double Coordinate_type;
-  typedef boost::geometry::cs::spherical_equatorial<boost::geometry::degree>
-    Coordinate_system;
+  typedef boost::geometry::cs::spherical_equatorial<boost::geometry::degree> Coordinate_system;
 };
 
-
-namespace bg= boost::geometry;
-namespace bgm= boost::geometry::model;
-namespace bgcs= boost::geometry::cs;
-namespace bgi= boost::geometry::index;
-namespace bgm= boost::geometry::model;
+namespace bg = boost::geometry;
+namespace bgm = boost::geometry::model;
+namespace bgcs = boost::geometry::cs;
+namespace bgi = boost::geometry::index;
+namespace bgm = boost::geometry::model;
 
 typedef bgm::point<double, 2, bgcs::cartesian> BG_point;
 typedef bgm::box<BG_point> BG_box;
 typedef std::pair<BG_box, size_t> BG_rtree_entry;
 typedef std::vector<BG_rtree_entry> BG_rtree_entries;
-typedef bgi::rtree<BG_rtree_entry, bgi::quadratic<64> > Rtree_index;
+typedef bgi::rtree<BG_rtree_entry, bgi::quadratic<64>> Rtree_index;
 typedef std::vector<BG_rtree_entry> Rtree_result;
-
 
 inline void make_bg_box(const Geometry *g, BG_box *box)
 {
@@ -158,28 +148,20 @@ inline void make_bg_box(const Geometry *g, BG_box *box)
   box->max_corner().set<1>(mbr.ymax);
 }
 
-
 inline bool is_box_valid(const BG_box &box)
 {
-  return
-    !(!my_isfinite(box.min_corner().get<0>()) ||
-      !my_isfinite(box.min_corner().get<1>()) ||
-      !my_isfinite(box.max_corner().get<0>()) ||
-      !my_isfinite(box.max_corner().get<1>()) ||
-      box.max_corner().get<0>() < box.min_corner().get<0>() ||
-      box.max_corner().get<1>() < box.min_corner().get<1>());
+  return !(!my_isfinite(box.min_corner().get<0>()) || !my_isfinite(box.min_corner().get<1>()) ||
+           !my_isfinite(box.max_corner().get<0>()) || !my_isfinite(box.max_corner().get<1>()) ||
+           box.max_corner().get<0>() < box.min_corner().get<0>() ||
+           box.max_corner().get<1>() < box.min_corner().get<1>());
 }
-
 
 /**
   Build an rtree set using a geometry collection.
   @param gl geometry object pointers container.
   @param [out] rtree entries which can be used to build an rtree.
  */
-void
-make_rtree(const BG_geometry_collection::Geometry_list &gl,
-           Rtree_index *rtree);
-
+void make_rtree(const BG_geometry_collection::Geometry_list &gl, Rtree_index *rtree);
 
 /**
   Build an rtree set using array of Boost.Geometry objects, which are
@@ -188,18 +170,12 @@ make_rtree(const BG_geometry_collection::Geometry_list &gl,
   @param rtree the rtree to build.
  */
 template <typename MultiGeometry>
-void
-make_rtree_bggeom(const MultiGeometry &mg,
-                  Rtree_index *rtree);
+void make_rtree_bggeom(const MultiGeometry &mg, Rtree_index *rtree);
 
-
-inline Gis_geometry_collection *
-empty_collection(String *str, uint32 srid)
+inline Gis_geometry_collection *empty_collection(String *str, uint32 srid)
 {
-  return new Gis_geometry_collection(srid, Geometry::wkb_invalid_type,
-                                     NULL, str);
+  return new Gis_geometry_collection(srid, Geometry::wkb_invalid_type, NULL, str);
 }
-
 
 /*
   Check whether a geometry is an empty geometry collection, i.e. one that
@@ -210,7 +186,6 @@ empty_collection(String *str, uint32 srid)
           false otherwise.
 */
 bool is_empty_geocollection(const Geometry *g);
-
 
 /*
   Check whether wkbres is the data of an empty geometry collection, i.e. one
@@ -224,14 +199,13 @@ bool is_empty_geocollection(const Geometry *g);
  */
 bool is_empty_geocollection(const String &wkbres);
 
-
 /**
    Less than comparator for points used by BG.
  */
 struct bgpt_lt
 {
   template <typename Point>
-  bool operator ()(const Point &p1, const Point &p2) const
+  bool operator()(const Point &p1, const Point &p2) const
   {
     if (p1.template get<0>() != p2.template get<0>())
       return p1.template get<0>() < p2.template get<0>();
@@ -240,20 +214,17 @@ struct bgpt_lt
   }
 };
 
-
 /**
    Equals comparator for points used by BG.
  */
 struct bgpt_eq
 {
   template <typename Point>
-  bool operator ()(const Point &p1, const Point &p2) const
+  bool operator()(const Point &p1, const Point &p2) const
   {
-    return p1.template get<0>() == p2.template get<0>() &&
-      p1.template get<1>() == p2.template get<1>();
+    return p1.template get<0>() == p2.template get<0>() && p1.template get<1>() == p2.template get<1>();
   }
 };
-
 
 /**
   Utility class, reset specified variable 'valref' to specified 'oldval' when
@@ -263,35 +234,31 @@ struct bgpt_eq
 template <typename Valtype>
 class Var_resetter
 {
-private:
+ private:
   Valtype *valref;
   Valtype oldval;
 
   // Forbid use, to eliminate a warning: oldval may be used uninitialized.
   Var_resetter(const Var_resetter &o);
-  Var_resetter &operator=(const Var_resetter&);
-public:
-  Var_resetter() : valref(NULL)
-  {
-  }
+  Var_resetter &operator=(const Var_resetter &);
 
-  Var_resetter(Valtype *v, const Valtype &oval) : valref(v), oldval(oval)
-  {
-  }
+ public:
+  Var_resetter() : valref(NULL) {}
+
+  Var_resetter(Valtype *v, const Valtype &oval) : valref(v), oldval(oval) {}
 
   ~Var_resetter()
   {
     if (valref)
-      *valref= oldval;
+      *valref = oldval;
   }
 
   void set(Valtype *v, const Valtype &oldval)
   {
-    valref= v;
-    this->oldval= oldval;
+    valref = v;
+    this->oldval = oldval;
   }
 };
-
 
 /**
   For every Geometry object write-accessed by a boost geometry function, i.e.
@@ -303,9 +270,6 @@ public:
           collection; false if no error occurred.
 */
 template <typename BG_geotype>
-bool post_fix_result(BG_result_buf_mgr *resbuf_mgr,
-                     BG_geotype &geout, String *res);
-
-
+bool post_fix_result(BG_result_buf_mgr *resbuf_mgr, BG_geotype &geout, String *res);
 
 #endif

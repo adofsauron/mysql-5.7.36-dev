@@ -23,11 +23,11 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 
-#include "lock.h"                             // Tablespace_hash_set
+#include "lock.h"  // Tablespace_hash_set
 #include "partition_element.h"
-#include "mysqld.h"                           // key_map
-#include "sql_bitmap.h"                       // Bitmap
-#include "sql_data_change.h"                  // enum_duplicates
+#include "mysqld.h"           // key_map
+#include "sql_bitmap.h"       // Bitmap
+#include "sql_data_change.h"  // enum_duplicates
 
 #define NOT_A_PARTITION_ID UINT_MAX32
 
@@ -57,7 +57,7 @@ struct TABLE_LIST;
     @retval NOT_A_PARTITION_ID if there are no more partitions.
     @retval [sub]partition_id  of the next partition
 */
-typedef uint32 (*partition_iter_func)(st_partition_iter* part_iter);
+typedef uint32 (*partition_iter_func)(st_partition_iter *part_iter);
 
 /**
   Partition set iterator. Used to enumerate a set of [sub]partitions
@@ -98,27 +98,23 @@ typedef struct st_partition_iter
 
   union
   {
-    struct st_part_num_range     part_nums;
-    struct st_field_value_range  field_vals;
+    struct st_part_num_range part_nums;
+    struct st_field_value_range field_vals;
   };
   partition_info *part_info;
 } PARTITION_ITERATOR;
 
-
 struct st_ddl_log_memory_entry;
 
-typedef struct {
+typedef struct
+{
   longlong list_value;
   uint32 partition_id;
 } LIST_PART_ENTRY;
 
 /* Some function typedefs */
-typedef int (*get_part_id_func)(partition_info *part_info,
-                                 uint32 *part_id,
-                                 longlong *func_value);
-typedef int (*get_subpart_id_func)(partition_info *part_info,
-                                   uint32 *part_id);
-
+typedef int (*get_part_id_func)(partition_info *part_info, uint32 *part_id, longlong *func_value);
+typedef int (*get_subpart_id_func)(partition_info *part_info, uint32 *part_id);
 
 /**
   Get an iterator for set of partitions that match given field-space interval.
@@ -155,16 +151,12 @@ typedef int (*get_subpart_id_func)(partition_info *part_info,
     @retval -1  All partitions would match, iterator not initialized
 */
 
-typedef int (*get_partitions_in_range_iter)(partition_info *part_info,
-                                            bool is_subpart,
-                                            uint32 *store_length_array,
-                                            uchar *min_val, uchar *max_val,
-                                            uint min_len, uint max_len,
-                                            uint flags,
+typedef int (*get_partitions_in_range_iter)(partition_info *part_info, bool is_subpart, uint32 *store_length_array,
+                                            uchar *min_val, uchar *max_val, uint min_len, uint max_len, uint flags,
                                             PARTITION_ITERATOR *part_iter);
 class partition_info : public Sql_alloc
 {
-public:
+ public:
   /*
    * Here comes a set of definitions needed for partitioned table handlers.
    */
@@ -266,7 +258,8 @@ public:
   bool bitmaps_are_initialized;
   // TODO: Add first_read_partition and num_read_partitions?
 
-  union {
+  union
+  {
     longlong *range_int_array;
     LIST_PART_ENTRY *list_array;
     part_column_list_val *range_col_array;
@@ -292,7 +285,7 @@ public:
    ********************************************/
 
   longlong err_value;
-  char* part_info_string;
+  char *part_info_string;
 
   char *part_func_string;
   char *subpart_func_string;
@@ -322,7 +315,7 @@ public:
 
   uint num_parts;
   uint num_subparts;
-  uint count_curr_subparts;                  // used during parsing
+  uint count_curr_subparts;  // used during parsing
 
   uint num_list_values;
 
@@ -344,11 +337,11 @@ public:
     N = 2 - Use 5.5 hashing (numeric fields are hashed like latin1 bytes)
   */
   enum enum_key_algorithm
-    {
-      KEY_ALGORITHM_NONE= 0,
-      KEY_ALGORITHM_51= 1,
-      KEY_ALGORITHM_55= 2
-    };
+  {
+    KEY_ALGORITHM_NONE = 0,
+    KEY_ALGORITHM_51 = 1,
+    KEY_ALGORITHM_55 = 2
+  };
   enum_key_algorithm key_algorithm;
 
   /* Only the number of partitions defined (uses default names and options). */
@@ -359,13 +352,13 @@ public:
   bool use_default_num_subpartitions;
   bool default_partitions_setup;
   bool defined_max_value;
-  bool list_of_part_fields;                  // KEY or COLUMNS PARTITIONING
-  bool list_of_subpart_fields;               // KEY SUBPARTITIONING
-  bool linear_hash_ind;                      // LINEAR HASH/KEY
+  bool list_of_part_fields;     // KEY or COLUMNS PARTITIONING
+  bool list_of_subpart_fields;  // KEY SUBPARTITIONING
+  bool linear_hash_ind;         // LINEAR HASH/KEY
   bool fixed;
   bool is_auto_partitioned;
   bool has_null_value;
-  bool column_list;                          // COLUMNS PARTITIONING, 5.5+
+  bool column_list;  // COLUMNS PARTITIONING, 5.5+
   /**
     True if pruning has been completed and can not be pruned any further,
     even if there are subqueries or stored programs in the condition.
@@ -377,38 +370,65 @@ public:
   bool is_pruning_completed;
 
   partition_info()
-  : get_partition_id(NULL), get_part_partition_id(NULL),
-    get_subpartition_id(NULL),
-    part_field_array(NULL), subpart_field_array(NULL),
-    part_charset_field_array(NULL),
-    subpart_charset_field_array(NULL),
-    full_part_field_array(NULL),
-    part_field_buffers(NULL), subpart_field_buffers(NULL),
-    restore_part_field_ptrs(NULL), restore_subpart_field_ptrs(NULL),
-    part_expr(NULL), subpart_expr(NULL), item_free_list(NULL),
-    first_log_entry(NULL), exec_log_entry(NULL), frm_log_entry(NULL),
-    bitmaps_are_initialized(FALSE),
-    list_array(NULL), err_value(0),
-    part_info_string(NULL),
-    part_func_string(NULL), subpart_func_string(NULL),
-    curr_part_elem(NULL), current_partition(NULL),
-    curr_list_object(0), num_columns(0), table(NULL),
-    default_engine_type(NULL),
-    part_type(NOT_A_PARTITION), subpart_type(NOT_A_PARTITION),
-    part_info_len(0),
-    part_func_len(0), subpart_func_len(0),
-    num_parts(0), num_subparts(0),
-    count_curr_subparts(0),
-    num_list_values(0), num_part_fields(0), num_subpart_fields(0),
-    num_full_part_fields(0), has_null_part_id(0), linear_hash_mask(0),
-    key_algorithm(KEY_ALGORITHM_NONE),
-    use_default_partitions(TRUE), use_default_num_partitions(TRUE),
-    use_default_subpartitions(TRUE), use_default_num_subpartitions(TRUE),
-    default_partitions_setup(FALSE), defined_max_value(FALSE),
-    list_of_part_fields(FALSE), list_of_subpart_fields(FALSE),
-    linear_hash_ind(FALSE), fixed(FALSE),
-    is_auto_partitioned(FALSE),
-    has_null_value(FALSE), column_list(FALSE), is_pruning_completed(false)
+      : get_partition_id(NULL),
+        get_part_partition_id(NULL),
+        get_subpartition_id(NULL),
+        part_field_array(NULL),
+        subpart_field_array(NULL),
+        part_charset_field_array(NULL),
+        subpart_charset_field_array(NULL),
+        full_part_field_array(NULL),
+        part_field_buffers(NULL),
+        subpart_field_buffers(NULL),
+        restore_part_field_ptrs(NULL),
+        restore_subpart_field_ptrs(NULL),
+        part_expr(NULL),
+        subpart_expr(NULL),
+        item_free_list(NULL),
+        first_log_entry(NULL),
+        exec_log_entry(NULL),
+        frm_log_entry(NULL),
+        bitmaps_are_initialized(FALSE),
+        list_array(NULL),
+        err_value(0),
+        part_info_string(NULL),
+        part_func_string(NULL),
+        subpart_func_string(NULL),
+        curr_part_elem(NULL),
+        current_partition(NULL),
+        curr_list_object(0),
+        num_columns(0),
+        table(NULL),
+        default_engine_type(NULL),
+        part_type(NOT_A_PARTITION),
+        subpart_type(NOT_A_PARTITION),
+        part_info_len(0),
+        part_func_len(0),
+        subpart_func_len(0),
+        num_parts(0),
+        num_subparts(0),
+        count_curr_subparts(0),
+        num_list_values(0),
+        num_part_fields(0),
+        num_subpart_fields(0),
+        num_full_part_fields(0),
+        has_null_part_id(0),
+        linear_hash_mask(0),
+        key_algorithm(KEY_ALGORITHM_NONE),
+        use_default_partitions(TRUE),
+        use_default_num_partitions(TRUE),
+        use_default_subpartitions(TRUE),
+        use_default_num_subpartitions(TRUE),
+        default_partitions_setup(FALSE),
+        defined_max_value(FALSE),
+        list_of_part_fields(FALSE),
+        list_of_subpart_fields(FALSE),
+        linear_hash_ind(FALSE),
+        fixed(FALSE),
+        is_auto_partitioned(FALSE),
+        has_null_value(FALSE),
+        column_list(FALSE),
+        is_pruning_completed(false)
   {
     partitions.empty();
     temp_partitions.empty();
@@ -423,59 +443,39 @@ public:
   bool set_partition_bitmaps(TABLE_LIST *table_list);
   bool set_read_partitions(List<String> *partition_names);
   /* Answers the question if subpartitioning is used for a certain table */
-  inline bool is_sub_partitioned() const
-  {
-    return (subpart_type == NOT_A_PARTITION ?  FALSE : TRUE);
-  }
+  inline bool is_sub_partitioned() const { return (subpart_type == NOT_A_PARTITION ? FALSE : TRUE); }
 
   /* Returns the total number of partitions on the leaf level */
-  inline uint get_tot_partitions() const
-  {
-    return num_parts * (is_sub_partitioned() ? num_subparts : 1);
-  }
+  inline uint get_tot_partitions() const { return num_parts * (is_sub_partitioned() ? num_subparts : 1); }
 
-  bool set_up_defaults_for_partitioning(Partition_handler *part_handler,
-                                        HA_CREATE_INFO *info,
-                                        uint start_no);
+  bool set_up_defaults_for_partitioning(Partition_handler *part_handler, HA_CREATE_INFO *info, uint start_no);
   char *find_duplicate_field();
   char *find_duplicate_name();
   bool check_engine_mix(handlerton *engine_type, bool default_engine);
   bool check_range_constants(THD *thd);
   bool check_list_constants(THD *thd);
-  bool check_partition_info(THD *thd, handlerton **eng_type,
-                            handler *file, HA_CREATE_INFO *info,
+  bool check_partition_info(THD *thd, handlerton **eng_type, handler *file, HA_CREATE_INFO *info,
                             bool check_partition_function);
   void print_no_partition_found(TABLE *table);
-  void print_debug(const char *str, uint*);
-  Item* get_column_item(Item *item, Field *field);
-  bool fix_partition_values(THD *thd,
-                            part_elem_value *val,
-                            partition_element *part_elem,
-                            uint part_id);
-  bool fix_column_value_functions(THD *thd,
-                                  part_elem_value *val,
-                                  uint part_id);
+  void print_debug(const char *str, uint *);
+  Item *get_column_item(Item *item, Field *field);
+  bool fix_partition_values(THD *thd, part_elem_value *val, partition_element *part_elem, uint part_id);
+  bool fix_column_value_functions(THD *thd, part_elem_value *val, uint part_id);
   bool fix_parser_data(THD *thd);
   bool add_max_value();
   void init_col_val(part_column_list_val *col_val, Item *item);
   bool reorganize_into_single_field_col_val();
   part_column_list_val *add_column_value();
-  bool set_part_expr(char *start_token, Item *item_ptr,
-                     char *end_token, bool is_subpart);
+  bool set_part_expr(char *start_token, Item *item_ptr, char *end_token, bool is_subpart);
   static int compare_column_values(const void *a, const void *b);
   bool set_up_charset_field_preps();
   bool check_partition_field_length();
   bool init_column_part();
   bool add_column_list_value(THD *thd, Item *item);
   void set_show_version_string(String *packet);
-  partition_element *get_part_elem(const char *partition_name,
-                                   char *file_name,
-                                   uint32 *part_id);
+  partition_element *get_part_elem(const char *partition_name, char *file_name, uint32 *part_id);
   void report_part_expr_error(bool use_subpart_expr);
-  bool set_used_partition(List<Item> &fields,
-                          List<Item> &values,
-                          COPY_INFO &info,
-                          bool copy_default_values,
+  bool set_used_partition(List<Item> &fields, List<Item> &values, COPY_INFO &info, bool copy_default_values,
                           MY_BITMAP *used_partitions);
   /**
     PRUNE_NO - Unable to prune.
@@ -486,83 +486,57 @@ public:
     PRUNE_YES - Pruning is possible, calculate the used partition set
                 by evaluate the partition_id on row by row basis.
   */
-  enum enum_can_prune {PRUNE_NO=0, PRUNE_DEFAULTS, PRUNE_YES};
-  bool can_prune_insert(THD *thd,
-                        enum_duplicates duplic,
-                        COPY_INFO &update,
-                        List<Item> &update_fields,
-                        List<Item> &fields,
-                        bool empty_values,
-                        enum_can_prune *can_prune_partitions,
-                        bool *prune_needs_default_values,
-                        MY_BITMAP *used_partitions);
+  enum enum_can_prune
+  {
+    PRUNE_NO = 0,
+    PRUNE_DEFAULTS,
+    PRUNE_YES
+  };
+  bool can_prune_insert(THD *thd, enum_duplicates duplic, COPY_INFO &update, List<Item> &update_fields,
+                        List<Item> &fields, bool empty_values, enum_can_prune *can_prune_partitions,
+                        bool *prune_needs_default_values, MY_BITMAP *used_partitions);
   bool has_same_partitioning(partition_info *new_part_info);
-  inline bool is_partition_used(uint part_id) const
-  {
-    return bitmap_is_set(&read_partitions, part_id);
-  }
-  inline bool is_partition_locked(uint part_id) const
-  {
-    return bitmap_is_set(&lock_partitions, part_id);
-  }
-  inline uint num_partitions_used()
-  {
-    return bitmap_bits_set(&read_partitions);
-  }
-  inline uint get_first_used_partition() const
-  {
-    return bitmap_get_first_set(&read_partitions);
-  }
-  inline uint get_next_used_partition(uint part_id) const
-  {
-    return bitmap_get_next_set(&read_partitions, part_id);
-  }
+  inline bool is_partition_used(uint part_id) const { return bitmap_is_set(&read_partitions, part_id); }
+  inline bool is_partition_locked(uint part_id) const { return bitmap_is_set(&lock_partitions, part_id); }
+  inline uint num_partitions_used() { return bitmap_bits_set(&read_partitions); }
+  inline uint get_first_used_partition() const { return bitmap_get_first_set(&read_partitions); }
+  inline uint get_next_used_partition(uint part_id) const { return bitmap_get_next_set(&read_partitions, part_id); }
   bool same_key_column_order(List<Create_field> *create_list);
 
-private:
-  static int list_part_cmp(const void* a, const void* b);
-  bool set_up_default_partitions(Partition_handler *part_handler,
-                                 HA_CREATE_INFO *info,
-                                 uint start_no);
-  bool set_up_default_subpartitions(Partition_handler *part_handler,
-                                    HA_CREATE_INFO *info);
-  char *create_default_partition_names(uint part_no, uint num_parts,
-                                       uint start_no);
-  char *create_default_subpartition_name(uint subpart_no,
-                                         const char *part_name);
+ private:
+  static int list_part_cmp(const void *a, const void *b);
+  bool set_up_default_partitions(Partition_handler *part_handler, HA_CREATE_INFO *info, uint start_no);
+  bool set_up_default_subpartitions(Partition_handler *part_handler, HA_CREATE_INFO *info);
+  char *create_default_partition_names(uint part_no, uint num_parts, uint start_no);
+  char *create_default_subpartition_name(uint subpart_no, const char *part_name);
   bool add_named_partition(const char *part_name, size_t length);
   bool is_fields_in_part_expr(List<Item> &fields);
   bool is_full_part_expr_in_fields(List<Item> &fields);
 };
 
-uint32 get_next_partition_id_range(struct st_partition_iter* part_iter);
+uint32 get_next_partition_id_range(struct st_partition_iter *part_iter);
 bool check_partition_dirs(partition_info *part_info);
 
 /* Initialize the iterator to return a single partition with given part_id */
 
-static inline void init_single_partition_iterator(uint32 part_id,
-                                           PARTITION_ITERATOR *part_iter)
+static inline void init_single_partition_iterator(uint32 part_id, PARTITION_ITERATOR *part_iter)
 {
-  part_iter->part_nums.start= part_iter->part_nums.cur= part_id;
-  part_iter->part_nums.end= part_id+1;
-  part_iter->ret_null_part= part_iter->ret_null_part_orig= FALSE;
-  part_iter->get_next= get_next_partition_id_range;
+  part_iter->part_nums.start = part_iter->part_nums.cur = part_id;
+  part_iter->part_nums.end = part_id + 1;
+  part_iter->ret_null_part = part_iter->ret_null_part_orig = FALSE;
+  part_iter->get_next = get_next_partition_id_range;
 }
 
 /* Initialize the iterator to enumerate all partitions */
-static inline
-void init_all_partitions_iterator(partition_info *part_info,
-                                  PARTITION_ITERATOR *part_iter)
+static inline void init_all_partitions_iterator(partition_info *part_info, PARTITION_ITERATOR *part_iter)
 {
-  part_iter->part_nums.start= part_iter->part_nums.cur= 0;
-  part_iter->part_nums.end= part_info->num_parts;
-  part_iter->ret_null_part= part_iter->ret_null_part_orig= FALSE;
-  part_iter->get_next= get_next_partition_id_range;
+  part_iter->part_nums.start = part_iter->part_nums.cur = 0;
+  part_iter->part_nums.end = part_info->num_parts;
+  part_iter->ret_null_part = part_iter->ret_null_part_orig = FALSE;
+  part_iter->get_next = get_next_partition_id_range;
 }
 
-bool fill_partition_tablespace_names(
-       partition_info *part_info,
-       Tablespace_hash_set *tablespace_set);
+bool fill_partition_tablespace_names(partition_info *part_info, Tablespace_hash_set *tablespace_set);
 
 bool check_partition_tablespace_names(partition_info *part_info);
 

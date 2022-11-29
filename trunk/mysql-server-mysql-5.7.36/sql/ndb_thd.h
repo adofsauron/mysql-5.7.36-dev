@@ -27,47 +27,30 @@
 
 #include <mysql/plugin.h>
 
-extern handlerton* ndbcluster_hton;
+extern handlerton *ndbcluster_hton;
 
 /* Get Thd_ndb pointer from THD */
-static inline
-class Thd_ndb*
-thd_get_thd_ndb(THD* thd)
+static inline class Thd_ndb *thd_get_thd_ndb(THD *thd)
 {
-  return (class Thd_ndb *) thd_get_ha_data(thd, ndbcluster_hton);
-}
-  
-/* Backward compatibility alias for 'thd_get_thd_ndb'  */
-static inline
-class Thd_ndb*
-get_thd_ndb(THD* thd)
-{
-  return thd_get_thd_ndb(thd);
+  return (class Thd_ndb *)thd_get_ha_data(thd, ndbcluster_hton);
 }
 
+/* Backward compatibility alias for 'thd_get_thd_ndb'  */
+static inline class Thd_ndb *get_thd_ndb(THD *thd) { return thd_get_thd_ndb(thd); }
 
 /* Set Thd_ndb pointer for THD */
-static inline
-void
-thd_set_thd_ndb(THD *thd, class Thd_ndb *thd_ndb)
-{
-  thd_set_ha_data(thd, ndbcluster_hton, thd_ndb);
-}
-
+static inline void thd_set_thd_ndb(THD *thd, class Thd_ndb *thd_ndb) { thd_set_ha_data(thd, ndbcluster_hton, thd_ndb); }
 
 /* Make sure THD has a Thd_ndb struct assigned */
-class Ndb* check_ndb_in_thd(THD* thd, bool validate_ndb= false);
-
+class Ndb *check_ndb_in_thd(THD *thd, bool validate_ndb = false);
 
 /* Print thd's list of warnings to error log */
-void
-thd_print_warning_list(THD* thd, const char* prefix);
+void thd_print_warning_list(THD *thd, const char *prefix);
 
 /*
   Determine if THD is applying binlog. ie. either marked as
   slave thread or being in "pseudo slave mode"
 */
-bool
-applying_binlog(const THD* thd);
+bool applying_binlog(const THD *thd);
 
 #endif

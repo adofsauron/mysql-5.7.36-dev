@@ -33,15 +33,14 @@ class THD;
 struct TABLE;
 typedef struct st_mysql_lex_string LEX_STRING;
 
-
 /**
   A base class for accessing a system table.
 */
 
 class System_table_access
 {
-public:
-  virtual ~System_table_access() { }
+ public:
+  virtual ~System_table_access() {}
 
   /**
     Opens and locks a system table.
@@ -69,15 +68,14 @@ public:
                                           stack
       @retval FALSE success
   */
-  bool open_table(THD* thd, const LEX_STRING dbstr, const LEX_STRING tbstr,
-                  uint max_num_field, enum thr_lock_type lock_type,
-                  TABLE** table, Open_tables_backup* backup);
+  bool open_table(THD *thd, const LEX_STRING dbstr, const LEX_STRING tbstr, uint max_num_field,
+                  enum thr_lock_type lock_type, TABLE **table, Open_tables_backup *backup);
   /**
     Prepares before opening table.
 
     @param[in]  thd  Thread requesting to open the table
   */
-  virtual void before_open(THD* thd)= 0;
+  virtual void before_open(THD *thd) = 0;
   /**
     Commits the changes, unlocks the table and closes it. This method
     needs to be called even if the open_table fails, in order to ensure
@@ -101,8 +99,7 @@ public:
     any user transaction and if not finished, there would be pending
     changes.
   */
-  bool close_table(THD *thd, TABLE* table, Open_tables_backup *backup,
-                   bool error, bool need_commit);
+  bool close_table(THD *thd, TABLE *table, Open_tables_backup *backup, bool error, bool need_commit);
   /**
     Creates a new thread in the bootstrap process or in the mysqld startup,
     a thread is created in order to be able to access a table.
@@ -122,6 +119,5 @@ public:
   /* Flags for opening table */
   uint m_flags;
 };
-
 
 #endif /* RPL_TABLE_ACCESS_H_ */

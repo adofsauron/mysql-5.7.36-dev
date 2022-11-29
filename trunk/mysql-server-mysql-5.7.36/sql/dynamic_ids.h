@@ -30,9 +30,9 @@
 
 class Server_ids
 {
-public:
+ public:
   Server_ids();
-  ~Server_ids() { };
+  ~Server_ids(){};
 
   Prealloced_array<ulong, 16> dynamic_ids;
 

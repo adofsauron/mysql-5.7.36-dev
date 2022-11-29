@@ -32,8 +32,8 @@
  */
 
 #include "my_global.h"
-#include "prealloced_array.h"                   // Prealloced_array
-#include "sql_string.h"                         // String
+#include "prealloced_array.h"  // Prealloced_array
+#include "sql_string.h"        // String
 
 #include <string>
 
@@ -56,25 +56,26 @@ enum enum_json_path_leg_type
 */
 class Json_path_leg
 {
-private:
+ private:
   enum_json_path_leg_type m_leg_type;
 
   size_t m_array_cell_index;
 
   std::string m_member_name;
 
-public:
+ public:
   explicit Json_path_leg(enum_json_path_leg_type leg_type)
-    : m_leg_type(leg_type), m_array_cell_index(0), m_member_name()
-  {}
+      : m_leg_type(leg_type), m_array_cell_index(0), m_member_name()
+  {
+  }
   explicit Json_path_leg(size_t array_cell_index)
-    : m_leg_type(jpl_array_cell), m_array_cell_index(array_cell_index),
-      m_member_name()
-  {}
+      : m_leg_type(jpl_array_cell), m_array_cell_index(array_cell_index), m_member_name()
+  {
+  }
   Json_path_leg(const std::string &member_name)
-    : m_leg_type(jpl_member), m_array_cell_index(0),
-      m_member_name(member_name)
-  {}
+      : m_leg_type(jpl_member), m_array_cell_index(0), m_member_name(member_name)
+  {
+  }
 
   /** Accessors */
   enum_json_path_leg_type get_type() const;
@@ -86,18 +87,17 @@ public:
   bool to_string(String *buf) const;
 };
 
-
 /**
   A path expression which can be used to seek to
   a position inside a JSON value.
 */
 class Json_seekable_path
 {
-public:
+ public:
   virtual ~Json_seekable_path() {}
 
   /** Return the number of legs in this searchable path */
-  virtual size_t leg_count() const =0;
+  virtual size_t leg_count() const = 0;
 
   /**
      Get the ith (numbered from 0) leg
@@ -107,13 +107,12 @@ public:
      @return NULL if the index is out of range. Otherwise, a pointer to the
      corresponding Json_path_leg.
   */
-  virtual const Json_path_leg *get_leg_at(const size_t index) const =0;
+  virtual const Json_path_leg *get_leg_at(const size_t index) const = 0;
 
   /**
     Return true if the path contains an ellipsis token
   */
-  virtual bool contains_ellipsis() const =0;
-
+  virtual bool contains_ellipsis() const = 0;
 };
 
 /*
@@ -157,7 +156,7 @@ public:
 */
 class Json_path : public Json_seekable_path
 {
-private:
+ private:
   typedef Prealloced_array<Json_path_leg, 8, false> Path_leg_vector;
   Path_leg_vector m_path_legs;
 
@@ -185,9 +184,7 @@ private:
 
      @return The pointer advanced to around where the error, if any, occurred.
   */
-  const char *parse_path(const bool begins_with_column_id,
-                         const size_t path_length,
-                         const char *path_expression,
+  const char *parse_path(const bool begins_with_column_id, const size_t path_length, const char *path_expression,
                          bool *status);
 
   /**
@@ -201,8 +198,7 @@ private:
 
      @return The pointer advanced past the consumed leg.
   */
-  const char *parse_path_leg(const char *charptr, const char *endptr,
-                             bool *status);
+  const char *parse_path_leg(const char *charptr, const char *endptr, bool *status);
 
   /**
      Parse a single ellipsis leg and add it to the evolving Json_path.
@@ -215,8 +211,7 @@ private:
 
      @return The pointer advanced past the consumed leg.
   */
-  const char *parse_ellipsis_leg(const char *charptr, const char *endptr,
-                                 bool *status);
+  const char *parse_ellipsis_leg(const char *charptr, const char *endptr, bool *status);
 
   /**
      Parse a single array leg and add it to the evolving Json_path.
@@ -229,8 +224,7 @@ private:
 
      @return The pointer advanced past the consumed leg.
   */
-  const char *parse_array_leg(const char *charptr, const char *endptr,
-                              bool *status);
+  const char *parse_array_leg(const char *charptr, const char *endptr, bool *status);
 
   /**
      Parse a single member leg and add it to the evolving Json_path.
@@ -243,10 +237,9 @@ private:
 
      @return The pointer advanced past the consumed leg.
   */
-  const char *parse_member_leg(const char *charptr, const char *endptr,
-                               bool *status);
+  const char *parse_member_leg(const char *charptr, const char *endptr, bool *status);
 
-public:
+ public:
   Json_path();
   ~Json_path();
 
@@ -299,13 +292,9 @@ public:
   /** Turn into a human-readable string. */
   bool to_string(String *buf) const;
 
-  friend bool parse_path(const bool begins_with_column_id,
-                         const size_t path_length,
-                         const char *path_expression,
-                         Json_path *path,
-                         size_t *bad_index);
+  friend bool parse_path(const bool begins_with_column_id, const size_t path_length, const char *path_expression,
+                         Json_path *path, size_t *bad_index);
 };
-
 
 /**
   A lightweight path expression. This exists so that paths can be cloned
@@ -314,11 +303,11 @@ public:
 */
 class Json_path_clone : public Json_seekable_path
 {
-private:
+ private:
   typedef Prealloced_array<const Json_path_leg *, 8, false> Path_leg_pointers;
   Path_leg_pointers m_path_legs;
 
-public:
+ public:
   Json_path_clone();
   ~Json_path_clone();
 
@@ -356,7 +345,7 @@ public:
 
     @result the last leg popped off
   */
-  const Json_path_leg * pop();
+  const Json_path_leg *pop();
 
   /**
     Resets this to an empty path with no legs.
@@ -367,9 +356,7 @@ public:
     Return true if the path contains an ellipsis token
   */
   bool contains_ellipsis() const;
-
 };
-
 
 /**
    Initialize a Json_path from a path expression.
@@ -388,8 +375,7 @@ public:
    @param[out] bad_index If null is returned, the parsing failed around here.
    @return false on success, true on error
 */
-bool parse_path(const bool begins_with_column_id, const size_t path_length,
-                const char *path_expression, Json_path *path,
-                size_t *bad_index);
+bool parse_path(const bool begins_with_column_id, const size_t path_length, const char *path_expression,
+                Json_path *path, size_t *bad_index);
 
 #endif /* SQL_JSON_PATH_INCLUDED */

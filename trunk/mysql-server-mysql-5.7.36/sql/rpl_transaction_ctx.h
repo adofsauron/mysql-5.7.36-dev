@@ -24,7 +24,7 @@
 #define RPL_TRANSACTION_CTX_H
 
 #include "my_global.h"
-#include "mysql/service_rpl_transaction_ctx.h" // Transaction_termination_ctx
+#include "mysql/service_rpl_transaction_ctx.h"  // Transaction_termination_ctx
 
 /**
   Server side support to provide a service to plugins to report if
@@ -34,7 +34,7 @@
 */
 class Rpl_transaction_ctx
 {
-public:
+ public:
   Rpl_transaction_ctx();
   virtual ~Rpl_transaction_ctx() {}
 
@@ -91,8 +91,8 @@ public:
   */
   void cleanup();
 
-private:
+ private:
   Transaction_termination_ctx m_transaction_ctx;
 };
 
-#endif	/* RPL_TRANSACTION_CTX_H */
+#endif /* RPL_TRANSACTION_CTX_H */

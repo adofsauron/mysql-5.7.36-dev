@@ -25,20 +25,17 @@
    51 Franklin Street, Suite 500, Boston, MA 02110-1335 USA */
 
 #include "my_global.h"
-#include "sql_lex.h"           // enum_view_create_mode
+#include "sql_lex.h"  // enum_view_create_mode
 
 /* Forward declarations */
 
 class File_parser;
 
-
 /* Function declarations */
 
-bool create_view_precheck(THD *thd, TABLE_LIST *tables, TABLE_LIST *view,
-                          enum_view_create_mode mode);
+bool create_view_precheck(THD *thd, TABLE_LIST *tables, TABLE_LIST *view, enum_view_create_mode mode);
 
-bool mysql_create_view(THD *thd, TABLE_LIST *view,
-                       enum_view_create_mode mode);
+bool mysql_create_view(THD *thd, TABLE_LIST *view, enum_view_create_mode mode);
 
 bool mysql_drop_view(THD *thd, TABLE_LIST *view, enum_drop_mode drop_mode);
 
@@ -50,12 +47,10 @@ int view_checksum(THD *thd, TABLE_LIST *view);
 
 extern TYPELIB updatable_views_with_limit_typelib;
 
-bool check_duplicate_names(List<Item>& item_list, bool gen_unique_view_names);
-bool mysql_rename_view(THD *thd, const char *new_db, const char *new_name,
-                       TABLE_LIST *view);
+bool check_duplicate_names(List<Item> &item_list, bool gen_unique_view_names);
+bool mysql_rename_view(THD *thd, const char *new_db, const char *new_name, TABLE_LIST *view);
 
-bool open_and_read_view(THD *thd, TABLE_SHARE *share,
-                        TABLE_LIST *view_ref);
+bool open_and_read_view(THD *thd, TABLE_SHARE *share, TABLE_LIST *view_ref);
 
 bool parse_view_definition(THD *thd, TABLE_LIST *view_ref);
 

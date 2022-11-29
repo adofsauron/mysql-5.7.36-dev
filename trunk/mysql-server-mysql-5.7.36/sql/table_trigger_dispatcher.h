@@ -50,26 +50,23 @@ typedef struct st_mysql_lex_string LEX_STRING;
   This class holds all information about triggers of a table.
 */
 
-class Table_trigger_dispatcher : public Sql_alloc,
-                                 public Table_trigger_field_support
+class Table_trigger_dispatcher : public Sql_alloc, public Table_trigger_field_support
 {
-public:
+ public:
   static Table_trigger_dispatcher *create(TABLE *subject_table);
 
   bool check_n_load(THD *thd, bool names_only);
 
-private:
+ private:
   Table_trigger_dispatcher(TABLE *subject_table);
 
-public:
+ public:
   Table_trigger_dispatcher(const char *db_name, const char *table_name);
   ~Table_trigger_dispatcher();
 
-  Table_trigger_field_support *get_trigger_field_support()
-  { return this; }
+  Table_trigger_field_support *get_trigger_field_support() { return this; }
 
-  List<Trigger> &get_trigger_list()
-  { return m_triggers; }
+  List<Trigger> &get_trigger_list() { return m_triggers; }
 
   /**
     Checks if there is a broken trigger for this table.
@@ -90,12 +87,9 @@ public:
 
   bool create_trigger(THD *thd, String *binlog_create_trigger_stmt);
 
-  bool drop_trigger(THD *thd,
-                    const LEX_STRING &trigger_name,
-                    bool *trigger_found);
+  bool drop_trigger(THD *thd, const LEX_STRING &trigger_name, bool *trigger_found);
 
-  bool process_triggers(THD *thd, enum_trigger_event_type event,
-                        enum_trigger_action_time_type action_time,
+  bool process_triggers(THD *thd, enum_trigger_event_type event, enum_trigger_action_time_type action_time,
                         bool old_row_is_record1);
 
   Trigger_chain *get_triggers(int event, int action_time)
@@ -114,50 +108,37 @@ public:
 
   Trigger *find_trigger(const LEX_STRING &trigger_name);
 
-  bool has_triggers(enum_trigger_event_type event,
-                    enum_trigger_action_time_type action_time) const
+  bool has_triggers(enum_trigger_event_type event, enum_trigger_action_time_type action_time) const
   {
     return get_triggers(event, action_time) != NULL;
   }
 
   bool has_update_triggers() const
   {
-    return get_triggers(TRG_EVENT_UPDATE, TRG_ACTION_BEFORE) ||
-           get_triggers(TRG_EVENT_UPDATE, TRG_ACTION_AFTER);
+    return get_triggers(TRG_EVENT_UPDATE, TRG_ACTION_BEFORE) || get_triggers(TRG_EVENT_UPDATE, TRG_ACTION_AFTER);
   }
 
   bool has_delete_triggers() const
   {
-    return get_triggers(TRG_EVENT_DELETE, TRG_ACTION_BEFORE) ||
-           get_triggers(TRG_EVENT_DELETE, TRG_ACTION_AFTER);
+    return get_triggers(TRG_EVENT_DELETE, TRG_ACTION_BEFORE) || get_triggers(TRG_EVENT_DELETE, TRG_ACTION_AFTER);
   }
 
   bool mark_fields(enum_trigger_event_type event);
 
-  bool add_tables_and_routines_for_triggers(THD *thd,
-                                            Query_tables_list *prelocking_ctx,
-                                            TABLE_LIST *table_list);
+  bool add_tables_and_routines_for_triggers(THD *thd, Query_tables_list *prelocking_ctx, TABLE_LIST *table_list);
 
   void enable_fields_temporary_nullability(THD *thd);
   void disable_fields_temporary_nullability();
 
   void print_upgrade_warnings(THD *thd);
 
-  bool rename_subject_table(THD *thd,
-                                 const char *old_db_name,
-                                 const char *new_db_name,
-                                 const char *old_table_name_str,
-                                 const char *new_table_name_str,
-                                 bool upgrading50to51);
+  bool rename_subject_table(THD *thd, const char *old_db_name, const char *new_db_name, const char *old_table_name_str,
+                            const char *new_table_name_str, bool upgrading50to51);
 
+ private:
+  MEM_ROOT *get_mem_root() { return m_subject_table ? &m_subject_table->mem_root : &m_mem_root; }
 
-private:
-  MEM_ROOT *get_mem_root()
-  { return m_subject_table ? &m_subject_table->mem_root : &m_mem_root; }
-
-  Trigger_chain *create_trigger_chain(
-    enum_trigger_event_type event,
-    enum_trigger_action_time_type action_time);
+  Trigger_chain *create_trigger_chain(enum_trigger_event_type event, enum_trigger_action_time_type action_time);
 
   void parse_triggers(THD *thd);
 
@@ -178,29 +159,24 @@ private:
   {
     if (!m_has_unparseable_trigger)
     {
-      m_has_unparseable_trigger= true;
-      strncpy(m_parse_error_message,
-              error_message, sizeof(m_parse_error_message));
+      m_has_unparseable_trigger = true;
+      strncpy(m_parse_error_message, error_message, sizeof(m_parse_error_message));
     }
   }
 
-private:
+ private:
   /************************************************************************
    * Table_trigger_field_support interface implementation.
    ***********************************************************************/
 
-  virtual TABLE *get_subject_table()
-  { return m_subject_table; }
+  virtual TABLE *get_subject_table() { return m_subject_table; }
 
-  virtual Field *get_trigger_variable_field(enum_trigger_variable_type v,
-                                            int field_index)
+  virtual Field *get_trigger_variable_field(enum_trigger_variable_type v, int field_index)
   {
-    return (v == TRG_OLD_ROW) ?
-           m_old_field[field_index] :
-           m_new_field[field_index];
+    return (v == TRG_OLD_ROW) ? m_old_field[field_index] : m_new_field[field_index];
   }
 
-private:
+ private:
   /**
     TABLE instance for which this triggers list object was created.
 
@@ -307,4 +283,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // TABLE_TRIGGER_DISPATCHER_H_INCLUDED
+#endif  // TABLE_TRIGGER_DISPATCHER_H_INCLUDED

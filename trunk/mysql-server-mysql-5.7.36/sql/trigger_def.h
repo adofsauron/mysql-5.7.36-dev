@@ -40,9 +40,9 @@
 */
 enum enum_trigger_event_type
 {
-  TRG_EVENT_INSERT= 0,
-  TRG_EVENT_UPDATE= 1,
-  TRG_EVENT_DELETE= 2,
+  TRG_EVENT_INSERT = 0,
+  TRG_EVENT_UPDATE = 1,
+  TRG_EVENT_DELETE = 2,
   TRG_EVENT_MAX
 };
 
@@ -51,8 +51,8 @@ enum enum_trigger_event_type
 */
 enum enum_trigger_action_time_type
 {
-  TRG_ACTION_BEFORE= 0,
-  TRG_ACTION_AFTER= 1,
+  TRG_ACTION_BEFORE = 0,
+  TRG_ACTION_AFTER = 1,
   TRG_ACTION_MAX
 };
 
@@ -64,9 +64,9 @@ enum enum_trigger_action_time_type
 */
 enum enum_trigger_order_type
 {
-  TRG_ORDER_NONE= 0,
-  TRG_ORDER_FOLLOWS= 1,
-  TRG_ORDER_PRECEDES= 2
+  TRG_ORDER_NONE = 0,
+  TRG_ORDER_FOLLOWS = 1,
+  TRG_ORDER_PRECEDES = 2
 };
 
 /**
@@ -85,9 +85,9 @@ enum enum_trigger_variable_type
   They would be private to Trigger_loader if we didn't have handler.
 */
 
-extern const char * const TRG_EXT;
-extern const char * const TRN_EXT;
+extern const char *const TRG_EXT;
+extern const char *const TRN_EXT;
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // TRIGGER_DEF_H_INCLUDED
+#endif  // TRIGGER_DEF_H_INCLUDED

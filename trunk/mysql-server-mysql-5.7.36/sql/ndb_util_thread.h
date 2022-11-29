@@ -29,17 +29,17 @@
 
 class Ndb_util_thread : public Ndb_component
 {
-public:
+ public:
   Ndb_util_thread();
   virtual ~Ndb_util_thread();
 
   native_mutex_t LOCK;
   native_cond_t COND;
 
-private:
-  virtual int do_init() { return 0;}
+ private:
+  virtual int do_init() { return 0; }
   virtual void do_run();
-  virtual int do_deinit() { return 0;}
+  virtual int do_deinit() { return 0; }
   // Wake up for stop
   virtual void do_wakeup();
 };

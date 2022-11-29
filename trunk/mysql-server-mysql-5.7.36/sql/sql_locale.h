@@ -23,15 +23,15 @@
 #ifndef SQL_LOCALE_INCLUDED
 #define SQL_LOCALE_INCLUDED
 
-#include "my_global.h"                          /* uint */
-#include "derror.h"                             /* MY_LOCALE_ERRMSGS */
+#include "my_global.h" /* uint */
+#include "derror.h"    /* MY_LOCALE_ERRMSGS */
 
 typedef struct st_typelib TYPELIB;
 
 class MY_LOCALE
 {
-public:
-  uint  number;
+ public:
+  uint number;
   const char *name;
   const char *description;
   const bool is_ascii;
@@ -45,24 +45,26 @@ public:
   uint thousand_sep;
   const char *grouping;
   MY_LOCALE_ERRMSGS *errmsgs;
-  MY_LOCALE(uint number_par,
-            const char *name_par, const char *descr_par, bool is_ascii_par,
-            TYPELIB *month_names_par, TYPELIB *ab_month_names_par,
-            TYPELIB *day_names_par, TYPELIB *ab_day_names_par,
-            uint max_month_name_length_par, uint max_day_name_length_par,
-            uint decimal_point_par, uint thousand_sep_par,
-            const char *grouping_par, MY_LOCALE_ERRMSGS *errmsgs_par) :
-    number(number_par),
-    name(name_par), description(descr_par), is_ascii(is_ascii_par),
-    month_names(month_names_par), ab_month_names(ab_month_names_par),
-    day_names(day_names_par), ab_day_names(ab_day_names_par),
-    max_month_name_length(max_month_name_length_par),
-    max_day_name_length(max_day_name_length_par),
-    decimal_point(decimal_point_par),
-    thousand_sep(thousand_sep_par),
-    grouping(grouping_par),
-    errmsgs(errmsgs_par)
-  {}
+  MY_LOCALE(uint number_par, const char *name_par, const char *descr_par, bool is_ascii_par, TYPELIB *month_names_par,
+            TYPELIB *ab_month_names_par, TYPELIB *day_names_par, TYPELIB *ab_day_names_par,
+            uint max_month_name_length_par, uint max_day_name_length_par, uint decimal_point_par, uint thousand_sep_par,
+            const char *grouping_par, MY_LOCALE_ERRMSGS *errmsgs_par)
+      : number(number_par),
+        name(name_par),
+        description(descr_par),
+        is_ascii(is_ascii_par),
+        month_names(month_names_par),
+        ab_month_names(ab_month_names_par),
+        day_names(day_names_par),
+        ab_day_names(ab_day_names_par),
+        max_month_name_length(max_month_name_length_par),
+        max_day_name_length(max_day_name_length_par),
+        decimal_point(decimal_point_par),
+        thousand_sep(thousand_sep_par),
+        grouping(grouping_par),
+        errmsgs(errmsgs_par)
+  {
+  }
 };
 /* Exported variables */
 

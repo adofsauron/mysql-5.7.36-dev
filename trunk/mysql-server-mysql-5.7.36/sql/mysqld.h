@@ -28,20 +28,21 @@
 #ifndef MYSQLD_INCLUDED
 #define MYSQLD_INCLUDED
 
-#include "my_global.h" /* MYSQL_PLUGIN_IMPORT, FN_REFLEN, FN_EXTLEN */
-#include "my_bitmap.h"                     /* MY_BITMAP */
-#include "my_decimal.h"                         /* my_decimal */
-#include "mysql_com.h"                     /* SERVER_VERSION_LENGTH */
-#include "my_atomic.h"                     /* my_atomic_add64 */
-#include "sql_cmd.h"                       /* SQLCOM_END */
-#include "my_thread_local.h"               /* my_get_thread_local */
-#include "my_thread.h"                     /* my_thread_attr_t */
-#include "atomic_class.h"                  /* Atomic_int32 */
+#include "my_global.h"       /* MYSQL_PLUGIN_IMPORT, FN_REFLEN, FN_EXTLEN */
+#include "my_bitmap.h"       /* MY_BITMAP */
+#include "my_decimal.h"      /* my_decimal */
+#include "mysql_com.h"       /* SERVER_VERSION_LENGTH */
+#include "my_atomic.h"       /* my_atomic_add64 */
+#include "sql_cmd.h"         /* SQLCOM_END */
+#include "my_thread_local.h" /* my_get_thread_local */
+#include "my_thread.h"       /* my_thread_attr_t */
+#include "atomic_class.h"    /* Atomic_int32 */
 
 class THD;
 struct handlerton;
 class Time_zone;
-template <uint default_width> class Bitmap;
+template <uint default_width>
+class Bitmap;
 
 typedef struct st_mysql_const_lex_string LEX_CSTRING;
 typedef struct st_mysql_show_var SHOW_VAR;
@@ -54,41 +55,43 @@ typedef struct st_mysql_show_var SHOW_VAR;
 */
 #ifndef CHARSET_INFO_DEFINED
 typedef struct charset_info_st CHARSET_INFO;
-#endif  /* CHARSET_INFO_DEFINED */
+#endif /* CHARSET_INFO_DEFINED */
 
 #if MAX_INDEXES <= 64
-typedef Bitmap<64>  key_map;          /* Used for finding keys */
+typedef Bitmap<64> key_map; /* Used for finding keys */
 #elif MAX_INDEXES > 255
 #error "MAX_INDEXES values greater than 255 is not supported."
 #else
-typedef Bitmap<((MAX_INDEXES+7)/8*8)> key_map; /* Used for finding keys */
+typedef Bitmap<((MAX_INDEXES + 7) / 8 * 8)> key_map; /* Used for finding keys */
 #endif
 
-	/* Bits from testflag */
+/* Bits from testflag */
 #define TEST_PRINT_CACHED_TABLES 1
-#define TEST_NO_KEY_GROUP	 2
-#define TEST_MIT_THREAD		4
+#define TEST_NO_KEY_GROUP 2
+#define TEST_MIT_THREAD 4
 /*
   TEST_BLOCKING is made obsolete and is not used any
   where in the code base and is retained here so that
   the other bit flag values are not changed.
 */
-#define OBSOLETE_TEST_BLOCKING	8
-#define TEST_KEEP_TMP_TABLES	16
-#define TEST_READCHECK		64	/**< Force use of readcheck */
-#define TEST_NO_EXTRA		128
-#define TEST_CORE_ON_SIGNAL	256	/**< Give core if signal */
-#define TEST_NO_STACKTRACE	512
-#define TEST_SIGINT	        1024    /**< Allow sigint on threads */
-#define TEST_SYNCHRONIZATION    2048    /**< get server to do sleep in
-                                           some places */
-#define TEST_DO_QUICK_LEAK_CHECK 4096   /**< Do Valgrind leak check for
-                                           each command. */
+#define OBSOLETE_TEST_BLOCKING 8
+#define TEST_KEEP_TMP_TABLES 16
+#define TEST_READCHECK 64 /**< Force use of readcheck */
+#define TEST_NO_EXTRA 128
+#define TEST_CORE_ON_SIGNAL 256 /**< Give core if signal */
+#define TEST_NO_STACKTRACE 512
+#define TEST_SIGINT 1024 /**< Allow sigint on threads */
+#define TEST_SYNCHRONIZATION          \
+  2048 /**< get server to do sleep in \
+          some places */
+#define TEST_DO_QUICK_LEAK_CHECK       \
+  4096 /**< Do Valgrind leak check for \
+          each command. */
 
-#define SPECIAL_NO_NEW_FUNC	2		/* Skip new functions */
-#define SPECIAL_SKIP_SHOW_DB    4               /* Don't allow 'show db' */
-#define SPECIAL_NO_RESOLVE     64		/* Don't use gethostname */
-#define SPECIAL_NO_HOST_CACHE	512		/* Don't cache hosts */
+#define SPECIAL_NO_NEW_FUNC 2     /* Skip new functions */
+#define SPECIAL_SKIP_SHOW_DB 4    /* Don't allow 'show db' */
+#define SPECIAL_NO_RESOLVE 64     /* Don't use gethostname */
+#define SPECIAL_NO_HOST_CACHE 512 /* Don't cache hosts */
 #define SPECIAL_SHORT_LOG_FORMAT 1024
 
 /* Function prototypes */
@@ -110,7 +113,7 @@ void gtid_server_cleanup();
 const char *fixup_enforce_gtid_consistency_command_line(char *value_arg);
 
 extern "C" MYSQL_PLUGIN_IMPORT CHARSET_INFO *system_charset_info;
-extern MYSQL_PLUGIN_IMPORT CHARSET_INFO *files_charset_info ;
+extern MYSQL_PLUGIN_IMPORT CHARSET_INFO *files_charset_info;
 extern MYSQL_PLUGIN_IMPORT CHARSET_INFO *national_charset_info;
 extern MYSQL_PLUGIN_IMPORT CHARSET_INFO *table_alias_charset;
 
@@ -174,8 +177,8 @@ extern mysql_rwlock_t LOCK_named_pipe_full_access_group;
 extern char *named_pipe_full_access_group;
 #endif
 extern my_bool opt_secure_auth;
-extern char* opt_secure_file_priv;
-extern char* opt_secure_backup_file_priv;
+extern char *opt_secure_file_priv;
+extern char *opt_secure_backup_file_priv;
 extern size_t opt_secure_backup_file_priv_len;
 extern my_bool opt_log_slow_admin_statements, opt_log_slow_slave_statements;
 extern my_bool sp_automatic_privileges, opt_noacl;
@@ -196,24 +199,21 @@ extern ulong max_long_data_size;
 extern ulong current_pid;
 extern ulong expire_logs_days;
 extern my_bool relay_log_recovery;
-extern uint sync_binlog_period, sync_relaylog_period,
-            sync_relayloginfo_period, sync_masterinfo_period,
-            opt_mts_checkpoint_period, opt_mts_checkpoint_group;
+extern uint sync_binlog_period, sync_relaylog_period, sync_relayloginfo_period, sync_masterinfo_period,
+    opt_mts_checkpoint_period, opt_mts_checkpoint_group;
 extern ulong opt_tc_log_size, tc_log_max_pages_used, tc_log_page_size;
 extern ulong tc_log_page_waits;
 extern my_bool relay_log_purge, opt_innodb_safe_binlog, opt_innodb;
 extern my_bool relay_log_recovery;
 extern my_bool offline_mode;
 extern my_bool opt_log_builtin_as_identified_by_password;
-extern uint test_flags,select_errors,ha_open_options;
+extern uint test_flags, select_errors, ha_open_options;
 extern uint protocol_version, mysqld_port, dropping_tables;
 extern ulong delay_key_write_options;
 extern ulong opt_log_timestamps;
 extern const char *timestamp_type_names[];
-extern char *opt_general_logname, *opt_slow_logname, *opt_bin_logname,
-            *opt_relay_logname;
-extern char *opt_backup_history_logname, *opt_backup_progress_logname,
-            *opt_backup_settings_name;
+extern char *opt_general_logname, *opt_slow_logname, *opt_bin_logname, *opt_relay_logname;
+extern char *opt_backup_history_logname, *opt_backup_progress_logname, *opt_backup_settings_name;
 extern const char *log_output_str;
 extern const char *log_backup_output_str;
 extern char *mysql_home_ptr, *pidfile_name_ptr;
@@ -225,8 +225,8 @@ extern char pidfile_name[FN_REFLEN], system_time_zone[30], *opt_init_file;
 extern char default_logfile_name[FN_REFLEN];
 extern char *opt_tc_log_file;
 /*Move UUID_LENGTH from item_strfunc.h*/
-#define UUID_LENGTH (8+1+4+1+4+1+4+1+12)
-extern char server_uuid[UUID_LENGTH+1];
+#define UUID_LENGTH (8 + 1 + 4 + 1 + 4 + 1 + 4 + 1 + 12)
+extern char server_uuid[UUID_LENGTH + 1];
 extern const char *server_uuid_ptr;
 extern const double log_10[309];
 extern ulonglong keybuff_size;
@@ -237,7 +237,7 @@ extern ulong aborted_threads;
 extern ulong delayed_insert_timeout;
 extern ulong delayed_insert_limit, delayed_queue_size;
 extern ulong delayed_insert_threads, delayed_insert_writes;
-extern ulong delayed_rows_in_use,delayed_insert_errors;
+extern ulong delayed_rows_in_use, delayed_insert_errors;
 extern Atomic_int32 slave_open_temp_tables;
 extern ulong query_cache_size, query_cache_min_res_unit;
 extern ulong slow_launch_time;
@@ -250,13 +250,13 @@ extern my_bool opt_slave_allow_batching;
 extern my_bool allow_slave_start;
 extern LEX_CSTRING reason_slave_blocked;
 extern ulong slave_trans_retries;
-extern uint  slave_net_timeout;
+extern uint slave_net_timeout;
 extern ulong opt_mts_slave_parallel_workers;
 extern ulonglong opt_mts_pending_jobs_size_max;
 extern uint max_user_connections;
 extern ulong rpl_stop_slave_timeout;
 extern my_bool log_bin_use_v1_row_events;
-extern ulong what_to_log,flush_time;
+extern ulong what_to_log, flush_time;
 extern ulong max_prepared_stmt_count, prepared_stmt_count;
 extern ulong open_files_limit;
 extern ulong binlog_cache_size, binlog_stmt_cache_size;
@@ -278,9 +278,9 @@ extern ulong locked_account_connection_count;
 enum enum_binlog_error_action
 {
   /// Ignore the error and let server continue without binlogging
-  IGNORE_ERROR= 0,
+  IGNORE_ERROR = 0,
   /// Abort the server
-  ABORT_SERVER= 1
+  ABORT_SERVER = 1
 };
 extern const char *binlog_error_action_list[];
 
@@ -294,7 +294,7 @@ extern size_t mysql_unpacked_real_data_home_len;
 extern MYSQL_PLUGIN_IMPORT MY_TMPDIR mysql_tmpdir_list;
 extern const char *show_comp_option_name[];
 extern const char *first_keyword, *binary_keyword;
-extern MYSQL_PLUGIN_IMPORT const char  *my_localhost;
+extern MYSQL_PLUGIN_IMPORT const char *my_localhost;
 extern const char *myisam_recover_options_str;
 extern const char *in_left_expr_name, *in_additional_cond, *in_having_cond;
 extern SHOW_VAR status_vars[];
@@ -309,7 +309,7 @@ extern uint opt_server_id_bits;
 extern ulong opt_server_id_mask;
 #ifdef WITH_NDBCLUSTER_STORAGE_ENGINE
 /* engine specific hook, to be made generic */
-extern int(*ndb_wait_setup_func)(ulong);
+extern int (*ndb_wait_setup_func)(ulong);
 extern ulong opt_ndb_wait_setup;
 #endif
 extern const char *load_default_groups[];
@@ -329,10 +329,10 @@ extern ulong connection_errors_internal;
 extern ulong connection_errors_peer_addr;
 #endif
 extern ulong log_warnings;
-extern bool  opt_log_syslog_enable;
+extern bool opt_log_syslog_enable;
 extern char *opt_log_syslog_tag;
 #ifndef _WIN32
-extern bool  opt_log_syslog_include_pid;
+extern bool opt_log_syslog_include_pid;
 extern char *opt_log_syslog_facility;
 #endif
 /** The size of the host_cache. */
@@ -361,7 +361,7 @@ extern ulong max_allowed_packet;
 extern ulong net_buffer_length;
 #endif
 
-extern LEX_CSTRING sql_statement_names[(uint) SQLCOM_END + 1];
+extern LEX_CSTRING sql_statement_names[(uint)SQLCOM_END + 1];
 
 /*
   THR_MALLOC is a key which will be used to set/get MEM_ROOT** for a thread,
@@ -370,13 +370,13 @@ extern LEX_CSTRING sql_statement_names[(uint) SQLCOM_END + 1];
 extern thread_local_key_t THR_MALLOC;
 extern bool THR_MALLOC_initialized;
 
-static inline MEM_ROOT ** my_thread_get_THR_MALLOC()
+static inline MEM_ROOT **my_thread_get_THR_MALLOC()
 {
   assert(THR_MALLOC_initialized);
-  return (MEM_ROOT**) my_get_thread_local(THR_MALLOC);
+  return (MEM_ROOT **)my_get_thread_local(THR_MALLOC);
 }
 
-static inline int my_thread_set_THR_MALLOC(MEM_ROOT ** hdl)
+static inline int my_thread_set_THR_MALLOC(MEM_ROOT **hdl)
 {
   assert(THR_MALLOC_initialized);
   return my_set_thread_local(THR_MALLOC, hdl);
@@ -389,10 +389,11 @@ static inline int my_thread_set_THR_MALLOC(MEM_ROOT ** hdl)
 extern MYSQL_PLUGIN_IMPORT thread_local_key_t THR_THD;
 extern bool THR_THD_initialized;
 
-static inline THD * my_thread_get_THR_THD()
+static inline THD *my_thread_get_THR_THD()
 {
-  if (!THR_THD_initialized) return NULL;
-  return (THD*)my_get_thread_local(THR_THD);
+  if (!THR_THD_initialized)
+    return NULL;
+  return (THD *)my_get_thread_local(THR_THD);
 }
 
 static inline int my_thread_set_THR_THD(THD *thd)
@@ -426,31 +427,17 @@ extern PSI_mutex_key key_BINLOG_LOCK_binlog_end_pos;
 extern PSI_mutex_key key_BINLOG_LOCK_sync;
 extern PSI_mutex_key key_BINLOG_LOCK_sync_queue;
 extern PSI_mutex_key key_BINLOG_LOCK_xids;
-extern PSI_mutex_key
-  key_hash_filo_lock,
-  key_LOCK_crypt, key_LOCK_error_log,
-  key_LOCK_gdl, key_LOCK_global_system_variables,
-  key_LOCK_lock_db, key_LOCK_logger, key_LOCK_manager,
-  key_LOCK_prepared_stmt_count,
-  key_LOCK_server_started, key_LOCK_status,
-  key_LOCK_sql_slave_skip_counter,
-  key_LOCK_slave_net_timeout,
-  key_LOCK_slave_trans_dep_tracker,
-  key_LOCK_table_share, key_LOCK_thd_data, key_LOCK_thd_sysvar,
-  key_LOCK_user_conn, key_LOCK_uuid_generator, key_LOG_LOCK_log,
-  key_master_info_data_lock, key_master_info_run_lock,
-  key_master_info_sleep_lock, key_master_info_thd_lock,
-  key_mutex_slave_reporting_capability_err_lock, key_relay_log_info_data_lock,
-  key_relay_log_info_sleep_lock, key_relay_log_info_thd_lock,
-  key_relay_log_info_log_space_lock, key_relay_log_info_run_lock,
-  key_mutex_slave_parallel_pend_jobs, key_mutex_mts_temp_tables_lock,
-  key_mutex_slave_parallel_worker,
-  key_mutex_slave_parallel_worker_count,
-  key_structure_guard_mutex, key_TABLE_SHARE_LOCK_ha_data,
-  key_LOCK_error_messages,
-  key_LOCK_log_throttle_qni, key_LOCK_query_plan, key_LOCK_thd_query,
-  key_LOCK_cost_const, key_LOCK_current_cond,
-  key_LOCK_keyring_operations;
+extern PSI_mutex_key key_hash_filo_lock, key_LOCK_crypt, key_LOCK_error_log, key_LOCK_gdl,
+    key_LOCK_global_system_variables, key_LOCK_lock_db, key_LOCK_logger, key_LOCK_manager, key_LOCK_prepared_stmt_count,
+    key_LOCK_server_started, key_LOCK_status, key_LOCK_sql_slave_skip_counter, key_LOCK_slave_net_timeout,
+    key_LOCK_slave_trans_dep_tracker, key_LOCK_table_share, key_LOCK_thd_data, key_LOCK_thd_sysvar, key_LOCK_user_conn,
+    key_LOCK_uuid_generator, key_LOG_LOCK_log, key_master_info_data_lock, key_master_info_run_lock,
+    key_master_info_sleep_lock, key_master_info_thd_lock, key_mutex_slave_reporting_capability_err_lock,
+    key_relay_log_info_data_lock, key_relay_log_info_sleep_lock, key_relay_log_info_thd_lock,
+    key_relay_log_info_log_space_lock, key_relay_log_info_run_lock, key_mutex_slave_parallel_pend_jobs,
+    key_mutex_mts_temp_tables_lock, key_mutex_slave_parallel_worker, key_mutex_slave_parallel_worker_count,
+    key_structure_guard_mutex, key_TABLE_SHARE_LOCK_ha_data, key_LOCK_error_messages, key_LOCK_log_throttle_qni,
+    key_LOCK_query_plan, key_LOCK_thd_query, key_LOCK_cost_const, key_LOCK_current_cond, key_LOCK_keyring_operations;
 extern PSI_mutex_key key_RELAYLOG_LOCK_commit;
 extern PSI_mutex_key key_RELAYLOG_LOCK_commit_queue;
 extern PSI_mutex_key key_RELAYLOG_LOCK_done;
@@ -475,24 +462,17 @@ extern PSI_mutex_key key_commit_order_manager_mutex;
 extern PSI_mutex_key key_mutex_slave_worker_hash;
 #endif
 
-extern PSI_rwlock_key key_rwlock_LOCK_grant, key_rwlock_LOCK_logger,
-  key_rwlock_LOCK_sys_init_connect, key_rwlock_LOCK_sys_init_slave,
-  key_rwlock_LOCK_system_variables_hash, key_rwlock_query_cache_query_lock,
-  key_rwlock_global_sid_lock, key_rwlock_gtid_mode_lock,
-  key_rwlock_channel_map_lock, key_rwlock_channel_lock;
+extern PSI_rwlock_key key_rwlock_LOCK_grant, key_rwlock_LOCK_logger, key_rwlock_LOCK_sys_init_connect,
+    key_rwlock_LOCK_sys_init_slave, key_rwlock_LOCK_system_variables_hash, key_rwlock_query_cache_query_lock,
+    key_rwlock_global_sid_lock, key_rwlock_gtid_mode_lock, key_rwlock_channel_map_lock, key_rwlock_channel_lock;
 
 extern PSI_cond_key key_PAGE_cond, key_COND_active, key_COND_pool;
-extern PSI_cond_key key_BINLOG_update_cond,
-  key_COND_cache_status_changed, key_COND_manager,
-  key_COND_server_started,
-  key_item_func_sleep_cond, key_master_info_data_cond,
-  key_master_info_start_cond, key_master_info_stop_cond,
-  key_master_info_sleep_cond,
-  key_relay_log_info_data_cond, key_relay_log_info_log_space_cond,
-  key_relay_log_info_start_cond, key_relay_log_info_stop_cond,
-  key_relay_log_info_sleep_cond, key_cond_slave_parallel_pend_jobs,
-  key_cond_slave_parallel_worker, key_cond_mts_gaq,
-  key_TABLE_SHARE_cond, key_user_level_lock_cond;
+extern PSI_cond_key key_BINLOG_update_cond, key_COND_cache_status_changed, key_COND_manager, key_COND_server_started,
+    key_item_func_sleep_cond, key_master_info_data_cond, key_master_info_start_cond, key_master_info_stop_cond,
+    key_master_info_sleep_cond, key_relay_log_info_data_cond, key_relay_log_info_log_space_cond,
+    key_relay_log_info_start_cond, key_relay_log_info_stop_cond, key_relay_log_info_sleep_cond,
+    key_cond_slave_parallel_pend_jobs, key_cond_slave_parallel_worker, key_cond_mts_gaq, key_TABLE_SHARE_cond,
+    key_user_level_lock_cond;
 extern PSI_cond_key key_BINLOG_COND_done;
 extern PSI_cond_key key_RELAYLOG_COND_done;
 extern PSI_cond_key key_RELAYLOG_update_cond;
@@ -506,21 +486,16 @@ extern PSI_cond_key key_COND_thr_lock;
 extern PSI_cond_key key_cond_slave_worker_hash;
 extern PSI_cond_key key_commit_order_manager_cond;
 #endif
-extern PSI_thread_key key_thread_bootstrap,
-  key_thread_handle_manager, key_thread_main,
-  key_thread_one_connection, key_thread_signal_hand,
-  key_thread_compress_gtid_table, key_thread_parser_service;
+extern PSI_thread_key key_thread_bootstrap, key_thread_handle_manager, key_thread_main, key_thread_one_connection,
+    key_thread_signal_hand, key_thread_compress_gtid_table, key_thread_parser_service;
 extern PSI_thread_key key_thread_timer_notifier;
 
 extern PSI_file_key key_file_map;
-extern PSI_file_key key_file_binlog, key_file_binlog_cache,
-  key_file_binlog_index, key_file_binlog_index_cache, key_file_casetest,
-  key_file_dbopt, key_file_des_key_file, key_file_ERRMSG, key_select_to_file,
-  key_file_fileparser, key_file_frm, key_file_global_ddl_log, key_file_load,
-  key_file_loadfile, key_file_log_event_data, key_file_log_event_info,
-  key_file_master_info, key_file_misc, key_file_partition_ddl_log,
-  key_file_pid, key_file_relay_log_info, key_file_send_file, key_file_tclog,
-  key_file_trg, key_file_trn, key_file_init;
+extern PSI_file_key key_file_binlog, key_file_binlog_cache, key_file_binlog_index, key_file_binlog_index_cache,
+    key_file_casetest, key_file_dbopt, key_file_des_key_file, key_file_ERRMSG, key_select_to_file, key_file_fileparser,
+    key_file_frm, key_file_global_ddl_log, key_file_load, key_file_loadfile, key_file_log_event_data,
+    key_file_log_event_info, key_file_master_info, key_file_misc, key_file_partition_ddl_log, key_file_pid,
+    key_file_relay_log_info, key_file_send_file, key_file_tclog, key_file_trg, key_file_trn, key_file_init;
 extern PSI_file_key key_file_general_log, key_file_slow_log;
 extern PSI_file_key key_file_relaylog, key_file_relaylog_cache, key_file_relaylog_index, key_file_relaylog_index_cache;
 extern PSI_socket_key key_socket_tcpip, key_socket_unix, key_socket_client_connection;
@@ -778,13 +753,13 @@ extern PSI_stage_info stage_waiting_for_no_channel_reference;
   Statement instrumentation keys (sql).
   The last entry, at [SQLCOM_END], is for parsing errors.
 */
-extern PSI_statement_info sql_statement_info[(uint) SQLCOM_END + 1];
+extern PSI_statement_info sql_statement_info[(uint)SQLCOM_END + 1];
 
 /**
   Statement instrumentation keys (com).
   The last entry, at [COM_END], is for packet errors.
 */
-extern PSI_statement_info com_statement_info[(uint) COM_END + 1];
+extern PSI_statement_info com_statement_info[(uint)COM_END + 1];
 
 /**
   Statement instrumentation key for replication.
@@ -800,7 +775,7 @@ extern my_thread_t signal_thread;
 #endif
 
 #ifdef HAVE_OPENSSL
-extern struct st_VioSSLFd * ssl_acceptor_fd;
+extern struct st_VioSSLFd *ssl_acceptor_fd;
 #endif /* HAVE_OPENSSL */
 
 /*
@@ -822,7 +797,7 @@ extern ulong specialflag;
 extern size_t mysql_data_home_len;
 extern size_t mysql_real_data_home_len;
 extern const char *mysql_real_data_home_ptr;
-extern MYSQL_PLUGIN_IMPORT char  *mysql_data_home;
+extern MYSQL_PLUGIN_IMPORT char *mysql_data_home;
 extern "C" MYSQL_PLUGIN_IMPORT char server_version[SERVER_VERSION_LENGTH];
 extern MYSQL_PLUGIN_IMPORT char mysql_real_data_home[];
 extern char mysql_unpacked_real_data_home[];
@@ -832,23 +807,17 @@ extern char default_logfile_name[FN_REFLEN];
 #define mysql_tmpdir (my_tmpdir(&mysql_tmpdir_list))
 
 extern MYSQL_PLUGIN_IMPORT const key_map key_map_empty;
-extern MYSQL_PLUGIN_IMPORT key_map key_map_full;          /* Should be threaded as const */
+extern MYSQL_PLUGIN_IMPORT key_map key_map_full; /* Should be threaded as const */
 
 /*
   Server mutex locks and condition variables.
  */
-extern mysql_mutex_t
-       LOCK_item_func_sleep, LOCK_status,
-       LOCK_uuid_generator,
-       LOCK_crypt, LOCK_timezone,
-       LOCK_slave_list, LOCK_manager,
-       LOCK_global_system_variables, LOCK_user_conn, LOCK_log_throttle_qni,
-       LOCK_prepared_stmt_count, LOCK_error_messages,
-       LOCK_sql_slave_skip_counter, LOCK_slave_net_timeout,
-       LOCK_slave_trans_dep_tracker,
-       LOCK_offline_mode, LOCK_default_password_lifetime;
+extern mysql_mutex_t LOCK_item_func_sleep, LOCK_status, LOCK_uuid_generator, LOCK_crypt, LOCK_timezone, LOCK_slave_list,
+    LOCK_manager, LOCK_global_system_variables, LOCK_user_conn, LOCK_log_throttle_qni, LOCK_prepared_stmt_count,
+    LOCK_error_messages, LOCK_sql_slave_skip_counter, LOCK_slave_net_timeout, LOCK_slave_trans_dep_tracker,
+    LOCK_offline_mode, LOCK_default_password_lifetime;
 #ifdef HAVE_OPENSSL
-extern char* des_key_file;
+extern char *des_key_file;
 extern mysql_mutex_t LOCK_des_key_file;
 #endif
 extern mysql_mutex_t LOCK_server_started;
@@ -862,9 +831,8 @@ extern mysql_cond_t COND_manager;
 extern int32 thread_running;
 extern mysql_mutex_t LOCK_keyring_operations;
 
-extern char *opt_ssl_ca, *opt_ssl_capath, *opt_ssl_cert, *opt_ssl_cipher,
-            *opt_ssl_key, *opt_ssl_crl, *opt_ssl_crlpath, *opt_tls_version;
-
+extern char *opt_ssl_ca, *opt_ssl_capath, *opt_ssl_cert, *opt_ssl_cipher, *opt_ssl_key, *opt_ssl_crl, *opt_ssl_crlpath,
+    *opt_tls_version;
 
 extern char *opt_disabled_storage_engines;
 /**
@@ -873,7 +841,7 @@ extern char *opt_disabled_storage_engines;
 */
 enum options_mysqld
 {
-  OPT_to_set_the_start_number=256,
+  OPT_to_set_the_start_number = 256,
   OPT_BIND_ADDRESS,
   OPT_BINLOG_CHECKSUM,
   OPT_BINLOG_DO_DB,
@@ -950,41 +918,40 @@ enum options_mysqld
   OPT_NAMED_PIPE_FULL_ACCESS_GROUP
 };
 
-
 /**
    Query type constants (usable as bitmap flags).
 */
 enum enum_query_type
 {
   /// Nothing specific, ordinary SQL query.
-  QT_ORDINARY= 0,
+  QT_ORDINARY = 0,
   /// In utf8.
-  QT_TO_SYSTEM_CHARSET= (1 << 0),
+  QT_TO_SYSTEM_CHARSET = (1 << 0),
   /// Without character set introducers.
-  QT_WITHOUT_INTRODUCERS= (1 << 1),
+  QT_WITHOUT_INTRODUCERS = (1 << 1),
   /// When printing a SELECT, add its number (select_lex->number)
-  QT_SHOW_SELECT_NUMBER= (1 << 2),
+  QT_SHOW_SELECT_NUMBER = (1 << 2),
   /// Don't print a database if it's equal to the connection's database
-  QT_NO_DEFAULT_DB= (1 << 3),
+  QT_NO_DEFAULT_DB = (1 << 3),
   /// When printing a derived table, don't print its expression, only alias
-  QT_DERIVED_TABLE_ONLY_ALIAS= (1 << 4),
+  QT_DERIVED_TABLE_ONLY_ALIAS = (1 << 4),
   /// Print in charset of Item::print() argument (typically thd->charset()).
-  QT_TO_ARGUMENT_CHARSET= (1 << 5),
+  QT_TO_ARGUMENT_CHARSET = (1 << 5),
   /// Print identifiers without database's name
-  QT_NO_DB= (1 << 6),
+  QT_NO_DB = (1 << 6),
   /// Print identifiers without table's name
-  QT_NO_TABLE= (1 << 7),
+  QT_NO_TABLE = (1 << 7),
   /**
     Change all Item_basic_constant to ? (used by query rewrite to compute
     digest.)  Un-resolved hints will also be printed in this format.
   */
-  QT_NORMALIZED_FORMAT= (1 << 8),
+  QT_NORMALIZED_FORMAT = (1 << 8),
   /**
     If an expression is constant, print the expression, not the value
     it evaluates to. Should be used for error messages, so that they
     don't reveal values.
   */
-  QT_NO_DATA_EXPANSION= (1 << 9),
+  QT_NO_DATA_EXPANSION = (1 << 9),
 };
 
 /* query_id */
@@ -994,8 +961,8 @@ extern query_id_t global_query_id;
 /* increment query_id and return it.  */
 inline MY_ATTRIBUTE((warn_unused_result)) query_id_t next_query_id()
 {
-  query_id_t id= my_atomic_add64(&global_query_id, 1);
-  return (id+1);
+  query_id_t id = my_atomic_add64(&global_query_id, 1);
+  return (id + 1);
 }
 
 /*
@@ -1005,21 +972,23 @@ inline MY_ATTRIBUTE((warn_unused_result)) query_id_t next_query_id()
 extern "C" void unireg_abort(int exit_code) MY_ATTRIBUTE((noreturn));
 #else
 extern "C" void unireg_clear(int exit_code);
-#define unireg_abort(exit_code) do { unireg_clear(exit_code); DBUG_RETURN(exit_code); } while(0)
+#define unireg_abort(exit_code) \
+  do                            \
+  {                             \
+    unireg_clear(exit_code);    \
+    DBUG_RETURN(exit_code);     \
+  } while (0)
 #endif
 
 #if defined(MYSQL_DYNAMIC_PLUGIN) && defined(_WIN32)
 extern "C" THD *_current_thd_noinline();
 #define _current_thd() _current_thd_noinline()
 #else
-static inline THD *_current_thd(void)
-{
-  return my_thread_get_THR_THD();
-}
+static inline THD *_current_thd(void) { return my_thread_get_THR_THD(); }
 #endif
 #define current_thd _current_thd()
 
-#define ER(X)         ER_THD(current_thd,X)
+#define ER(X) ER_THD(current_thd, X)
 
 #ifdef _WIN32
 bool update_named_pipe_full_access_group(const char *new_group_name);

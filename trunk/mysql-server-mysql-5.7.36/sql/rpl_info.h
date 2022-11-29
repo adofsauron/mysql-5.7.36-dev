@@ -24,17 +24,16 @@
 #define RPL_INFO_H
 
 #include "my_global.h"
-#include "mysql_com.h"            // NAME_LEN
-#include "rpl_info_handler.h"     // Rpl_info_handler
-#include "rpl_reporting.h"        // Slave_reporting_capability
-#include "atomic_class.h"         // Atomic_int32
+#include "mysql_com.h"         // NAME_LEN
+#include "rpl_info_handler.h"  // Rpl_info_handler
+#include "rpl_reporting.h"     // Slave_reporting_capability
+#include "atomic_class.h"      // Atomic_int32
 
-
-#define  CHANNEL_NAME_LENGTH NAME_LEN
+#define CHANNEL_NAME_LENGTH NAME_LEN
 
 class Rpl_info : public Slave_reporting_capability
 {
-public:
+ public:
   virtual ~Rpl_info();
 
   /*
@@ -61,11 +60,9 @@ public:
   mysql_cond_t data_cond, start_cond, stop_cond, sleep_cond;
 
 #ifdef HAVE_PSI_INTERFACE
-  PSI_mutex_key *key_info_run_lock, *key_info_data_lock, *key_info_sleep_lock,
-                *key_info_thd_lock;
+  PSI_mutex_key *key_info_run_lock, *key_info_data_lock, *key_info_sleep_lock, *key_info_thd_lock;
 
-  PSI_mutex_key *key_info_data_cond, *key_info_start_cond, *key_info_stop_cond,
-                *key_info_sleep_cond;
+  PSI_mutex_key *key_info_data_cond, *key_info_start_cond, *key_info_stop_cond, *key_info_sleep_cond;
 #endif
 
   THD *info_thd;
@@ -83,85 +80,55 @@ public:
     Sets the persistency component/handler.
 
     @param[in] hanlder Pointer to the handler.
-  */ 
-  void set_rpl_info_handler(Rpl_info_handler * param_handler)
-  {
-    handler= param_handler;
-  }
+  */
+  void set_rpl_info_handler(Rpl_info_handler *param_handler) { handler = param_handler; }
 
   /**
     Gets the persistency component/handler.
 
     @return the handler if there is one.
-  */ 
-  Rpl_info_handler *get_rpl_info_handler()
-  {
-    return (handler);
-  }
+  */
+  Rpl_info_handler *get_rpl_info_handler() { return (handler); }
 
-  enum_return_check check_info()
-  {
-    return (handler->check_info());
-  }
+  enum_return_check check_info() { return (handler->check_info()); }
 
-  int remove_info()
-  {
-    return (handler->remove_info());
-  }
+  int remove_info() { return (handler->remove_info()); }
 
-  int clean_info()
-  {
-    return (handler->clean_info());
-  }
+  int clean_info() { return (handler->clean_info()); }
 
-  bool is_transactional()
-  {
-    return (handler->is_transactional());
-  }
+  bool is_transactional() { return (handler->is_transactional()); }
 
-  bool update_is_transactional()
-  {
-    return (handler->update_is_transactional());
-  }
+  bool update_is_transactional() { return (handler->update_is_transactional()); }
 
-  char *get_description_info()
-  {
-    return (handler->get_description_info());
-  }
+  char *get_description_info() { return (handler->get_description_info()); }
 
   bool copy_info(Rpl_info_handler *from, Rpl_info_handler *to)
   {
     if (read_info(from) || write_info(to))
-      return(TRUE);
+      return (TRUE);
 
-    return(FALSE);
+    return (FALSE);
   }
 
-  uint get_internal_id()
-  {
-    return internal_id;
-  }
+  uint get_internal_id() { return internal_id; }
 
-  char *get_channel()
-  {
-    return channel;
-  }
+  char *get_channel() { return channel; }
 
- /**
-   To search in the slave repositories, each slave info object
-   (mi, rli or worker) should use a primary key. This function
-   sets the field values of the slave info objects with
-   the search information, which is nothing but PK in mysql slave
-   info tables.
-   Ex: field_value[23]="channel_name" in the master info
-   object.
+  /**
+    To search in the slave repositories, each slave info object
+    (mi, rli or worker) should use a primary key. This function
+    sets the field values of the slave info objects with
+    the search information, which is nothing but PK in mysql slave
+    info tables.
+    Ex: field_value[23]="channel_name" in the master info
+    object.
 
-   Currently, used only for TABLE repository.
-*/
+    Currently, used only for TABLE repository.
+ */
 
- virtual bool set_info_search_keys(Rpl_info_handler *to)= 0;
+  virtual bool set_info_search_keys(Rpl_info_handler *to) = 0;
 
-protected:
+ protected:
   /**
     Pointer to the repository's handler.
   */
@@ -185,30 +152,27 @@ protected:
      Every slave info object acts on a particular channel in Multisource
      Replication.
   */
-  char channel[CHANNEL_NAME_LENGTH+1];
+  char channel[CHANNEL_NAME_LENGTH + 1];
 
-  Rpl_info(const char* type
+  Rpl_info(const char *type
 #ifdef HAVE_PSI_INTERFACE
-           ,PSI_mutex_key *param_key_info_run_lock,
-           PSI_mutex_key *param_key_info_data_lock,
-           PSI_mutex_key *param_key_info_sleep_lock,
-           PSI_mutex_key *param_key_info_thd_lock,
-           PSI_mutex_key *param_key_info_data_cond,
-           PSI_mutex_key *param_key_info_start_cond,
-           PSI_mutex_key *param_key_info_stop_cond,
-           PSI_mutex_key *param_key_info_sleep_cond
+           ,
+           PSI_mutex_key *param_key_info_run_lock, PSI_mutex_key *param_key_info_data_lock,
+           PSI_mutex_key *param_key_info_sleep_lock, PSI_mutex_key *param_key_info_thd_lock,
+           PSI_mutex_key *param_key_info_data_cond, PSI_mutex_key *param_key_info_start_cond,
+           PSI_mutex_key *param_key_info_stop_cond, PSI_mutex_key *param_key_info_sleep_cond
 #endif
-           ,uint param_id, const char* param_channel
-          );
+           ,
+           uint param_id, const char *param_channel);
 
-private:
-  virtual bool read_info(Rpl_info_handler *from)= 0;
-  virtual bool write_info(Rpl_info_handler *to)= 0;
+ private:
+  virtual bool read_info(Rpl_info_handler *from) = 0;
+  virtual bool write_info(Rpl_info_handler *to) = 0;
 
-  Rpl_info(const Rpl_info& info);
-  Rpl_info& operator=(const Rpl_info& info);
+  Rpl_info(const Rpl_info &info);
+  Rpl_info &operator=(const Rpl_info &info);
 
-public:
+ public:
   /* True when the thread is still running, but started the stop procedure */
   Atomic_int32 is_stopping;
 };

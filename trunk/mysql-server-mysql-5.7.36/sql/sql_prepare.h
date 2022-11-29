@@ -48,7 +48,7 @@ struct LEX;
   case THD::m_reprepare_observer is not NULL.
 
   @sa check_and_update_table_version() for details of the
-  version tracking algorithm 
+  version tracking algorithm
 
   @sa Open_tables_state::m_reprepare_observer for the life cycle
   of metadata observers.
@@ -56,7 +56,7 @@ struct LEX;
 
 class Reprepare_observer
 {
-public:
+ public:
   Reprepare_observer() : m_invalidated(FALSE), m_attempt(0) {}
 
   /**
@@ -71,17 +71,17 @@ public:
                   re-prepared.
   */
   bool is_invalidated() const { return m_invalidated; }
-  void reset_reprepare_observer() { m_invalidated= FALSE; }
+  void reset_reprepare_observer() { m_invalidated = FALSE; }
   /// @returns true if prepared statement can (and will) be retried
-  bool can_retry() const {
+  bool can_retry() const
+  {
     // Only call for a statement that is invalidated
     assert(is_invalidated());
     return m_attempt <= MAX_REPREPARE_ATTEMPTS &&
-           DBUG_EVALUATE_IF("simulate_max_reprepare_attempts_hit_case", false,
-                            true);
+           DBUG_EVALUATE_IF("simulate_max_reprepare_attempts_hit_case", false, true);
   }
 
-private:
+ private:
   bool m_invalidated;
   int m_attempt;
 
@@ -92,22 +92,17 @@ private:
   static const int MAX_REPREPARE_ATTEMPTS = 3;
 };
 
-
 void mysqld_stmt_prepare(THD *thd, const char *query, uint length);
-void mysqld_stmt_execute(THD *thd, ulong stmt_id, ulong flags, uchar *params,
-                         ulong params_length);
+void mysqld_stmt_execute(THD *thd, ulong stmt_id, ulong flags, uchar *params, ulong params_length);
 void mysqld_stmt_close(THD *thd, ulong stmt_id);
 void mysql_sql_stmt_prepare(THD *thd);
 void mysql_sql_stmt_execute(THD *thd);
 void mysql_sql_stmt_close(THD *thd);
 void mysqld_stmt_fetch(THD *thd, ulong stmt_id, ulong num_rows);
 void mysqld_stmt_reset(THD *thd, ulong stmt_id);
-void mysql_stmt_get_longdata(THD *thd, ulong stmt_id, uint param_number,
-                             uchar *longdata, ulong length);
+void mysql_stmt_get_longdata(THD *thd, ulong stmt_id, uint param_number, uchar *longdata, ulong length);
 bool reinit_stmt_before_use(THD *thd, LEX *lex);
-bool select_like_stmt_cmd_test(THD *thd,
-                               class Sql_cmd_dml *cmd,
-                               ulong setup_tables_done_option);
+bool select_like_stmt_cmd_test(THD *thd, class Sql_cmd_dml *cmd, ulong setup_tables_done_option);
 
 /**
   Execute a fragment of server code in an isolated context, so that
@@ -118,11 +113,10 @@ bool select_like_stmt_cmd_test(THD *thd,
 
 class Server_runnable
 {
-public:
-  virtual bool execute_server_code(THD *thd)= 0;
+ public:
+  virtual bool execute_server_code(THD *thd) = 0;
   virtual ~Server_runnable();
 };
-
 
 /**
   Execute direct interface.
@@ -138,25 +132,25 @@ class Ed_row;
   automatic type conversion.
 */
 
-class Ed_result_set: public Sql_alloc
+class Ed_result_set : public Sql_alloc
 {
-public:
-  operator List<Ed_row>&() { return *m_rows; }
+ public:
+  operator List<Ed_row> &() { return *m_rows; }
   unsigned int size() const { return m_rows->elements; }
 
-  Ed_result_set(List<Ed_row> *rows_arg, size_t column_count,
-                MEM_ROOT *mem_root_arg);
+  Ed_result_set(List<Ed_row> *rows_arg, size_t column_count, MEM_ROOT *mem_root_arg);
 
   /** We don't call member destructors, they all are POD types. */
   ~Ed_result_set() {}
 
   size_t get_field_count() const { return m_column_count; }
 
-  static void operator delete(void *ptr, size_t size) throw ();
-private:
-  Ed_result_set(const Ed_result_set &);        /* not implemented */
-  Ed_result_set &operator=(Ed_result_set &);   /* not implemented */
-private:
+  static void operator delete(void *ptr, size_t size) throw();
+
+ private:
+  Ed_result_set(const Ed_result_set &);      /* not implemented */
+  Ed_result_set &operator=(Ed_result_set &); /* not implemented */
+ private:
   MEM_ROOT m_mem_root;
   size_t m_column_count;
   List<Ed_row> *m_rows;
@@ -164,10 +158,9 @@ private:
   friend class Ed_connection;
 };
 
-
 class Ed_connection
 {
-public:
+ public:
   /**
     Construct a new "execute direct" connection.
 
@@ -229,8 +222,8 @@ public:
     instead of SQL statement text.
 
     @return execution status
-      
-    @retval  FALSE  success, use get_field_count() 
+
+    @retval  FALSE  success, use get_field_count()
                     if your code fragment is supposed to
                     return a result set
     @retval  TRUE   failure
@@ -247,10 +240,7 @@ public:
     @sa Documentation for C API function
     mysql_field_count()
   */
-  size_t get_field_count() const
-  {
-    return m_current_rset ? m_current_rset->get_field_count() : 0;
-  }
+  size_t get_field_count() const { return m_current_rset ? m_current_rset->get_field_count() : 0; }
 
   /**
     Get the number of affected (deleted, updated)
@@ -260,20 +250,14 @@ public:
     @sa Documentation for C API function
     mysql_affected_rows().
   */
-  ulonglong get_affected_rows() const
-  {
-    return m_diagnostics_area.affected_rows();
-  }
+  ulonglong get_affected_rows() const { return m_diagnostics_area.affected_rows(); }
 
   /**
     Get the last insert id, if any.
 
     @sa Documentation for mysql_insert_id().
   */
-  ulonglong get_last_insert_id() const
-  {
-    return m_diagnostics_area.last_insert_id();
-  }
+  ulonglong get_last_insert_id() const { return m_diagnostics_area.last_insert_id(); }
 
   /**
     Get the total number of warnings for the last executed
@@ -283,10 +267,7 @@ public:
     @sa Documentation for C API function
     mysql_num_warnings().
   */
-  ulong get_warn_count() const
-  {
-    return m_diagnostics_area.warn_count(m_thd);
-  }
+  ulong get_warn_count() const { return m_diagnostics_area.warn_count(m_thd); }
 
   /**
     The following three members are only valid if execute_direct()
@@ -294,14 +275,11 @@ public:
     They never fail, but if they are called when there is no
     result, or no error, the result is not defined.
   */
-  const char *get_last_error() const
-  { return m_diagnostics_area.message_text(); }
+  const char *get_last_error() const { return m_diagnostics_area.message_text(); }
 
-  unsigned int get_last_errno() const
-  { return m_diagnostics_area.mysql_errno(); }
+  unsigned int get_last_errno() const { return m_diagnostics_area.mysql_errno(); }
 
-  const char *get_last_sqlstate() const
-  { return m_diagnostics_area.returned_sqlstate(); }
+  const char *get_last_sqlstate() const { return m_diagnostics_area.returned_sqlstate(); }
 
   /**
     Provided get_field_count() is not 0, this never fails. You don't
@@ -334,12 +312,13 @@ public:
   */
   bool move_to_next_result()
   {
-    m_current_rset= m_current_rset->m_next_rset;
+    m_current_rset = m_current_rset->m_next_rset;
     return MY_TEST(m_current_rset);
   }
 
   ~Ed_connection() { free_old_result(); }
-private:
+
+ private:
   Diagnostics_area m_diagnostics_area;
   /**
     Execute direct interface does not support multi-statements, only
@@ -352,32 +331,29 @@ private:
   Ed_result_set *m_rsets;
   Ed_result_set *m_current_rset;
   friend class Protocol_local;
-private:
+
+ private:
   void free_old_result();
   void add_result_set(Ed_result_set *ed_result_set);
-private:
-  Ed_connection(const Ed_connection &);        /* not implemented */
-  Ed_connection &operator=(Ed_connection &);   /* not implemented */
-};
 
+ private:
+  Ed_connection(const Ed_connection &);      /* not implemented */
+  Ed_connection &operator=(Ed_connection &); /* not implemented */
+};
 
 /** One result set column. */
 
-struct Ed_column: public LEX_STRING
+struct Ed_column : public LEX_STRING
 {
   /** Implementation note: destructor for this class is never called. */
 };
 
-
 /** One result set record. */
 
-class Ed_row: public Sql_alloc
+class Ed_row : public Sql_alloc
 {
-public:
-  const Ed_column &operator[](const unsigned int column_index) const
-  {
-    return *get_column(column_index);
-  }
+ public:
+  const Ed_column &operator[](const unsigned int column_index) const { return *get_column(column_index); }
   const Ed_column *get_column(const unsigned int column_index) const
   {
     assert(column_index < size());
@@ -386,35 +362,32 @@ public:
   size_t size() const { return m_column_count; }
 
   Ed_row(Ed_column *column_array_arg, size_t column_count_arg)
-    :m_column_array(column_array_arg),
-    m_column_count(column_count_arg)
-  {}
-private:
+      : m_column_array(column_array_arg), m_column_count(column_count_arg)
+  {
+  }
+
+ private:
   Ed_column *m_column_array;
   size_t m_column_count; /* TODO: change to point to metadata */
 };
-
 
 /**
   A result class used to send cursor rows using the binary protocol.
 */
 
-class Query_fetch_protocol_binary: public Query_result_send
+class Query_fetch_protocol_binary : public Query_result_send
 {
   Protocol_binary protocol;
-public:
+
+ public:
   Query_fetch_protocol_binary(THD *thd);
   virtual bool send_result_set_metadata(List<Item> &list, uint flags);
   virtual bool send_data(List<Item> &items);
   virtual bool send_eof();
 #ifdef EMBEDDED_LIBRARY
-  void begin_dataset()
-  {
-    protocol.begin_dataset();
-  }
+  void begin_dataset() { protocol.begin_dataset(); }
 #endif
 };
-
 
 class Server_side_cursor;
 
@@ -422,15 +395,15 @@ class Server_side_cursor;
   Prepared_statement: a statement that can contain placeholders.
 */
 
-class Prepared_statement: public Query_arena
+class Prepared_statement : public Query_arena
 {
   enum flag_values
   {
-    IS_IN_USE= 1,
-    IS_SQL_PREPARE= 2
+    IS_IN_USE = 1,
+    IS_SQL_PREPARE = 2
   };
 
-public:
+ public:
   THD *thd;
   Item_param **param_array;
   Server_side_cursor *cursor;
@@ -444,7 +417,7 @@ public:
   */
   const ulong id;
 
-  LEX *lex;                                     // parse tree descriptor
+  LEX *lex;  // parse tree descriptor
 
   /**
     The query associated with this statement.
@@ -452,9 +425,9 @@ public:
   LEX_CSTRING m_query_string;
 
   /* Performance Schema interface for a prepared statement. */
-  PSI_prepared_stmt* m_prepared_stmt;
+  PSI_prepared_stmt *m_prepared_stmt;
 
-private:
+ private:
   Query_fetch_protocol_binary result;
   uint flags;
   bool with_log;
@@ -478,44 +451,40 @@ private:
     SELECT_LEX and other classes).
   */
   MEM_ROOT main_mem_root;
-public:
+
+ public:
   Prepared_statement(THD *thd_arg);
   virtual ~Prepared_statement();
   virtual void cleanup_stmt();
   bool set_name(const LEX_CSTRING &name);
-  const LEX_CSTRING &name() const
-  { return m_name; }
+  const LEX_CSTRING &name() const { return m_name; }
   void close_cursor();
-  bool is_in_use() const { return flags & (uint) IS_IN_USE; }
-  bool is_sql_prepare() const { return flags & (uint) IS_SQL_PREPARE; }
-  void set_sql_prepare() { flags|= (uint) IS_SQL_PREPARE; }
+  bool is_in_use() const { return flags & (uint)IS_IN_USE; }
+  bool is_sql_prepare() const { return flags & (uint)IS_SQL_PREPARE; }
+  void set_sql_prepare() { flags |= (uint)IS_SQL_PREPARE; }
   bool prepare(const char *packet, size_t packet_length);
-  bool execute_loop(String *expanded_query,
-                    bool open_cursor,
-                    uchar *packet_arg, uchar *packet_end_arg);
+  bool execute_loop(String *expanded_query, bool open_cursor, uchar *packet_arg, uchar *packet_end_arg);
   bool execute_server_runnable(Server_runnable *server_runnable);
 #ifdef HAVE_PSI_PS_INTERFACE
-  PSI_prepared_stmt* get_PS_prepared_stmt();
+  PSI_prepared_stmt *get_PS_prepared_stmt();
 #endif
   /* Destroy this statement */
   void deallocate();
-private:
+
+ private:
   void setup_set_params();
   bool set_db(const LEX_CSTRING &db_length);
-  bool set_parameters(String *expanded_query,
-                      uchar *packet, uchar *packet_end);
+  bool set_parameters(String *expanded_query, uchar *packet, uchar *packet_end);
   bool execute(String *expanded_query, bool open_cursor);
   bool reprepare();
-  bool validate_metadata(Prepared_statement  *copy);
+  bool validate_metadata(Prepared_statement *copy);
   void swap_prepared_statement(Prepared_statement *copy);
-  bool insert_params_from_vars(List<LEX_STRING>& varnames,
-                               String *query);
+  bool insert_params_from_vars(List<LEX_STRING> &varnames, String *query);
 #ifndef EMBEDDED_LIBRARY
-  bool insert_params(uchar *null_array, uchar *read_pos, uchar *data_end,
-                     String *query);
+  bool insert_params(uchar *null_array, uchar *read_pos, uchar *data_end, String *query);
 #else
   bool emb_insert_params(String *query);
 #endif
 };
 
-#endif // SQL_PREPARE_H
+#endif  // SQL_PREPARE_H

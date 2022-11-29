@@ -31,7 +31,8 @@ class Sid_map;
 class THD;
 
 /** Type of replication channel thread/transaction might be associated to*/
-enum enum_rpl_channel_type {
+enum enum_rpl_channel_type
+{
   NO_CHANNEL_INFO = 0,       // No information exists about the channel
   RPL_STANDARD_CHANNEL = 1,  // It is a standard replication channel
   GR_APPLIER_CHANNEL = 2,    // It is a GR applier channel
@@ -48,7 +49,7 @@ enum enum_rpl_channel_type {
  */
 class Session_consistency_gtids_ctx
 {
-public:
+ public:
   /**
    This is an interface to be implemented by classes that want to listen
    to changes to this context. This can be used, for instance, by the
@@ -56,21 +57,21 @@ public:
    */
   class Ctx_change_listener
   {
-  public:
+   public:
     Ctx_change_listener() {}
-    virtual void notify_session_gtids_ctx_change()= 0;
-  private:
+    virtual void notify_session_gtids_ctx_change() = 0;
+
+   private:
     // not implemented
-    Ctx_change_listener(const Ctx_change_listener& rsc);
-    Ctx_change_listener& operator=(const Ctx_change_listener& rsc);
+    Ctx_change_listener(const Ctx_change_listener &rsc);
+    Ctx_change_listener &operator=(const Ctx_change_listener &rsc);
   };
 
-private:
-
+ private:
   /*
    Local sid_map to enable a lock free m_gtid_set.
    */
-  Sid_map* m_sid_map;
+  Sid_map *m_sid_map;
 
   /**
     Set holding the transaction identifiers of the gtids
@@ -82,7 +83,7 @@ private:
     - a RO transaction is issued, the consistency level is set to "Check
       Potential Writes" and the transaction is committed.
   */
-  Gtid_set* m_gtid_set;
+  Gtid_set *m_gtid_set;
 
   /**
    If a listener is registered, e.g., the session track gtids, then this
@@ -91,7 +92,7 @@ private:
    Since this context is valid only for one session, there is no need
    to protect this with locks.
   */
-  Session_consistency_gtids_ctx::Ctx_change_listener* m_listener;
+  Session_consistency_gtids_ctx::Ctx_change_listener *m_listener;
 
   /**
    Keeps track of the current session track gtids, so that we capture
@@ -104,8 +105,7 @@ private:
   */
   ulong m_curr_session_track_gtids;
 
-protected:
-
+ protected:
   /*
      Auxiliary function to determine if GTID collection should take place
      when it is invoked. It takes into consideration the gtid_mode and
@@ -114,18 +114,14 @@ protected:
      @param thd the thread context.
      @return true if should collect gtids, false otherwise.
    */
-  inline bool shall_collect(const THD* thd);
+  inline bool shall_collect(const THD *thd);
 
   /**
    Auxiliary function that allows notification of ctx change listeners.
    */
-  inline void notify_ctx_change_listener()
-  {
-    m_listener->notify_session_gtids_ctx_change();
-  }
+  inline void notify_ctx_change_listener() { m_listener->notify_session_gtids_ctx_change(); }
 
-public:
-
+ public:
   /**
     Simple constructor.
   */
@@ -142,17 +138,14 @@ public:
    @param listener a pointer to the listener to register.
    @param thd THD context associated to this listener.
   */
-  void register_ctx_change_listener(
-    Session_consistency_gtids_ctx::Ctx_change_listener* listener,
-    THD* thd);
+  void register_ctx_change_listener(Session_consistency_gtids_ctx::Ctx_change_listener *listener, THD *thd);
 
   /**
    Unregisters the listener. The listener MUST have registered previously.
 
    @param listener a pointer to the listener to register.
   */
-  void unregister_ctx_change_listener(
-    Session_consistency_gtids_ctx::Ctx_change_listener* listener);
+  void unregister_ctx_change_listener(Session_consistency_gtids_ctx::Ctx_change_listener *listener);
 
   /**
     This member function MUST return a reference to the set of collected
@@ -160,7 +153,7 @@ public:
 
     @return the set of collected GTIDs so far.
    */
-  inline Gtid_set* state() { return m_gtid_set; }
+  inline Gtid_set *state() { return m_gtid_set; }
 
   /**
      This function MUST be called after the response packet is set to the
@@ -170,7 +163,7 @@ public:
      @param thd The thread context.
    * @return true on error, false otherwise.
    */
-  virtual bool notify_after_response_packet(const THD* thd);
+  virtual bool notify_after_response_packet(const THD *thd);
 
   /**
      This function SHALL be called once the GTID for the given transaction has
@@ -195,22 +188,19 @@ public:
      @param thd    The thread context.
      @return true on error, false otherwise.
    */
-  virtual bool notify_after_transaction_commit(const THD* thd);
+  virtual bool notify_after_transaction_commit(const THD *thd);
 
-  virtual bool notify_after_xa_prepare(const THD* thd)
-  {
-    return notify_after_transaction_commit(thd);
-  }
+  virtual bool notify_after_xa_prepare(const THD *thd) { return notify_after_transaction_commit(thd); }
 
   /**
     Update session tracker (m_curr_session_track_gtids) from thd.
   */
-  void update_tracking_activeness_from_session_variable(const THD* thd);
+  void update_tracking_activeness_from_session_variable(const THD *thd);
 
-private:
+ private:
   // not implemented
-  Session_consistency_gtids_ctx(const Session_consistency_gtids_ctx& rsc);
-  Session_consistency_gtids_ctx& operator=(const Session_consistency_gtids_ctx& rsc);
+  Session_consistency_gtids_ctx(const Session_consistency_gtids_ctx &rsc);
+  Session_consistency_gtids_ctx &operator=(const Session_consistency_gtids_ctx &rsc);
 };
 
 /*
@@ -219,20 +209,14 @@ private:
 */
 class Dependency_tracker_ctx
 {
-public:
-  Dependency_tracker_ctx(): m_last_session_sequence_number(0) { }
+ public:
+  Dependency_tracker_ctx() : m_last_session_sequence_number(0) {}
 
-  void set_last_session_sequence_number(int64 sequence_number)
-  {
-    m_last_session_sequence_number= sequence_number;
-  }
+  void set_last_session_sequence_number(int64 sequence_number) { m_last_session_sequence_number = sequence_number; }
 
-  int64 get_last_session_sequence_number()
-  {
-    return m_last_session_sequence_number;
-  }
+  int64 get_last_session_sequence_number() { return m_last_session_sequence_number; }
 
-private:
+ private:
   int64 m_last_session_sequence_number;
 };
 
@@ -242,33 +226,25 @@ private:
  */
 class Rpl_thd_context
 {
-private:
+ private:
   Session_consistency_gtids_ctx m_session_gtids_ctx;
   Dependency_tracker_ctx m_dependency_tracker_ctx;
   /** If this thread is a channel, what is its type*/
   enum_rpl_channel_type rpl_channel_type;
 
-  Rpl_thd_context(const Rpl_thd_context& rsc);
-  Rpl_thd_context& operator=(const Rpl_thd_context& rsc);
-public:
+  Rpl_thd_context(const Rpl_thd_context &rsc);
+  Rpl_thd_context &operator=(const Rpl_thd_context &rsc);
 
+ public:
   Rpl_thd_context() : rpl_channel_type(NO_CHANNEL_INFO) {}
 
-  inline Session_consistency_gtids_ctx& session_gtids_ctx()
-  {
-    return m_session_gtids_ctx;
-  }
+  inline Session_consistency_gtids_ctx &session_gtids_ctx() { return m_session_gtids_ctx; }
 
-  inline Dependency_tracker_ctx& dependency_tracker_ctx()
-  {
-    return m_dependency_tracker_ctx;
-  }
+  inline Dependency_tracker_ctx &dependency_tracker_ctx() { return m_dependency_tracker_ctx; }
 
   enum_rpl_channel_type get_rpl_channel_type() { return rpl_channel_type; }
 
-  void set_rpl_channel_type(enum_rpl_channel_type rpl_channel_type_arg) {
-    rpl_channel_type = rpl_channel_type_arg;
-  }
+  void set_rpl_channel_type(enum_rpl_channel_type rpl_channel_type_arg) { rpl_channel_type = rpl_channel_type_arg; }
 };
 
-#endif	/* RPL_SESSION_H */
+#endif /* RPL_SESSION_H */

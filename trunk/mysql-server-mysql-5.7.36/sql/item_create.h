@@ -26,8 +26,8 @@
 #define ITEM_CREATE_H
 
 #include "my_global.h"
-#include "mysql/mysql_lex_string.h"     // LEX_STRING
-#include "item_func.h"                  // Cast_target
+#include "mysql/mysql_lex_string.h"  // LEX_STRING
+#include "item_func.h"               // Cast_target
 
 class Item;
 class PT_item_list;
@@ -50,7 +50,7 @@ struct Cast_type;
 
 class Create_func
 {
-public:
+ public:
   /**
     The builder create method.
     Given the function name and list or arguments, this method creates
@@ -72,16 +72,14 @@ public:
     @param item_list The list of arguments to the function, can be NULL
     @return An item representing the parsed function call, or NULL
   */
-  virtual Item *create_func(THD *thd, LEX_STRING name, PT_item_list *item_list)
-    = 0;
+  virtual Item *create_func(THD *thd, LEX_STRING name, PT_item_list *item_list) = 0;
 
-protected:
+ protected:
   /** Constructor */
   Create_func() {}
   /** Destructor */
   virtual ~Create_func() {}
 };
-
 
 /**
   Function builder for qualified functions.
@@ -91,7 +89,7 @@ protected:
 
 class Create_qfunc : public Create_func
 {
-public:
+ public:
   /**
     The builder create method, for unqualified functions.
     This builder will use the current database for the database name.
@@ -111,16 +109,14 @@ public:
     @param item_list The list of arguments to the function, can be NULL
     @return An item representing the parsed function call
   */
-  virtual Item* create(THD *thd, LEX_STRING db, LEX_STRING name,
-                       bool use_explicit_name, PT_item_list *item_list) = 0;
+  virtual Item *create(THD *thd, LEX_STRING db, LEX_STRING name, bool use_explicit_name, PT_item_list *item_list) = 0;
 
-protected:
+ protected:
   /** Constructor. */
   Create_qfunc() {}
   /** Destructor. */
   virtual ~Create_qfunc() {}
 };
-
 
 /**
   Find the native function builder associated with a given function name.
@@ -128,16 +124,14 @@ protected:
   @param name The native function name
   @return The native function builder associated with the name, or NULL
 */
-extern Create_func * find_native_function_builder(THD *thd, LEX_STRING name);
-
+extern Create_func *find_native_function_builder(THD *thd, LEX_STRING name);
 
 /**
   Find the function builder for qualified functions.
   @param thd The current thread
   @return A function builder for qualified functions
 */
-extern Create_qfunc * find_qualified_function_builder(THD *thd);
-
+extern Create_qfunc *find_qualified_function_builder(THD *thd);
 
 #ifdef HAVE_DLOPEN
 /**
@@ -146,7 +140,7 @@ extern Create_qfunc * find_qualified_function_builder(THD *thd);
 
 class Create_udf_func : public Create_func
 {
-public:
+ public:
   virtual Item *create_func(THD *thd, LEX_STRING name, PT_item_list *item_list);
 
   /**
@@ -161,14 +155,13 @@ public:
   /** Singleton. */
   static Create_udf_func s_singleton;
 
-protected:
+ protected:
   /** Constructor. */
   Create_udf_func() {}
   /** Destructor. */
   virtual ~Create_udf_func() {}
 };
 #endif
-
 
 /**
   Builder for cast expressions.
@@ -177,19 +170,13 @@ protected:
   @param a The item to cast
   @param type the type casted into
 */
-Item *
-create_func_cast(THD *thd, const POS &pos, Item *a, const Cast_type *type);
-Item *
-create_func_cast(THD *thd, const POS &pos, Item *a, Cast_target cast_target,
-                 const CHARSET_INFO *cs_arg);
+Item *create_func_cast(THD *thd, const POS &pos, Item *a, const Cast_type *type);
+Item *create_func_cast(THD *thd, const POS &pos, Item *a, Cast_target cast_target, const CHARSET_INFO *cs_arg);
 
-Item *create_temporal_literal(THD *thd,
-                              const char *str, size_t length,
-                              const CHARSET_INFO *cs,
-                              enum_field_types type, bool send_error);
+Item *create_temporal_literal(THD *thd, const char *str, size_t length, const CHARSET_INFO *cs, enum_field_types type,
+                              bool send_error);
 
 int item_create_init();
 void item_create_cleanup();
 
 #endif
-
