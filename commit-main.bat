@@ -12,5 +12,5 @@ git commit -m "fix mysql dev"
 
 git push -u origin main
 
-pause
+@REM pause
 
