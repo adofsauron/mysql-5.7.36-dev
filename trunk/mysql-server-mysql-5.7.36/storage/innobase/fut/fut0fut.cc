@@ -24,16 +24,15 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/******************************************************************//**
-@file fut/fut0fut.cc
-File-based utilities
+/******************************************************************/ /**
+ @file fut/fut0fut.cc
+ File-based utilities
 
-Created 12/13/1995 Heikki Tuuri
-***********************************************************************/
+ Created 12/13/1995 Heikki Tuuri
+ ***********************************************************************/
 
 #include "fut0fut.h"
 
 #ifdef UNIV_NONINL
 #include "fut0fut.ic"
 #endif
-
