@@ -35,8 +35,10 @@
 #include <sstream>
 #endif
 
-namespace priority_queue_unittest { class PriorityQueueTest; };
-
+namespace priority_queue_unittest
+{
+class PriorityQueueTest;
+};
 
 /**
   Implements a priority queue using a vector-based max-heap.
@@ -80,17 +82,12 @@ namespace priority_queue_unittest { class PriorityQueueTest; };
                     to go before b in the strict weak ordering the
                     function defines.
  */
-template
-<
-  typename T,
-  typename Container = std::vector<T>,
-  typename Less = std::less<typename Container::value_type>
->
+template <typename T, typename Container = std::vector<T>, typename Less = std::less<typename Container::value_type>>
 class Priority_queue : public Less
 {
-public:
+ public:
   typedef Container container_type;
-  typedef Less      less_type;
+  typedef Less less_type;
   typedef typename container_type::value_type value_type;
   typedef typename container_type::size_type size_type;
   typedef typename container_type::iterator iterator;
@@ -98,7 +95,8 @@ public:
   typedef typename container_type::allocator_type allocator_type;
 
   friend class priority_queue_unittest::PriorityQueueTest;
-private:
+
+ private:
   // Deriving from Less allows empty base-class optimization in some cases.
   typedef Less Base;
 
@@ -106,19 +104,19 @@ private:
   static size_type parent(size_type i)
   {
     assert(i != 0);
-    return (--i) >> 1; // (i - 1) / 2
+    return (--i) >> 1;  // (i - 1) / 2
   }
 
   // Returns the index of the left child of node i.
   static size_type left(size_type i)
   {
-    return (i << 1) | 1; // 2 * i + 1
+    return (i << 1) | 1;  // 2 * i + 1
   }
 
   // Returns the index of the right child of node i.
   static size_type right(size_type i)
   {
-    return (++i) << 1; // 2 * i + 2
+    return (++i) << 1;  // 2 * i + 2
   }
 
   void heapify(size_type i, size_type last)
@@ -149,10 +147,7 @@ private:
     } while (largest != i);
   }
 
-  void heapify(size_type i)
-  {
-    heapify(i, m_container.size());
-  }
+  void heapify(size_type i) { heapify(i, m_container.size()); }
 
   void reverse_heapify(size_type i)
   {
@@ -178,21 +173,18 @@ private:
     reverse_heapify(i);
   }
 
-public:
+ public:
   /// Constructs an empty priority queue.
-  Priority_queue(Less const &less = Less(),
-                 const allocator_type& alloc = allocator_type())
-    : Base(less),
-      m_container(alloc)
-  {}
+  Priority_queue(Less const &less = Less(), const allocator_type &alloc = allocator_type())
+      : Base(less), m_container(alloc)
+  {
+  }
 
   /// Constructs a heap of the objects between first and beyond.
   template <typename Input_iterator>
-  Priority_queue(Input_iterator first, Input_iterator beyond,
-                 Less const &less = Less(),
-                 const allocator_type& alloc = allocator_type())
-    : Base(less),
-      m_container(first, beyond, alloc)
+  Priority_queue(Input_iterator first, Input_iterator beyond, Less const &less = Less(),
+                 const allocator_type &alloc = allocator_type())
+      : Base(less), m_container(first, beyond, alloc)
   {
     build_heap();
   }
@@ -200,7 +192,7 @@ public:
   /// Constructs a heap based on input argument.
   void assign(const container_type &container)
   {
-    m_container= container;
+    m_container = container;
     build_heap();
   }
 
@@ -228,7 +220,7 @@ public:
   }
 
   /// Returns a reference to the top element of the priority queue.
-  value_type& top()
+  value_type &top()
   {
     assert(!empty());
     return m_container[0];
@@ -238,7 +230,7 @@ public:
     Inserts an element in the priority queue.
 
     @param  x value to be pushed.
-    @retval true if out-of-memory, false otherwise.    
+    @retval true if out-of-memory, false otherwise.
   */
   bool push(value_type const &x)
   {
@@ -246,7 +238,7 @@ public:
     {
       m_container.push_back(x);
     }
-    catch(std::bad_alloc const &)
+    catch (std::bad_alloc const &)
     {
       return true;
     }
@@ -256,10 +248,7 @@ public:
   }
 
   /// Pops the top-most element in the priority queue.
-  void pop()
-  {
-    remove(0);
-  }
+  void pop() { remove(0); }
 
   /// Removes the element at position i from the priority queue.
   void remove(size_type i)
@@ -320,19 +309,13 @@ public:
     Assumes that the i-th element's value has increased
     and rebuilds the priority queue.
   */
-  void increase(size_type i)
-  {
-    reverse_heapify(i);
-  }
+  void increase(size_type i) { reverse_heapify(i); }
 
   /**
     Assumes that the i-th element's value has decreased
     and rebuilds the priority queue.
   */
-  void decrease(size_type i)
-  {
-    heapify(i);
-  }
+  void decrease(size_type i) { heapify(i); }
 
   /**
     Assumes that the i-th element's value has changed
@@ -368,47 +351,35 @@ public:
   bool empty() const { return m_container.empty(); }
 
   /// Returns a const reference to the i-th element in the underlying container.
-  value_type const& operator[](size_type i) const
+  value_type const &operator[](size_type i) const
   {
     assert(i < size());
     return m_container[i];
   }
 
   /// Returns a reference to the i-th element in the underlying container.
-  value_type& operator[](size_type i)
+  value_type &operator[](size_type i)
   {
     assert(i < size());
     return m_container[i];
   }
 
   /// Returns a const iterator to the first element of the underlying container.
-  const_iterator begin() const
-  {
-    return m_container.begin();
-  }
+  const_iterator begin() const { return m_container.begin(); }
 
   /// Returns a const iterator to the end element of the underlying container.
-  const_iterator end() const
-  {
-    return m_container.end();
-  }
+  const_iterator end() const { return m_container.end(); }
 
   /// Returns an iterator to the first element of the underlying container.
-  iterator begin()
-  {
-    return m_container.begin();
-  }
+  iterator begin() { return m_container.begin(); }
 
   /// Returns an iterator to the end element of the underlying container.
-  iterator end()
-  {
-    return m_container.end();
-  }
+  iterator end() { return m_container.end(); }
 
   /// Swaps the contents of two priority queues.
-  void swap(Priority_queue& other)
+  void swap(Priority_queue &other)
   {
-    std::swap(static_cast<Base&>(*this), static_cast<Base&>(other));
+    std::swap(static_cast<Base &>(*this), static_cast<Base &>(other));
     m_container.swap(other.m_container);
   }
 
@@ -446,22 +417,13 @@ public:
   }
 
   /// Clears the priority queue.
-  void clear()
-  {
-    m_container.clear();
-  }
+  void clear() { m_container.clear(); }
 
   /// Clears the priority queue, but deletes all elements first.
-  void delete_elements()
-  {
-    delete_container_pointers(m_container);
-  }
+  void delete_elements() { delete_container_pointers(m_container); }
 
   /// Returns the capacity of the internal container.
-  size_type capacity() const
-  {
-    return m_container.capacity();
-  }
+  size_type capacity() const { return m_container.capacity(); }
 
   /**
     Reserves space for array elements.
@@ -477,23 +439,20 @@ public:
     {
       m_container.reserve(n);
     }
-    catch(std::bad_alloc const &)
+    catch (std::bad_alloc const &)
     {
       return true;
     }
     return false;
   }
 
-private:
+ private:
   container_type m_container;
 };
 
-
 #if defined(EXTRA_CODE_FOR_UNIT_TESTING)
 template <class T, class Container, class Less>
-inline std::ostream&
-operator<<(std::ostream& os,
-           Priority_queue<T, Container, Less> const& pq)
+inline std::ostream &operator<<(std::ostream &os, Priority_queue<T, Container, Less> const &pq)
 {
   typedef typename Priority_queue<T, Container, Less>::size_type size_type;
 
@@ -505,22 +464,19 @@ operator<<(std::ostream& os,
   return os;
 }
 
-
 template <class T, class Container, class Less>
-inline std::stringstream&
-operator<<(std::stringstream& ss,
-           Priority_queue<T, Container, Less> const& pq)
+inline std::stringstream &operator<<(std::stringstream &ss, Priority_queue<T, Container, Less> const &pq)
 {
   typedef typename Priority_queue<T, Container, Less>::size_type size_type;
 
   for (size_type i = 0; i < pq.size(); i++)
   {
-    ss << pq[i] << " ";;
+    ss << pq[i] << " ";
+    ;
   }
 
   return ss;
 }
-#endif // EXTRA_CODE_FOR_UNIT_TESTING
-
+#endif  // EXTRA_CODE_FOR_UNIT_TESTING
 
 #endif  // PRIORITY_QUEUE_INCLUDED

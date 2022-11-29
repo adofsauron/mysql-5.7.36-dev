@@ -35,23 +35,17 @@
 
 #include "mysql/psi/psi.h"
 
-#define PSI_MEMORY_CALL(M) pfs_ ## M ## _v1
+#define PSI_MEMORY_CALL(M) pfs_##M##_v1
 
 C_MODE_START
 
-void pfs_register_memory_v1
-    (const char *category, struct PSI_memory_info_v1 *info, int count);
+void pfs_register_memory_v1(const char *category, struct PSI_memory_info_v1 *info, int count);
 
-PSI_memory_key
-pfs_memory_alloc_v1
-  (PSI_memory_key key, size_t size, PSI_thread **owner);
+PSI_memory_key pfs_memory_alloc_v1(PSI_memory_key key, size_t size, PSI_thread **owner);
 
-PSI_memory_key
-pfs_memory_realloc_v1
-  (PSI_memory_key key, size_t old_size, size_t new_size, PSI_thread **owner);
+PSI_memory_key pfs_memory_realloc_v1(PSI_memory_key key, size_t old_size, size_t new_size, PSI_thread **owner);
 
-void pfs_memory_free_v1
-  (PSI_memory_key key, size_t size, PSI_thread *owner);
+void pfs_memory_free_v1(PSI_memory_key key, size_t size, PSI_thread *owner);
 
 C_MODE_END
 
@@ -61,4 +55,3 @@ C_MODE_END
 #endif /* HAVE_PSI_MEMORY_INTERFACE */
 
 #endif
-

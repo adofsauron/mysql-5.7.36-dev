@@ -102,7 +102,7 @@ static inline int native_rw_wrlock(native_rw_lock_t *rwp)
 {
 #ifdef _WIN32
   AcquireSRWLockExclusive(&rwp->srwlock);
-  rwp->have_exclusive_srwlock= TRUE;
+  rwp->have_exclusive_srwlock = TRUE;
   return 0;
 #else
   return pthread_rwlock_wrlock(rwp);
@@ -114,7 +114,7 @@ static inline int native_rw_trywrlock(native_rw_lock_t *rwp)
 #ifdef _WIN32
   if (!TryAcquireSRWLockExclusive(&rwp->srwlock))
     return EBUSY;
-  rwp->have_exclusive_srwlock= TRUE;
+  rwp->have_exclusive_srwlock = TRUE;
   return 0;
 #else
   return pthread_rwlock_trywrlock(rwp);
@@ -126,7 +126,7 @@ static inline int native_rw_unlock(native_rw_lock_t *rwp)
 #ifdef _WIN32
   if (rwp->have_exclusive_srwlock)
   {
-    rwp->have_exclusive_srwlock= FALSE;
+    rwp->have_exclusive_srwlock = FALSE;
     ReleaseSRWLockExclusive(&rwp->srwlock);
   }
   else
@@ -136,7 +136,6 @@ static inline int native_rw_unlock(native_rw_lock_t *rwp)
   return pthread_rwlock_unlock(rwp);
 #endif
 }
-
 
 /**
   Portable implementation of special type of read-write locks.
@@ -169,7 +168,8 @@ static inline int native_rw_unlock(native_rw_lock_t *rwp)
   it blocks us from doing certain performance optimizations.
 */
 
-typedef struct st_rw_pr_lock_t {
+typedef struct st_rw_pr_lock_t
+{
   /**
     Lock which protects the structure.
     Also held for the duration of wr-lock.
@@ -198,21 +198,17 @@ extern int rw_pr_wrlock(rw_pr_lock_t *);
 extern int rw_pr_unlock(rw_pr_lock_t *);
 extern int rw_pr_destroy(rw_pr_lock_t *);
 
-static inline void
-rw_pr_lock_assert_write_owner(const rw_pr_lock_t *rwlock MY_ATTRIBUTE((unused)))
+static inline void rw_pr_lock_assert_write_owner(const rw_pr_lock_t *rwlock MY_ATTRIBUTE((unused)))
 {
 #ifdef SAFE_MUTEX
-  assert(rwlock->active_writer &&
-         my_thread_equal(my_thread_self(), rwlock->writer_thread));
+  assert(rwlock->active_writer && my_thread_equal(my_thread_self(), rwlock->writer_thread));
 #endif
 }
 
-static inline void
-rw_pr_lock_assert_not_write_owner(const rw_pr_lock_t *rwlock MY_ATTRIBUTE((unused)))
+static inline void rw_pr_lock_assert_not_write_owner(const rw_pr_lock_t *rwlock MY_ATTRIBUTE((unused)))
 {
 #ifdef SAFE_MUTEX
-  assert(!rwlock->active_writer ||
-         !my_thread_equal(my_thread_self(), rwlock->writer_thread));
+  assert(!rwlock->active_writer || !my_thread_equal(my_thread_self(), rwlock->writer_thread));
 #endif
 }
 

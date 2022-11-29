@@ -60,16 +60,16 @@
   the Solaris implementation on Solaris (mainly for SunStudio compilers).
 */
 #if defined(_MSC_VER)
-#  include "atomic/generic-msvc.h"
+#include "atomic/generic-msvc.h"
 #elif defined(HAVE_SOLARIS_ATOMIC)
-#  include "atomic/solaris.h"
+#include "atomic/solaris.h"
 #elif defined(HAVE_GCC_ATOMIC_BUILTINS) /* Use __atomic by default */
-#  include "atomic/gcc_atomic.h"
+#include "atomic/gcc_atomic.h"
 /* Use old __sync if __atomic is unavailable */
 #elif defined(HAVE_GCC_SYNC_BUILTINS)
-#  include "atomic/gcc_sync.h"
+#include "atomic/gcc_sync.h"
 #else
-#  error Native atomics support not found!
+#error Native atomics support not found!
 #endif
 
 /*

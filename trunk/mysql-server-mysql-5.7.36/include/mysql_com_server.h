@@ -30,11 +30,9 @@
 
 struct st_net_server;
 
-typedef void (*before_header_callback_fn)
-  (struct st_net *net, void *user_data, size_t count);
+typedef void (*before_header_callback_fn)(struct st_net *net, void *user_data, size_t count);
 
-typedef void (*after_header_callback_fn)
-  (struct st_net *net, void *user_data, size_t count, my_bool rc);
+typedef void (*after_header_callback_fn)(struct st_net *net, void *user_data, size_t count, my_bool rc);
 
 struct st_net_server
 {

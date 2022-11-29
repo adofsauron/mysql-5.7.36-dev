@@ -23,22 +23,22 @@
 #ifndef MY_TIMER_H
 #define MY_TIMER_H
 
-#include "my_global.h"    /* C_MODE_START, C_MODE_END */
+#include "my_global.h"     /* C_MODE_START, C_MODE_END */
 #include "mysql/psi/psi.h" /* PSI_thread_key, PSI_mutex_key, PSI_memory_key */
 
 /* POSIX timers API. */
 #ifdef HAVE_POSIX_TIMERS
-# include <time.h>  /* timer_t */
-  typedef timer_t   os_timer_t;
+#include <time.h> /* timer_t */
+typedef timer_t os_timer_t;
 #elif HAVE_KQUEUE_TIMERS
-# include <sys/types.h> /* uintptr_t */
-  typedef uintptr_t os_timer_t;
+#include <sys/types.h> /* uintptr_t */
+typedef uintptr_t os_timer_t;
 #elif _WIN32
-  typedef struct st_os_timer
-  {
-    HANDLE timer_handle;
-    my_bool timer_state;
-  } os_timer_t;
+typedef struct st_os_timer
+{
+  HANDLE timer_handle;
+  my_bool timer_state;
+} os_timer_t;
 #endif
 
 typedef struct st_my_timer my_timer_t;

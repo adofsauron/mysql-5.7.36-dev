@@ -29,71 +29,55 @@
   By monty.
 */
 
-#include "my_global.h"                          /* uchar */
+#include "my_global.h" /* uchar */
 
-#ifdef	__cplusplus
-extern "C" {
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
-typedef struct st_queue {
-  uchar **root;
-  void *first_cmp_arg;
-  uint elements;
-  uint max_elements;
-  uint offset_to_key;	/* compare is done on element+offset */
-  int max_at_top;	/* Normally 1, set to -1 if queue_top gives max */
-  int  (*compare)(void *, uchar *,uchar *);
-  uint auto_extent;
-} QUEUE;
+  typedef struct st_queue
+  {
+    uchar **root;
+    void *first_cmp_arg;
+    uint elements;
+    uint max_elements;
+    uint offset_to_key; /* compare is done on element+offset */
+    int max_at_top;     /* Normally 1, set to -1 if queue_top gives max */
+    int (*compare)(void *, uchar *, uchar *);
+    uint auto_extent;
+  } QUEUE;
 
-void _downheap(QUEUE *queue,uint idx);
-void queue_fix(QUEUE *queue);
+  void _downheap(QUEUE *queue, uint idx);
+  void queue_fix(QUEUE *queue);
 
 #define queue_top(queue) ((queue)->root[1])
-#define queue_element(queue,index) ((queue)->root[index+1])
+#define queue_element(queue, index) ((queue)->root[index + 1])
 #define queue_end(queue) ((queue)->root[(queue)->elements])
 
-static inline void queue_replaced(QUEUE *queue)
-{
-  _downheap(queue, 1);
-}
+  static inline void queue_replaced(QUEUE *queue) { _downheap(queue, 1); }
 
-static inline void queue_set_max_at_top(QUEUE *queue, int set_arg)
-{
-  queue->max_at_top= set_arg ? -1 : 1;
-}
+  static inline void queue_set_max_at_top(QUEUE *queue, int set_arg) { queue->max_at_top = set_arg ? -1 : 1; }
 
-typedef int (*queue_compare)(void *,uchar *, uchar *);
+  typedef int (*queue_compare)(void *, uchar *, uchar *);
 
-int init_queue(QUEUE *queue,uint max_elements,uint offset_to_key,
-	       pbool max_at_top, queue_compare compare,
-	       void *first_cmp_arg);
-int init_queue_ex(QUEUE *queue,uint max_elements,uint offset_to_key,
-	       pbool max_at_top, queue_compare compare,
-	       void *first_cmp_arg, uint auto_extent);
-int reinit_queue(QUEUE *queue,uint max_elements,uint offset_to_key,
-                 pbool max_at_top, queue_compare compare,
+  int init_queue(QUEUE *queue, uint max_elements, uint offset_to_key, pbool max_at_top, queue_compare compare,
                  void *first_cmp_arg);
-void delete_queue(QUEUE *queue);
-void queue_insert(QUEUE *queue,uchar *element);
-uchar *queue_remove(QUEUE *queue,uint idx);
+  int init_queue_ex(QUEUE *queue, uint max_elements, uint offset_to_key, pbool max_at_top, queue_compare compare,
+                    void *first_cmp_arg, uint auto_extent);
+  int reinit_queue(QUEUE *queue, uint max_elements, uint offset_to_key, pbool max_at_top, queue_compare compare,
+                   void *first_cmp_arg);
+  void delete_queue(QUEUE *queue);
+  void queue_insert(QUEUE *queue, uchar *element);
+  uchar *queue_remove(QUEUE *queue, uint idx);
 
-static inline void queue_remove_all(QUEUE *queue)
-{
-  queue->elements= 0;
-}
+  static inline void queue_remove_all(QUEUE *queue) { queue->elements = 0; }
 
-static inline my_bool queue_is_full(QUEUE *queue)
-{
-  return queue->elements == queue->max_elements;
-}
+  static inline my_bool queue_is_full(QUEUE *queue) { return queue->elements == queue->max_elements; }
 
-static inline my_bool is_queue_inited(QUEUE *queue)
-{
-  return queue->root != NULL;
-}
+  static inline my_bool is_queue_inited(QUEUE *queue) { return queue->root != NULL; }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

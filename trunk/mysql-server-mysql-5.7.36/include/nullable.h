@@ -27,37 +27,31 @@
 
 #include "my_dbug.h"
 
-namespace Mysql{
+namespace Mysql
+{
 
 /**
   Class for storing value or NULL value.
 */
-template<typename T_value> class Nullable
+template <typename T_value>
+class Nullable
 {
-public:
-  Nullable()
-    : m_has_value(false)
-  {}
+ public:
+  Nullable() : m_has_value(false) {}
 
-  Nullable(T_value value)
-    : m_has_value(true),
-    m_value(value)
-  {}
+  Nullable(T_value value) : m_has_value(true), m_value(value) {}
 
-  Nullable(const Nullable<T_value>& other)
-    : m_has_value(other.m_has_value),
-    m_value(other.m_value)
-  {}
+  Nullable(const Nullable<T_value> &other) : m_has_value(other.m_has_value), m_value(other.m_value) {}
 
   /**
     Assigns value from another Nullable<> object.
   */
-  Nullable<T_value>& operator= (const Nullable<T_value>& other)
+  Nullable<T_value> &operator=(const Nullable<T_value> &other)
   {
-    this->m_has_value= other.m_has_value;
+    this->m_has_value = other.m_has_value;
     if (this->m_has_value)
     {
-      this->m_value= other.m_value;
+      this->m_value = other.m_value;
     }
     return *this;
   }
@@ -66,23 +60,19 @@ public:
     Returns true if object has not-NULL value assigned. If this is false, one
     should not try to get value by value().
   */
-  bool has_value() const
-  {
-    return this->m_has_value;
-  }
+  bool has_value() const { return this->m_has_value; }
 
   /**
     Returns actual value of object. Do not call this method if has_value()
     returns false.
   */
-  const T_value& value() const
+  const T_value &value() const
   {
     assert(this->m_has_value);
     return this->m_value;
   }
 
-
-private:
+ private:
   /**
     Specifies if this object represents NULL value. If this is false, one
     should not try to get value by value().
@@ -94,6 +84,6 @@ private:
   T_value m_value;
 };
 
-}
+}  // namespace Mysql
 
-#endif // NULLABLE_INCLUDED
+#endif  // NULLABLE_INCLUDED

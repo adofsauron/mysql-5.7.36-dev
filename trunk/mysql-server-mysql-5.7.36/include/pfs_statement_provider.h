@@ -35,73 +35,50 @@
 
 #include "mysql/psi/psi.h"
 
-#define PSI_STATEMENT_CALL(M) pfs_ ## M ## _v1
-#define PSI_DIGEST_CALL(M) pfs_ ## M ## _v1
+#define PSI_STATEMENT_CALL(M) pfs_##M##_v1
+#define PSI_DIGEST_CALL(M) pfs_##M##_v1
 
 C_MODE_START
 
-void pfs_register_statement_v1(const char *category,
-                               PSI_statement_info_v1 *info,
-                               int count);
+void pfs_register_statement_v1(const char *category, PSI_statement_info_v1 *info, int count);
 
-PSI_statement_locker*
-pfs_get_thread_statement_locker_v1(PSI_statement_locker_state *state,
-                                   PSI_statement_key key,
-                                   const void *charset,
-                                   PSI_sp_share *sp_share);
+PSI_statement_locker *pfs_get_thread_statement_locker_v1(PSI_statement_locker_state *state, PSI_statement_key key,
+                                                         const void *charset, PSI_sp_share *sp_share);
 
-PSI_statement_locker*
-pfs_refine_statement_v1(PSI_statement_locker *locker,
-                        PSI_statement_key key);
+PSI_statement_locker *pfs_refine_statement_v1(PSI_statement_locker *locker, PSI_statement_key key);
 
-void pfs_start_statement_v1(PSI_statement_locker *locker,
-                            const char *db, uint db_len,
-                            const char *src_file, uint src_line);
+void pfs_start_statement_v1(PSI_statement_locker *locker, const char *db, uint db_len, const char *src_file,
+                            uint src_line);
 
-void pfs_set_statement_text_v1(PSI_statement_locker *locker,
-                               const char *text, uint text_len);
+void pfs_set_statement_text_v1(PSI_statement_locker *locker, const char *text, uint text_len);
 
-void pfs_set_statement_lock_time_v1(PSI_statement_locker *locker,
-                                    ulonglong count);
+void pfs_set_statement_lock_time_v1(PSI_statement_locker *locker, ulonglong count);
 
-void pfs_set_statement_rows_sent_v1(PSI_statement_locker *locker,
-                                    ulonglong count);
+void pfs_set_statement_rows_sent_v1(PSI_statement_locker *locker, ulonglong count);
 
-void pfs_set_statement_rows_examined_v1(PSI_statement_locker *locker,
-                                        ulonglong count);
+void pfs_set_statement_rows_examined_v1(PSI_statement_locker *locker, ulonglong count);
 
-void pfs_inc_statement_created_tmp_disk_tables_v1(PSI_statement_locker *locker,
-                                                  ulong count);
+void pfs_inc_statement_created_tmp_disk_tables_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_created_tmp_tables_v1(PSI_statement_locker *locker,
-                                             ulong count);
+void pfs_inc_statement_created_tmp_tables_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_select_full_join_v1(PSI_statement_locker *locker,
-                                           ulong count);
+void pfs_inc_statement_select_full_join_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_select_full_range_join_v1(PSI_statement_locker *locker,
-                                                 ulong count);
+void pfs_inc_statement_select_full_range_join_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_select_range_v1(PSI_statement_locker *locker,
-                                       ulong count);
+void pfs_inc_statement_select_range_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_select_range_check_v1(PSI_statement_locker *locker,
-                                             ulong count);
+void pfs_inc_statement_select_range_check_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_select_scan_v1(PSI_statement_locker *locker,
-                                      ulong count);
+void pfs_inc_statement_select_scan_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_sort_merge_passes_v1(PSI_statement_locker *locker,
-                                            ulong count);
+void pfs_inc_statement_sort_merge_passes_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_sort_range_v1(PSI_statement_locker *locker,
-                                     ulong count);
+void pfs_inc_statement_sort_range_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_sort_rows_v1(PSI_statement_locker *locker,
-                                    ulong count);
+void pfs_inc_statement_sort_rows_v1(PSI_statement_locker *locker, ulong count);
 
-void pfs_inc_statement_sort_scan_v1(PSI_statement_locker *locker,
-                                    ulong count);
+void pfs_inc_statement_sort_scan_v1(PSI_statement_locker *locker, ulong count);
 
 void pfs_set_statement_no_index_used_v1(PSI_statement_locker *locker);
 
@@ -111,8 +88,7 @@ void pfs_end_statement_v1(PSI_statement_locker *locker, void *stmt_da);
 
 PSI_digest_locker *pfs_digest_start_v1(PSI_statement_locker *locker);
 
-void pfs_digest_end_v1(PSI_digest_locker *locker,
-                       const sql_digest_storage *digest);
+void pfs_digest_end_v1(PSI_digest_locker *locker, const sql_digest_storage *digest);
 
 C_MODE_END
 
@@ -122,4 +98,3 @@ C_MODE_END
 #endif /* HAVE_PSI_STATEMENT_INTERFACE */
 
 #endif
-

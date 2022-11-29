@@ -53,14 +53,14 @@ typedef pthread_mutexattr_t native_mutexattr_t;
 #endif
 
 /* Define mutex types, see my_thr_init.c */
-#define MY_MUTEX_INIT_SLOW   NULL
+#define MY_MUTEX_INIT_SLOW NULL
 
 /* Can be set in /usr/include/pthread.h */
 #ifdef PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP
 extern native_mutexattr_t my_fast_mutexattr;
 #define MY_MUTEX_INIT_FAST &my_fast_mutexattr
 #else
-#define MY_MUTEX_INIT_FAST   NULL
+#define MY_MUTEX_INIT_FAST NULL
 #endif
 
 /* Can be set in /usr/include/pthread.h */
@@ -68,11 +68,10 @@ extern native_mutexattr_t my_fast_mutexattr;
 extern native_mutexattr_t my_errorcheck_mutexattr;
 #define MY_MUTEX_INIT_ERRCHK &my_errorcheck_mutexattr
 #else
-#define MY_MUTEX_INIT_ERRCHK   NULL
+#define MY_MUTEX_INIT_ERRCHK NULL
 #endif
 
-static inline int native_mutex_init(native_mutex_t *mutex,
-                                    const native_mutexattr_t *attr)
+static inline int native_mutex_init(native_mutex_t *mutex, const native_mutexattr_t *attr)
 {
 #ifdef _WIN32
   InitializeCriticalSection(mutex);
@@ -98,7 +97,8 @@ static inline int native_mutex_trylock(native_mutex_t *mutex)
   if (TryEnterCriticalSection(mutex))
   {
     /* Don't allow recursive lock */
-    if (mutex->RecursionCount > 1){
+    if (mutex->RecursionCount > 1)
+    {
       LeaveCriticalSection(mutex);
       return EBUSY;
     }
@@ -130,7 +130,6 @@ static inline int native_mutex_destroy(native_mutex_t *mutex)
 #endif
 }
 
-
 #ifdef SAFE_MUTEX
 /* safe_mutex adds checking to mutex for easier debugging */
 typedef struct st_safe_mutex_t
@@ -142,22 +141,19 @@ typedef struct st_safe_mutex_t
 } my_mutex_t;
 
 void safe_mutex_global_init();
-int safe_mutex_init(my_mutex_t *mp, const native_mutexattr_t *attr,
-                    const char *file, uint line);
+int safe_mutex_init(my_mutex_t *mp, const native_mutexattr_t *attr, const char *file, uint line);
 int safe_mutex_lock(my_mutex_t *mp, my_bool try_lock, const char *file, uint line);
 int safe_mutex_unlock(my_mutex_t *mp, const char *file, uint line);
 int safe_mutex_destroy(my_mutex_t *mp, const char *file, uint line);
 
 static inline void safe_mutex_assert_owner(const my_mutex_t *mp)
 {
-  assert(mp->count > 0 &&
-         my_thread_equal(my_thread_self(), mp->thread));
+  assert(mp->count > 0 && my_thread_equal(my_thread_self(), mp->thread));
 }
 
 static inline void safe_mutex_assert_not_owner(const my_mutex_t *mp)
 {
-  assert(!mp->count ||
-         !my_thread_equal(my_thread_self(), mp->thread));
+  assert(!mp->count || !my_thread_equal(my_thread_self(), mp->thread));
 }
 
 #else
@@ -166,9 +162,10 @@ typedef native_mutex_t my_mutex_t;
 
 static inline int my_mutex_init(my_mutex_t *mp, const native_mutexattr_t *attr
 #ifdef SAFE_MUTEX
-                                , const char *file, uint line
+                                ,
+                                const char *file, uint line
 #endif
-                                )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_mutex_init(mp, attr, file, line);
@@ -179,9 +176,10 @@ static inline int my_mutex_init(my_mutex_t *mp, const native_mutexattr_t *attr
 
 static inline int my_mutex_lock(my_mutex_t *mp
 #ifdef SAFE_MUTEX
-                                , const char *file, uint line
+                                ,
+                                const char *file, uint line
 #endif
-                                )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_mutex_lock(mp, FALSE, file, line);
@@ -192,9 +190,10 @@ static inline int my_mutex_lock(my_mutex_t *mp
 
 static inline int my_mutex_trylock(my_mutex_t *mp
 #ifdef SAFE_MUTEX
-                                   , const char *file, uint line
+                                   ,
+                                   const char *file, uint line
 #endif
-                                   )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_mutex_lock(mp, TRUE, file, line);
@@ -205,9 +204,10 @@ static inline int my_mutex_trylock(my_mutex_t *mp
 
 static inline int my_mutex_unlock(my_mutex_t *mp
 #ifdef SAFE_MUTEX
-                                  , const char *file, uint line
+                                  ,
+                                  const char *file, uint line
 #endif
-                                  )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_mutex_unlock(mp, file, line);
@@ -218,9 +218,10 @@ static inline int my_mutex_unlock(my_mutex_t *mp
 
 static inline int my_mutex_destroy(my_mutex_t *mp
 #ifdef SAFE_MUTEX
-                                   , const char *file, uint line
+                                   ,
+                                   const char *file, uint line
 #endif
-                                   )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_mutex_destroy(mp, file, line);

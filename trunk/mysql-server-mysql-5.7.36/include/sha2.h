@@ -31,6 +31,5 @@
 
 #include <openssl/sha.h>
 
-
 #endif /* HAVE_OPENSSL */
 #endif /* included_sha2_h */

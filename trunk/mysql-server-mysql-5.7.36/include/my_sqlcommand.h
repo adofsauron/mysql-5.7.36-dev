@@ -38,7 +38,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
          sp_get_flags_for_command (sp_head.cc) returns proper flags for the
          added SQLCOM_.
 */
-enum enum_sql_command {
+enum enum_sql_command
+{
   SQLCOM_SELECT,
   SQLCOM_CREATE_TABLE,
   SQLCOM_CREATE_INDEX,

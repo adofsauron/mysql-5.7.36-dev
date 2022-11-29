@@ -38,11 +38,10 @@ typedef DWORD thread_local_key_t;
 typedef pthread_key_t thread_local_key_t;
 #endif
 
-static inline int my_create_thread_local_key(thread_local_key_t *key,
-                                             void (*destructor)(void *))
+static inline int my_create_thread_local_key(thread_local_key_t *key, void (*destructor)(void *))
 {
 #ifdef _WIN32
-  *key= TlsAlloc();
+  *key = TlsAlloc();
   return (*key == TLS_OUT_OF_INDEXES);
 #else
   return pthread_key_create(key, destructor);
@@ -58,7 +57,7 @@ static inline int my_delete_thread_local_key(thread_local_key_t key)
 #endif
 }
 
-static inline void* my_get_thread_local(thread_local_key_t key)
+static inline void *my_get_thread_local(thread_local_key_t key)
 {
 #ifdef _WIN32
   return TlsGetValue(key);
@@ -67,8 +66,7 @@ static inline void* my_get_thread_local(thread_local_key_t key)
 #endif
 }
 
-static inline int my_set_thread_local(thread_local_key_t key,
-                                      void *value)
+static inline int my_set_thread_local(thread_local_key_t key, void *value)
 {
 #ifdef _WIN32
   return !TlsSetValue(key, value);
@@ -111,4 +109,4 @@ void set_my_thread_var_id(my_thread_id id);
 
 C_MODE_END
 
-#endif // MY_THREAD_LOCAL_INCLUDED
+#endif  // MY_THREAD_LOCAL_INCLUDED

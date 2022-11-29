@@ -28,18 +28,18 @@
 #ifndef MY_THREAD_OS_ID_INCLUDED
 #define MY_THREAD_OS_ID_INCLUDED
 
-#include "my_global.h"              /* my_bool */
+#include "my_global.h" /* my_bool */
 
 #ifndef _WIN32
-#include <sys/types.h>              /* pid_t */
-#include <sys/syscall.h>            /* SYS_gettid */
-#include <unistd.h>                 /* syscall */
-#include <pthread.h>                /* pthread_self */
+#include <sys/types.h>   /* pid_t */
+#include <sys/syscall.h> /* SYS_gettid */
+#include <unistd.h>      /* syscall */
+#include <pthread.h>     /* pthread_self */
 #endif
 
 #ifdef HAVE_PTHREAD_GETTHREADID_NP
-#include <pthread_np.h>             /* pthread_getthreadid_np() */
-#endif /* HAVE_PTHREAD_GETTHREADID_NP */
+#include <pthread_np.h> /* pthread_getthreadid_np() */
+#endif                  /* HAVE_PTHREAD_GETTHREADID_NP */
 
 #ifdef HAVE_PTHREAD_THREADID_NP
 #include <pthread.h>

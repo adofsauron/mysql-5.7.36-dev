@@ -27,11 +27,11 @@
   Clears a container, but deletes all objects that the elements point to first.
   @tparam Container of pointers.
  */
-template<typename Container_type>
+template <typename Container_type>
 void delete_container_pointers(Container_type &container)
 {
-  typename Container_type::iterator it1= container.begin();
-  typename Container_type::iterator it2= container.end();
+  typename Container_type::iterator it1 = container.begin();
+  typename Container_type::iterator it2 = container.end();
   for (; it1 != it2; ++it1)
   {
     delete (*it1);
@@ -43,18 +43,17 @@ void delete_container_pointers(Container_type &container)
   Clears a container, but frees all objects that the elements point to first.
   @tparam Container of pointers.
  */
-template<typename Container_type>
+template <typename Container_type>
 void my_free_container_pointers(Container_type &container)
 {
-  typename Container_type::iterator it1= container.begin();
-  typename Container_type::iterator it2= container.end();
+  typename Container_type::iterator it1 = container.begin();
+  typename Container_type::iterator it2 = container.end();
   for (; it1 != it2; ++it1)
   {
     my_free(*it1);
   }
   container.clear();
 }
-
 
 /**
   Casts from one pointer type, to another, without using
@@ -63,13 +62,13 @@ void my_free_container_pointers(Container_type &container)
   This avoids having to do:
     foo *f; bar *b= static_cast<b*>(static_cast<void*>(f));
  */
-template<typename T>
+template <typename T>
 inline T pointer_cast(void *p)
 {
   return static_cast<T>(p);
 }
 
-template<typename T>
+template <typename T>
 inline const T pointer_cast(const void *p)
 {
   return static_cast<const T>(p);
@@ -79,13 +78,12 @@ inline const T pointer_cast(const void *p)
   Casts from one pointer type to another in a type hierarchy.
   In debug mode, we verify the cast is indeed legal.
  */
-template<typename Target, typename Source>
+template <typename Target, typename Source>
 inline Target down_cast(Source arg)
 {
   assert(NULL != dynamic_cast<Target>(arg));
   return static_cast<Target>(arg);
 }
-
 
 /**
    Sometimes the compiler insists that types be the same and does not do any
@@ -99,7 +97,10 @@ inline Target down_cast(Source arg)
    static_cast would work too, but would be less safe (allows any
    pointer-to-pointer conversion, not only up-casts).
 */
-template<typename To>
-inline To implicit_cast(To x) { return x; }
+template <typename To>
+inline To implicit_cast(To x)
+{
+  return x;
+}
 
 #endif  // TEMPLATE_UTILS_INCLUDED

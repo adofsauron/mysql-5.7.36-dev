@@ -25,8 +25,9 @@
 
 #include <openssl/ssl.h>
 
-#ifdef  __cplusplus
-extern "C" {
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
 /* Visual Studio requires '__inline' for C code */
@@ -34,31 +35,31 @@ extern "C" {
 #define inline __inline
 #endif
 
-/*
-  HAVE_STATIC_OPENSSL:
-  This is OpenSSL version >= 1.1.1 and we are linking statically.
-  We must disable all atexit() processing in OpenSSL, otherwise
-  dlclose() of plugins might destroy data structures which are needed
-  by the application.
+  /*
+    HAVE_STATIC_OPENSSL:
+    This is OpenSSL version >= 1.1.1 and we are linking statically.
+    We must disable all atexit() processing in OpenSSL, otherwise
+    dlclose() of plugins might destroy data structures which are needed
+    by the application.
 
-  Otherwise: "system" OpenSSL may be any version > 1.0.0
-  For 1.0.x : SSL_library_init is a function.
-  For 1.1.y : SSL_library_init is a macro: OPENSSL_init_ssl(0, NULL)
+    Otherwise: "system" OpenSSL may be any version > 1.0.0
+    For 1.0.x : SSL_library_init is a function.
+    For 1.1.y : SSL_library_init is a macro: OPENSSL_init_ssl(0, NULL)
 
-  Note that we cannot in general call OPENSSL_cleanup(). Doing so from plugins
-  would break the embedding main program. Doing so from client code may
-  break e.g. ODBC clients (if the client also uses SSL).
- */
-static inline int mysql_OPENSSL_init()
-{
+    Note that we cannot in general call OPENSSL_cleanup(). Doing so from plugins
+    would break the embedding main program. Doing so from client code may
+    break e.g. ODBC clients (if the client also uses SSL).
+   */
+  static inline int mysql_OPENSSL_init()
+  {
 #if defined(HAVE_STATIC_OPENSSL)
-  return OPENSSL_init_crypto(OPENSSL_INIT_NO_ATEXIT, NULL);
+    return OPENSSL_init_crypto(OPENSSL_INIT_NO_ATEXIT, NULL);
 #else
   return SSL_library_init();
 #endif
-}
+  }
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

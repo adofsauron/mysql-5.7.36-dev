@@ -62,7 +62,7 @@ static DWORD get_milliseconds(const struct timespec *abstime)
   union ft64 now;
 
   if (abstime == NULL)
-   return INFINITE;
+    return INFINITE;
 
   GetSystemTimeAsFileTime(&now.ft);
 
@@ -71,7 +71,7 @@ static DWORD get_milliseconds(const struct timespec *abstime)
     - subtract start time from current time(values are in 100ns units)
     - convert to millisec by dividing with 10000
   */
-  millis= (abstime->tv.i64 - now.i64) / 10000;
+  millis = (abstime->tv.i64 - now.i64) / 10000;
 
   /* Don't allow the timeout to be negative */
   if (millis < 0)
@@ -82,10 +82,10 @@ static DWORD get_milliseconds(const struct timespec *abstime)
     value which could cause "wait for ever" if system time changes
   */
   if (millis > abstime->max_timeout_msec)
-    millis= abstime->max_timeout_msec;
+    millis = abstime->max_timeout_msec;
 
   if (millis > UINT_MAX)
-    millis= UINT_MAX;
+    millis = UINT_MAX;
 
   return (DWORD)millis;
 #else
@@ -93,8 +93,8 @@ static DWORD get_milliseconds(const struct timespec *abstime)
     Convert timespec to millis and subtract current time.
     my_getsystime() returns time in 100 ns units.
   */
-  ulonglong future= abstime->tv_sec * 1000 + abstime->tv_nsec / 1000000;
-  ulonglong now= my_getsystime() / 10000;
+  ulonglong future = abstime->tv_sec * 1000 + abstime->tv_nsec / 1000000;
+  ulonglong now = my_getsystime() / 10000;
   /* Don't allow the timeout to be negative. */
   if (future < now)
     return 0;
@@ -123,12 +123,10 @@ static inline int native_cond_destroy(native_cond_t *cond)
 #endif
 }
 
-static inline int native_cond_timedwait(native_cond_t *cond,
-                                        native_mutex_t *mutex,
-                                        const struct timespec *abstime)
+static inline int native_cond_timedwait(native_cond_t *cond, native_mutex_t *mutex, const struct timespec *abstime)
 {
 #ifdef _WIN32
-  DWORD timeout= get_milliseconds(abstime);
+  DWORD timeout = get_milliseconds(abstime);
   if (!SleepConditionVariableCS(cond, mutex, timeout))
     return ETIMEDOUT;
   return 0;
@@ -169,19 +167,17 @@ static inline int native_cond_broadcast(native_cond_t *cond)
 }
 
 #ifdef SAFE_MUTEX
-int safe_cond_wait(native_cond_t *cond, my_mutex_t *mp,
-                   const char *file, uint line);
-int safe_cond_timedwait(native_cond_t *cond, my_mutex_t *mp,
-                        const struct timespec *abstime,
-                        const char *file, uint line);
+int safe_cond_wait(native_cond_t *cond, my_mutex_t *mp, const char *file, uint line);
+int safe_cond_timedwait(native_cond_t *cond, my_mutex_t *mp, const struct timespec *abstime, const char *file,
+                        uint line);
 #endif
 
-static inline int my_cond_timedwait(native_cond_t *cond, my_mutex_t *mp,
-                                    const struct timespec *abstime
+static inline int my_cond_timedwait(native_cond_t *cond, my_mutex_t *mp, const struct timespec *abstime
 #ifdef SAFE_MUTEX
-                                    , const char *file, uint line
+                                    ,
+                                    const char *file, uint line
 #endif
-                                    )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_cond_timedwait(cond, mp, abstime, file, line);
@@ -192,9 +188,10 @@ static inline int my_cond_timedwait(native_cond_t *cond, my_mutex_t *mp,
 
 static inline int my_cond_wait(native_cond_t *cond, my_mutex_t *mp
 #ifdef SAFE_MUTEX
-                               , const char *file, uint line
+                               ,
+                               const char *file, uint line
 #endif
-                               )
+)
 {
 #ifdef SAFE_MUTEX
   return safe_cond_wait(cond, mp, file, line);

@@ -33,7 +33,7 @@
 */
 class Mutex_lock
 {
-public:
+ public:
   explicit Mutex_lock(mysql_mutex_t *mutex) : m_mutex(mutex)
   {
     if (m_mutex)
@@ -44,11 +44,12 @@ public:
     if (m_mutex)
       mysql_mutex_unlock(m_mutex);
   }
-private:
+
+ private:
   mysql_mutex_t *m_mutex;
 
-  Mutex_lock(const Mutex_lock&);                /* Not copyable. */
-  void operator=(const Mutex_lock&);            /* Not assignable. */
+  Mutex_lock(const Mutex_lock &);     /* Not copyable. */
+  void operator=(const Mutex_lock &); /* Not assignable. */
 };
 
 #endif  // MUTEX_LOCK_INCLUDED

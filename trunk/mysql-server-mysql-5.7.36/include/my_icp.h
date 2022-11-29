@@ -23,32 +23,33 @@
 #ifndef _my_icp_h
 #define _my_icp_h
 
-#ifdef	__cplusplus
-extern "C" {
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
-/**
-  Values returned by index_cond_func_xxx functions.
-*/
+  /**
+    Values returned by index_cond_func_xxx functions.
+  */
 
-typedef enum icp_result {
-  /** Index tuple doesn't satisfy the pushed index condition (the engine
-  should discard the tuple and go to the next one) */
-  ICP_NO_MATCH,
+  typedef enum icp_result
+  {
+    /** Index tuple doesn't satisfy the pushed index condition (the engine
+    should discard the tuple and go to the next one) */
+    ICP_NO_MATCH,
 
-  /** Index tuple satisfies the pushed index condition (the engine should
-  fetch and return the record) */
-  ICP_MATCH,
+    /** Index tuple satisfies the pushed index condition (the engine should
+    fetch and return the record) */
+    ICP_MATCH,
 
-  /** Index tuple is out of the range that we're scanning, e.g. if we're
-  scanning "t.key BETWEEN 10 AND 20" and got a "t.key=21" tuple (the engine
-  should stop scanning and return HA_ERR_END_OF_FILE right away). */
-  ICP_OUT_OF_RANGE
+    /** Index tuple is out of the range that we're scanning, e.g. if we're
+    scanning "t.key BETWEEN 10 AND 20" and got a "t.key=21" tuple (the engine
+    should stop scanning and return HA_ERR_END_OF_FILE right away). */
+    ICP_OUT_OF_RANGE
 
-} ICP_RESULT;
+  } ICP_RESULT;
 
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

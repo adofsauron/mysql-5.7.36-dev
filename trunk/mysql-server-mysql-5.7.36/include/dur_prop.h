@@ -28,12 +28,12 @@ enum durability_properties
   /*
     Preserves the durability properties defined by the engine
   */
-  HA_REGULAR_DURABILITY= 0,
+  HA_REGULAR_DURABILITY = 0,
   /*
      Ignore the durability properties defined by the engine and
      write only in-memory entries.
   */
-  HA_IGNORE_DURABILITY= 1
+  HA_IGNORE_DURABILITY = 1
 };
 
 #endif /* _my_dur_prop_h */

@@ -25,23 +25,24 @@
 #ifndef I_CALLABLE_INCLUDED
 #define I_CALLABLE_INCLUDED
 
-namespace Mysql{
+namespace Mysql
+{
 
 /**
   Interface for functors.
   I_callable and all implementations should be removed once we have boost::function<> or std::function<>
 */
-template<typename T_result, typename T_arg> class I_callable
+template <typename T_result, typename T_arg>
+class I_callable
 {
-public:
-  virtual ~I_callable()
-  {}
+ public:
+  virtual ~I_callable() {}
   /**
     Function call operator. Invokes callback.
   */
-  virtual T_result operator()(T_arg argment) const= 0;
+  virtual T_result operator()(T_arg argment) const = 0;
 };
 
-}
+}  // namespace Mysql
 
 #endif

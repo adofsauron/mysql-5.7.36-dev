@@ -27,7 +27,7 @@
 
 C_MODE_START
 
-uint32 murmur3_32(const uchar * key, size_t len, uint32 seed);
+uint32 murmur3_32(const uchar *key, size_t len, uint32 seed);
 
 C_MODE_END
 

@@ -26,33 +26,34 @@
 #define INSTANCE_CALLBACK_INCLUDED
 
 #include "i_callable.h"
-#include <cstddef> // NULL
+#include <cstddef>  // NULL
 
-namespace Mysql{
+namespace Mysql
+{
 
 /**
   Instance method based callback.
 */
-template<typename T_result, typename T_arg, typename T_class>
-  class Instance_callback : public I_callable<T_result, T_arg>
+template <typename T_result, typename T_arg, typename T_class>
+class Instance_callback : public I_callable<T_result, T_arg>
 {
-
   typedef T_result (T_class::*Method)(T_arg);
 
-public:
+ public:
   /**
     Creates new instance method callback.
   */
-  Instance_callback(T_class* instance, Method method);
+  Instance_callback(T_class *instance, Method method);
 
   /**
     Invokes callback method on instance specified in constructor.
   */
   T_result operator()(T_arg argument) const;
 
-protected:
-  T_class* m_instance;
-private:
+ protected:
+  T_class *m_instance;
+
+ private:
   Method m_method;
 };
 
@@ -60,48 +61,45 @@ private:
   Instance method based callback. Owns T_class instance and destroys it when it
   dies.
 */
-template<typename T_result, typename T_arg, typename T_class>
-  class Instance_callback_own
-    : public Instance_callback<T_result, T_arg, T_class>
+template <typename T_result, typename T_arg, typename T_class>
+class Instance_callback_own : public Instance_callback<T_result, T_arg, T_class>
 {
   typedef T_result (T_class::*Method)(T_arg);
 
-public:
+ public:
   /**
     Creates new instance method callback.
   */
-  Instance_callback_own(T_class* instance, Method method);
+  Instance_callback_own(T_class *instance, Method method);
 
   ~Instance_callback_own();
 };
 
-template<typename T_result, typename T_arg, typename T_class>
-  Instance_callback<T_result, T_arg, T_class>::
-    Instance_callback(T_class* instance, Method method)
-  : m_instance(instance), m_method(method)
-{}
+template <typename T_result, typename T_arg, typename T_class>
+Instance_callback<T_result, T_arg, T_class>::Instance_callback(T_class *instance, Method method)
+    : m_instance(instance), m_method(method)
+{
+}
 
-template<typename T_result, typename T_arg, typename T_class>
-  T_result Instance_callback<T_result, T_arg, T_class>::operator()
-    (T_arg argument) const
+template <typename T_result, typename T_arg, typename T_class>
+T_result Instance_callback<T_result, T_arg, T_class>::operator()(T_arg argument) const
 {
   return (this->m_instance->*this->m_method)(argument);
 }
 
-template<typename T_result, typename T_arg, typename T_class>
-  Instance_callback_own<T_result, T_arg, T_class>::
-    Instance_callback_own(T_class* instance, Method method)
-  : Instance_callback<T_result, T_arg, T_class>(instance, method)
-{}
+template <typename T_result, typename T_arg, typename T_class>
+Instance_callback_own<T_result, T_arg, T_class>::Instance_callback_own(T_class *instance, Method method)
+    : Instance_callback<T_result, T_arg, T_class>(instance, method)
+{
+}
 
-template<typename T_result, typename T_arg, typename T_class>
-  Instance_callback_own<T_result, T_arg, T_class>::
-    ~Instance_callback_own()
+template <typename T_result, typename T_arg, typename T_class>
+Instance_callback_own<T_result, T_arg, T_class>::~Instance_callback_own()
 {
   delete this->m_instance;
-  this->m_instance= NULL;
+  this->m_instance = NULL;
 }
 
-}
+}  // namespace Mysql
 
 #endif
