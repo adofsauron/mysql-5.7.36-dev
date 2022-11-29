@@ -27,10 +27,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 #define buf0block_hint_h
 #include "buf0buf.h"
 
-namespace buf {
-class Block_hint {
+namespace buf
+{
+class Block_hint
+{
  public:
-  Block_hint():m_block(NULL),m_page_id(0,0){}
+  Block_hint() : m_block(NULL), m_page_id(0, 0) {}
   /** Stores the pointer to the block, which is currently buffer-fixed.
   @param[in]  block   a pointer to a buffer-fixed block to be stored */
   void store(buf_block_t *block);
@@ -46,7 +48,8 @@ class Block_hint {
   @return the return value of f
   */
   template <typename F>
-  bool run_with_hint(const F &f) {
+  bool run_with_hint(const F &f)
+  {
     buffer_fix_block_if_still_valid();
     /* m_block could be changed during f() call, so we use local variable to
     remember which block we need to unfix */
@@ -56,8 +59,9 @@ class Block_hint {
     return res;
   }
 
-  Block_hint &operator=(const Block_hint&other){
-    m_block=other.m_block;
+  Block_hint &operator=(const Block_hint &other)
+  {
+    m_block = other.m_block;
     m_page_id.copy_from(other.m_page_id);
     return *this;
   }

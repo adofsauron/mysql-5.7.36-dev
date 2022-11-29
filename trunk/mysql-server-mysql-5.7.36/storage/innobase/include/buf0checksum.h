@@ -24,12 +24,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/**************************************************//**
-@file buf/buf0checksum.h
-Buffer pool checksum functions, also linked from /extra/innochecksum.cc
+/**************************************************/ /**
+ @file buf/buf0checksum.h
+ Buffer pool checksum functions, also linked from /extra/innochecksum.cc
 
-Created Aug 11, 2011 Vasil Dimov
-*******************************************************/
+ Created Aug 11, 2011 Vasil Dimov
+ *******************************************************/
 
 #ifndef buf0checksum_h
 #define buf0checksum_h
@@ -51,43 +51,37 @@ and 64-bit architectures.
 @param[in]	use_legacy_big_endian	if true then use big endian
 byteorder when converting byte strings to integers
 @return checksum */
-uint32_t
-buf_calc_page_crc32(
-	const byte*	page,
-	bool		use_legacy_big_endian = false);
+uint32_t buf_calc_page_crc32(const byte *page, bool use_legacy_big_endian = false);
 
-/********************************************************************//**
-Calculates a page checksum which is stored to the page when it is written
-to a file. Note that we must be careful to calculate the same value on
-32-bit and 64-bit architectures.
-@return checksum */
-ulint
-buf_calc_page_new_checksum(
-/*=======================*/
-	const byte*	page);	/*!< in: buffer page */
+/********************************************************************/ /**
+ Calculates a page checksum which is stored to the page when it is written
+ to a file. Note that we must be careful to calculate the same value on
+ 32-bit and 64-bit architectures.
+ @return checksum */
+ulint buf_calc_page_new_checksum(
+    /*=======================*/
+    const byte *page); /*!< in: buffer page */
 
-/********************************************************************//**
-In versions < 4.0.14 and < 4.1.1 there was a bug that the checksum only
-looked at the first few bytes of the page. This calculates that old
-checksum.
-NOTE: we must first store the new formula checksum to
-FIL_PAGE_SPACE_OR_CHKSUM before calculating and storing this old checksum
-because this takes that field as an input!
-@return checksum */
-ulint
-buf_calc_page_old_checksum(
-/*=======================*/
-	const byte*	page);	/*!< in: buffer page */
+/********************************************************************/ /**
+ In versions < 4.0.14 and < 4.1.1 there was a bug that the checksum only
+ looked at the first few bytes of the page. This calculates that old
+ checksum.
+ NOTE: we must first store the new formula checksum to
+ FIL_PAGE_SPACE_OR_CHKSUM before calculating and storing this old checksum
+ because this takes that field as an input!
+ @return checksum */
+ulint buf_calc_page_old_checksum(
+    /*=======================*/
+    const byte *page); /*!< in: buffer page */
 
-/********************************************************************//**
-Return a printable string describing the checksum algorithm.
-@return algorithm name */
-const char*
-buf_checksum_algorithm_name(
-/*========================*/
-	srv_checksum_algorithm_t	algo);	/*!< in: algorithm */
+/********************************************************************/ /**
+ Return a printable string describing the checksum algorithm.
+ @return algorithm name */
+const char *buf_checksum_algorithm_name(
+    /*========================*/
+    srv_checksum_algorithm_t algo); /*!< in: algorithm */
 
-extern ulong	srv_checksum_algorithm;
-extern bool	legacy_big_endian_checksum;
+extern ulong srv_checksum_algorithm;
+extern bool legacy_big_endian_checksum;
 
 #endif /* buf0checksum_h */

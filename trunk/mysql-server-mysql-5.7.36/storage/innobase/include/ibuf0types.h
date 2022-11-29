@@ -24,12 +24,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/**************************************************//**
-@file include/ibuf0types.h
-Insert buffer global types
+/**************************************************/ /**
+ @file include/ibuf0types.h
+ Insert buffer global types
 
-Created 7/29/1997 Heikki Tuuri
-*******************************************************/
+ Created 7/29/1997 Heikki Tuuri
+ *******************************************************/
 
 #ifndef ibuf0types_h
 #define ibuf0types_h

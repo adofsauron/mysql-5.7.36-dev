@@ -24,12 +24,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/********************************************************************//**
-@file include/btr0types.h
-The index tree general types
+/********************************************************************/ /**
+ @file include/btr0types.h
+ The index tree general types
 
-Created 2/17/1996 Heikki Tuuri
-*************************************************************************/
+ Created 2/17/1996 Heikki Tuuri
+ *************************************************************************/
 
 #ifndef btr0types_h
 #define btr0types_h
@@ -50,49 +50,43 @@ struct btr_search_t;
 
 /** Is search system enabled.
 Search system is protected by array of latches. */
-extern char	btr_search_enabled;
+extern char btr_search_enabled;
 
 /** Number of adaptive hash index partition. */
-extern ulong	btr_ahi_parts;
+extern ulong btr_ahi_parts;
 
 /** The size of a reference to data stored on a different page.
 The reference is stored at the end of the prefix of the field
 in the index record. */
-#define BTR_EXTERN_FIELD_REF_SIZE	FIELD_REF_SIZE
+#define BTR_EXTERN_FIELD_REF_SIZE FIELD_REF_SIZE
 
 /** If the data don't exceed the size, the data are stored locally. */
-#define BTR_EXTERN_LOCAL_STORED_MAX_SIZE	\
-	(BTR_EXTERN_FIELD_REF_SIZE * 2)
+#define BTR_EXTERN_LOCAL_STORED_MAX_SIZE (BTR_EXTERN_FIELD_REF_SIZE * 2)
 
 /** The information is used for creating a new index tree when
 applying TRUNCATE log record during recovery */
-struct btr_create_t {
+struct btr_create_t
+{
+  explicit btr_create_t(const byte *const ptr)
+      : format_flags(), n_fields(), field_len(), fields(ptr), trx_id_pos(ULINT_UNDEFINED)
+  {
+    /* Do nothing */
+  }
 
-	explicit btr_create_t(const byte* const ptr)
-		:
-		format_flags(),
-		n_fields(),
-		field_len(),
-		fields(ptr),
-		trx_id_pos(ULINT_UNDEFINED)
-	{
-		/* Do nothing */
-	}
+  /** Page format */
+  ulint format_flags;
 
-	/** Page format */
-	ulint			format_flags;
+  /** Numbr of index fields */
+  ulint n_fields;
 
-	/** Numbr of index fields */
-	ulint			n_fields;
+  /** The length of the encoded meta-data */
+  ulint field_len;
 
-	/** The length of the encoded meta-data */
-	ulint			field_len;
+  /** Field meta-data, encoded. */
+  const byte *const fields;
 
-	/** Field meta-data, encoded. */
-	const byte* const	fields;
-
-	/** Position of trx-id column. */
-	ulint			trx_id_pos;
+  /** Position of trx-id column. */
+  ulint trx_id_pos;
 };
 
 #endif

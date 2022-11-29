@@ -24,12 +24,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/**************************************************//**
-@file include/row0umod.h
-Undo modify of a row
+/**************************************************/ /**
+ @file include/row0umod.h
+ Undo modify of a row
 
-Created 2/27/1997 Heikki Tuuri
-*******************************************************/
+ Created 2/27/1997 Heikki Tuuri
+ *******************************************************/
 
 #ifndef row0umod_h
 #define row0umod_h
@@ -42,15 +42,14 @@ Created 2/27/1997 Heikki Tuuri
 #include "row0types.h"
 #include "mtr0mtr.h"
 
-/***********************************************************//**
-Undoes a modify operation on a row of a table.
-@return DB_SUCCESS or error code */
-dberr_t
-row_undo_mod(
-/*=========*/
-	undo_node_t*	node,	/*!< in: row undo node */
-	que_thr_t*	thr)	/*!< in: query thread */
-	MY_ATTRIBUTE((warn_unused_result));
+/***********************************************************/ /**
+ Undoes a modify operation on a row of a table.
+ @return DB_SUCCESS or error code */
+dberr_t row_undo_mod(
+    /*=========*/
+    undo_node_t *node, /*!< in: row undo node */
+    que_thr_t *thr)    /*!< in: query thread */
+    MY_ATTRIBUTE((warn_unused_result));
 
 #ifndef UNIV_NONINL
 #include "row0umod.ic"

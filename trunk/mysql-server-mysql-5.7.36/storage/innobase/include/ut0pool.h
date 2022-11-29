@@ -24,12 +24,12 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 *****************************************************************************/
 
-/******************************************************************//**
-@file include/ut0pool.h
-Object pool.
+/******************************************************************/ /**
+ @file include/ut0pool.h
+ Object pool.
 
-Created 2012-Feb-26 Sunny Bains
-***********************************************************************/
+ Created 2012-Feb-26 Sunny Bains
+ ***********************************************************************/
 
 #ifndef ut0pool_h
 #define ut0pool_h
@@ -44,331 +44,327 @@ Created 2012-Feb-26 Sunny Bains
 on pointer so that they are closer together in case they have to be iterated
 over in a list. */
 template <typename Type, typename Factory, typename LockStrategy>
-struct Pool {
+struct Pool
+{
+  typedef Type value_type;
 
-	typedef Type value_type;
+  // FIXME: Add an assertion to check alignment and offset is
+  // as we expect it. Also, sizeof(void*) can be 8, can we impove on this.
+  struct Element
+  {
+    Pool *m_pool;
+    value_type m_type;
+  };
 
-	// FIXME: Add an assertion to check alignment and offset is
-	// as we expect it. Also, sizeof(void*) can be 8, can we impove on this.
-	struct Element {
-		Pool*		m_pool;
-		value_type	m_type;
-	};
+  /** Constructor
+  @param size size of the memory block */
+  Pool(size_t size) : m_end(), m_start(), m_size(size), m_last()
+  {
+    ut_a(size >= sizeof(Element));
 
-	/** Constructor
-	@param size size of the memory block */
-	Pool(size_t size)
-		:
-		m_end(),
-		m_start(),
-		m_size(size),
-		m_last()
-	{
-		ut_a(size >= sizeof(Element));
+    m_lock_strategy.create();
 
-		m_lock_strategy.create();
+    ut_a(m_start == 0);
 
-		ut_a(m_start == 0);
+    m_start = reinterpret_cast<Element *>(ut_zalloc_nokey(m_size));
 
-		m_start = reinterpret_cast<Element*>(ut_zalloc_nokey(m_size));
+    m_last = m_start;
 
-		m_last = m_start;
+    m_end = &m_start[m_size / sizeof(*m_start)];
 
-		m_end = &m_start[m_size / sizeof(*m_start)];
+    /* Note: Initialise only a small subset, even though we have
+    allocated all the memory. This is required only because PFS
+    (MTR) results change if we instantiate too many mutexes up
+    front. */
 
-		/* Note: Initialise only a small subset, even though we have
-		allocated all the memory. This is required only because PFS
-		(MTR) results change if we instantiate too many mutexes up
-		front. */
+    init(ut_min(size_t(16), size_t(m_end - m_start)));
 
-		init(ut_min(size_t(16), size_t(m_end - m_start)));
+    ut_ad(m_pqueue.size() <= size_t(m_last - m_start));
+  }
 
-		ut_ad(m_pqueue.size() <= size_t(m_last - m_start));
-	}
+  /** Destructor */
+  ~Pool()
+  {
+    m_lock_strategy.destroy();
 
-	/** Destructor */
-	~Pool()
-	{
-		m_lock_strategy.destroy();
+    for (Element *elem = m_start; elem != m_last; ++elem)
+    {
+      ut_ad(elem->m_pool == this);
+      Factory::destroy(&elem->m_type);
+    }
 
-		for (Element* elem = m_start; elem != m_last; ++elem) {
+    ut_free(m_start);
+    m_end = m_last = m_start = 0;
+    m_size = 0;
+  }
 
-			ut_ad(elem->m_pool == this);
-			Factory::destroy(&elem->m_type);
-		}
+  /** Get an object from the pool.
+  @retrun a free instance or NULL if exhausted. */
+  Type *get()
+  {
+    Element *elem;
 
-		ut_free(m_start);
-		m_end = m_last = m_start = 0;
-		m_size = 0;
-	}
+    m_lock_strategy.enter();
 
-	/** Get an object from the pool.
-	@retrun a free instance or NULL if exhausted. */
-	Type*	get()
-	{
-		Element*	elem;
+    if (!m_pqueue.empty())
+    {
+      elem = m_pqueue.top();
+      m_pqueue.pop();
+    }
+    else if (m_last < m_end)
+    {
+      /* Initialise the remaining elements. */
+      init(m_end - m_last);
 
-		m_lock_strategy.enter();
+      ut_ad(!m_pqueue.empty());
 
-		if (!m_pqueue.empty()) {
+      elem = m_pqueue.top();
+      m_pqueue.pop();
+    }
+    else
+    {
+      elem = NULL;
+    }
 
-			elem = m_pqueue.top();
-			m_pqueue.pop();
+    m_lock_strategy.exit();
 
-		} else if (m_last < m_end) {
+    return (elem != NULL ? &elem->m_type : 0);
+  }
 
-			/* Initialise the remaining elements. */
-			init(m_end - m_last);
+  /** Add the object to the pool.
+  @param ptr object to free */
+  static void mem_free(value_type *ptr)
+  {
+    Element *elem;
+    byte *p = reinterpret_cast<byte *>(ptr + 1);
 
-			ut_ad(!m_pqueue.empty());
+    elem = reinterpret_cast<Element *>(p - sizeof(*elem));
 
-			elem = m_pqueue.top();
-			m_pqueue.pop();
-		} else {
-			elem = NULL;
-		}
+    elem->m_pool->put(elem);
+  }
 
-		m_lock_strategy.exit();
+ protected:
+  // Disable copying
+  Pool(const Pool &);
+  Pool &operator=(const Pool &);
 
-		return(elem != NULL ? &elem->m_type : 0);
-	}
+ private:
+  /* We only need to compare on pointer address. */
+  typedef std::priority_queue<Element *, std::vector<Element *, ut_allocator<Element *>>, std::greater<Element *>>
+      pqueue_t;
 
-	/** Add the object to the pool.
-	@param ptr object to free */
-	static void mem_free(value_type* ptr)
-	{
-		Element*	elem;
-		byte*		p = reinterpret_cast<byte*>(ptr + 1);
+  /** Release the object to the free pool
+  @param elem element to free */
+  void put(Element *elem)
+  {
+    m_lock_strategy.enter();
 
-		elem = reinterpret_cast<Element*>(p - sizeof(*elem));
+    ut_ad(elem >= m_start && elem < m_last);
 
-		elem->m_pool->put(elem);
-	}
+    ut_ad(Factory::debug(&elem->m_type));
 
-protected:
-	// Disable copying
-	Pool(const Pool&);
-	Pool& operator=(const Pool&);
+    m_pqueue.push(elem);
 
-private:
+    m_lock_strategy.exit();
+  }
 
-	/* We only need to compare on pointer address. */
-	typedef std::priority_queue<
-		Element*,
-		std::vector<Element*, ut_allocator<Element*> >,
-		std::greater<Element*> >	pqueue_t;
+  /** Initialise the elements.
+  @param n_elems Number of elements to initialise */
+  void init(size_t n_elems)
+  {
+    ut_ad(size_t(m_end - m_last) >= n_elems);
 
-	/** Release the object to the free pool
-	@param elem element to free */
-	void put(Element* elem)
-	{
-		m_lock_strategy.enter();
+    for (size_t i = 0; i < n_elems; ++i, ++m_last)
+    {
+      m_last->m_pool = this;
+      Factory::init(&m_last->m_type);
+      m_pqueue.push(m_last);
+    }
 
-		ut_ad(elem >= m_start && elem < m_last);
+    ut_ad(m_last <= m_end);
+  }
 
-		ut_ad(Factory::debug(&elem->m_type));
+ private:
+  /** Pointer to the last element */
+  Element *m_end;
 
-		m_pqueue.push(elem);
+  /** Pointer to the first element */
+  Element *m_start;
 
-		m_lock_strategy.exit();
-	}
+  /** Size of the block in bytes */
+  size_t m_size;
 
-	/** Initialise the elements.
-	@param n_elems Number of elements to initialise */
-	void init(size_t n_elems)
-	{
-		ut_ad(size_t(m_end - m_last) >= n_elems);
+  /** Upper limit of used space */
+  Element *m_last;
 
-		for (size_t i = 0; i < n_elems; ++i, ++m_last) {
+  /** Priority queue ordered on the pointer addresse. */
+  pqueue_t m_pqueue;
 
-			m_last->m_pool = this;
-			Factory::init(&m_last->m_type);
-			m_pqueue.push(m_last);
-		}
-
-		ut_ad(m_last <= m_end);
-	}
-
-private:
-	/** Pointer to the last element */
-	Element*		m_end;
-
-	/** Pointer to the first element */
-	Element*		m_start;
-
-	/** Size of the block in bytes */
-	size_t			m_size;
-
-	/** Upper limit of used space */
-	Element*		m_last;
-
-	/** Priority queue ordered on the pointer addresse. */
-	pqueue_t		m_pqueue;
-
-	/** Lock strategy to use */
-	LockStrategy		m_lock_strategy;
+  /** Lock strategy to use */
+  LockStrategy m_lock_strategy;
 };
 
 template <typename Pool, typename LockStrategy>
-struct PoolManager {
+struct PoolManager
+{
+  typedef Pool PoolType;
+  typedef typename PoolType::value_type value_type;
 
-	typedef Pool PoolType;
-	typedef typename PoolType::value_type value_type;
+  PoolManager(size_t size) : m_size(size) { create(); }
 
-	PoolManager(size_t size)
-		:
-		m_size(size)
-	{
-		create();
-	}
+  ~PoolManager()
+  {
+    destroy();
 
-	~PoolManager()
-	{
-		destroy();
+    ut_a(m_pools.empty());
+  }
 
-		ut_a(m_pools.empty());
-	}
+  /** Get an element from one of the pools.
+  @return instance or NULL if pool is empty. */
+  value_type *get()
+  {
+    size_t index = 0;
+    size_t delay = 1;
+    value_type *ptr = NULL;
 
-	/** Get an element from one of the pools.
-	@return instance or NULL if pool is empty. */
-	value_type* get()
-	{
-		size_t		index = 0;
-		size_t		delay = 1;
-		value_type*	ptr = NULL;
+    do
+    {
+      m_lock_strategy.enter();
 
-		do {
-			m_lock_strategy.enter();
+      ut_ad(!m_pools.empty());
 
-			ut_ad(!m_pools.empty());
+      size_t n_pools = m_pools.size();
 
-			size_t	n_pools = m_pools.size();
+      PoolType *pool = m_pools[index % n_pools];
 
-			PoolType*	pool = m_pools[index % n_pools];
+      m_lock_strategy.exit();
 
-			m_lock_strategy.exit();
+      ptr = pool->get();
 
-			ptr = pool->get();
+      if (ptr == 0 && (index / n_pools) > 2)
+      {
+        if (!add_pool(n_pools))
+        {
+          ib::error() << "Failed to allocate"
+                         " memory for a pool of size "
+                      << m_size
+                      << " bytes. Will"
+                         " wait for "
+                      << delay
+                      << " seconds for a thread to"
+                         " free a resource";
 
-			if (ptr == 0 && (index / n_pools) > 2) {
+          /* There is nothing much we can do
+          except crash and burn, however lets
+          be a little optimistic and wait for
+          a resource to be freed. */
+          os_thread_sleep(delay * 1000000);
 
-				if (!add_pool(n_pools)) {
+          if (delay < 32)
+          {
+            delay <<= 1;
+          }
+        }
+        else
+        {
+          delay = 1;
+        }
+      }
 
-					ib::error() << "Failed to allocate"
-						" memory for a pool of size "
-						<< m_size << " bytes. Will"
-						" wait for " << delay
-						<< " seconds for a thread to"
-						" free a resource";
+      ++index;
 
-					/* There is nothing much we can do
-					except crash and burn, however lets
-					be a little optimistic and wait for
-					a resource to be freed. */
-					os_thread_sleep(delay * 1000000);
+    } while (ptr == NULL);
 
-					if (delay < 32) {
-						delay <<= 1;
-					}
+    return (ptr);
+  }
 
-				} else {
-					delay = 1;
-				}
-			}
+  static void mem_free(value_type *ptr) { PoolType::mem_free(ptr); }
 
-			++index;
+ private:
+  /** Add a new pool
+  @param n_pools Number of pools that existed when the add pool was
+                  called.
+  @return true on success */
+  bool add_pool(size_t n_pools)
+  {
+    bool added = false;
 
-		} while (ptr == NULL);
+    m_lock_strategy.enter();
 
-		return(ptr);
-	}
+    if (n_pools < m_pools.size())
+    {
+      /* Some other thread already added a pool. */
+      added = true;
+    }
+    else
+    {
+      PoolType *pool;
 
-	static void mem_free(value_type* ptr)
-	{
-		PoolType::mem_free(ptr);
-	}
+      ut_ad(n_pools == m_pools.size());
 
-private:
-	/** Add a new pool
-	@param n_pools Number of pools that existed when the add pool was
-			called.
-	@return true on success */
-	bool add_pool(size_t n_pools)
-	{
-		bool	added = false;
+      pool = UT_NEW_NOKEY(PoolType(m_size));
 
-		m_lock_strategy.enter();
+      if (pool != NULL)
+      {
+        ut_ad(n_pools <= m_pools.size());
 
-		if (n_pools < m_pools.size()) {
-			/* Some other thread already added a pool. */
-			added = true;
-		} else {
-			PoolType*	pool;
+        m_pools.push_back(pool);
 
-			ut_ad(n_pools == m_pools.size());
+        ib::info() << "Number of pools: " << m_pools.size();
 
-			pool = UT_NEW_NOKEY(PoolType(m_size));
+        added = true;
+      }
+    }
 
-			if (pool != NULL) {
+    ut_ad(n_pools < m_pools.size() || !added);
 
-				ut_ad(n_pools <= m_pools.size());
+    m_lock_strategy.exit();
 
-				m_pools.push_back(pool);
+    return (added);
+  }
 
-				ib::info() << "Number of pools: "
-					<< m_pools.size();
+  /** Create the pool manager. */
+  void create()
+  {
+    ut_a(m_size > sizeof(value_type));
+    m_lock_strategy.create();
 
-				added = true;
-			}
-		}
+    add_pool(0);
+  }
 
-		ut_ad(n_pools < m_pools.size() || !added);
+  /** Release the resources. */
+  void destroy()
+  {
+    typename Pools::iterator it;
+    typename Pools::iterator end = m_pools.end();
 
-		m_lock_strategy.exit();
+    for (it = m_pools.begin(); it != end; ++it)
+    {
+      PoolType *pool = *it;
 
-		return(added);
-	}
+      UT_DELETE(pool);
+    }
 
-	/** Create the pool manager. */
-	void create()
-	{
-		ut_a(m_size > sizeof(value_type));
-		m_lock_strategy.create();
+    m_pools.clear();
 
-		add_pool(0);
-	}
+    m_lock_strategy.destroy();
+  }
 
-	/** Release the resources. */
-	void destroy()
-	{
-		typename Pools::iterator it;
-		typename Pools::iterator end = m_pools.end();
+ private:
+  // Disable copying
+  PoolManager(const PoolManager &);
+  PoolManager &operator=(const PoolManager &);
 
-		for (it = m_pools.begin(); it != end; ++it) {
-			PoolType*	pool = *it;
+  typedef std::vector<PoolType *, ut_allocator<PoolType *>> Pools;
 
-			UT_DELETE(pool);
-		}
+  /** Size of each block */
+  size_t m_size;
 
-		m_pools.clear();
+  /** Pools managed this manager */
+  Pools m_pools;
 
-		m_lock_strategy.destroy();
-	}
-private:
-	// Disable copying
-	PoolManager(const PoolManager&);
-	PoolManager& operator=(const PoolManager&);
-
-	typedef std::vector<PoolType*, ut_allocator<PoolType*> >	Pools;
-
-	/** Size of each block */
-	size_t		m_size;
-
-	/** Pools managed this manager */
-	Pools		m_pools;
-
-	/** Lock strategy to use */
-	LockStrategy		m_lock_strategy;
+  /** Lock strategy to use */
+  LockStrategy m_lock_strategy;
 };
 
 #endif /* ut0pool_h */
